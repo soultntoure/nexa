@@ -6,6 +6,7 @@ useHead({ title: 'Alerts - Nexa' })
 const {
   alerts,
   fraudPatterns,
+  timeRange,
   selectedIds,
   selectedAlert,
   showDetail,
@@ -39,7 +40,10 @@ const {
         <h1 class="text-2xl font-bold text-gray-900">Alerts & Fraud Detection</h1>
         <p class="mt-1 text-sm text-gray-500">Real-time fraud detection and incident response</p>
       </div>
-      <CommonNotificationDropdown />
+      <div class="flex items-center gap-3">
+        <AlertsTimeRangeFilter v-model="timeRange" />
+        <CommonNotificationDropdown />
+      </div>
     </div>
 
     <AlertsSummaryBar :escalation-count="escalationCount" :block-count="blockCount" :unread-count="unreadCount" />

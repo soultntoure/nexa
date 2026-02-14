@@ -20,7 +20,17 @@ const FRAUD_PATTERNS: FraudPattern[] = [
 ]
 
 export function useAlerts() {
-  const { data: alertsData, refresh } = useApi<{ alerts: Alert[]; total: number }>('/alerts')
+  const timeRange = ref('')
+
+  const timeQuery = computed(() => {
+    if (!timeRange.value) return {}
+    const since = new Date(Date.now() - Number(timeRange.value))
+    return { since: since.toISOString(), until: new Date().toISOString() }
+  })
+
+  const { data: alertsData, refresh } = useApi<{ alerts: Alert[]; total: number }>(
+    '/alerts', { query: timeQuery },
+  )
 
   const alerts = computed(() => alertsData.value?.alerts ?? MOCK_ALERTS)
   const fraudPatterns = FRAUD_PATTERNS
@@ -148,6 +158,7 @@ export function useAlerts() {
   return {
     alerts,
     fraudPatterns,
+    timeRange,
     selectedIds,
     selectedAlert,
     showDetail,

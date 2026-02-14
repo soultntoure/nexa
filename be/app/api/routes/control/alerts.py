@@ -7,8 +7,9 @@ POST /api/alerts/card-lockdown — Lock all accounts sharing a blocked card
 """
 
 import logging
+from datetime import datetime
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -39,11 +40,13 @@ class CardLockdownRequest(BaseModel):
 
 @router.get("")
 async def get_alerts(
+    since: datetime | None = Query(None),
+    until: datetime | None = Query(None),
     session: AsyncSession = Depends(get_session),
 ) -> dict:
     """Get recent fraud alerts from DB with computed patterns."""
     try:
-        return await list_alerts(session)
+        return await list_alerts(session, since=since, until=until)
     except Exception as exc:
         logger.exception("get_alerts error: %s", exc)
         return {"alerts": [], "total": 0, "patterns": []}

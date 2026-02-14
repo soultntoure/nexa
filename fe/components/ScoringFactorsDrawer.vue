@@ -92,16 +92,29 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
                 <p class="text-sm text-blue-800">{{ thresholdExplanation }}</p>
               </div>
 
+              <!-- Decision counts -->
+              <div class="grid grid-cols-3 gap-3">
+                <div class="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-center">
+                  <p class="text-lg font-semibold text-green-700">{{ snapshot.approval_count }}</p>
+                  <p class="text-xs text-green-600">Approved</p>
+                </div>
+                <div class="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-center">
+                  <p class="text-lg font-semibold text-red-700">{{ snapshot.block_count }}</p>
+                  <p class="text-xs text-red-600">Blocked</p>
+                </div>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-center">
+                  <p class="text-lg font-semibold text-gray-700">{{ snapshot.sample_count }}</p>
+                  <p class="text-xs text-gray-500">Total</p>
+                </div>
+              </div>
+
               <ScoringBlendWeightsCard :blend="snapshot.blend" :changed="blendChanged" />
               <ScoringWeightAdjustmentsList :adjusted="adjustedIndicators" :baseline="baselineIndicators" />
               <ScoringAgentGuidanceCard v-if="hasAgentGuidance" :boosted="boostedSignals" :dampened="dampenedSignals" :emerging="emergingSignals" />
 
               <!-- Freshness -->
-              <div class="text-xs text-gray-400 flex items-center gap-3 pt-1">
-                <span v-if="snapshot.last_updated">Updated {{ new Date(snapshot.last_updated).toLocaleString() }}</span>
-                <span class="text-green-600">{{ snapshot.approval_count }} approved</span>
-                <span class="text-red-600">{{ snapshot.block_count }} blocked</span>
-                <span>{{ snapshot.sample_count }} total</span>
+              <div v-if="snapshot.last_updated" class="text-xs text-gray-400 pt-1">
+                Updated {{ new Date(snapshot.last_updated).toLocaleString() }}
               </div>
             </template>
           </div>
