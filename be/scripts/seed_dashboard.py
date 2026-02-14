@@ -27,6 +27,9 @@ from app.data.db.models import (
     PaymentMethod,
     Withdrawal,
 )
+from scripts.seeding.admins import ADMIN_RISHI_ID, ADMIN_AISHA_ID
+
+_ADMIN_IDS = [ADMIN_RISHI_ID, ADMIN_AISHA_ID]
 
 random.seed(99)
 
@@ -325,6 +328,7 @@ async def seed_dashboard_data(session: AsyncSession) -> int:
             # Alerts for non-approved
             if decision in ("escalated", "blocked"):
                 top_inds = sorted(indicators, key=lambda x: x[1], reverse=True)
+                admin_id = random.choice(_ADMIN_IDS) if decision == "blocked" else None
                 session.add(Alert(
                     id=uuid.uuid4(),
                     withdrawal_id=w_id,
@@ -333,6 +337,8 @@ async def seed_dashboard_data(session: AsyncSession) -> int:
                     risk_score=comp_score,
                     top_indicators=[t[0] for t in top_inds[:3]],
                     is_read=random.random() < 0.4,  # 40% read
+                    locked_by_admin_id=admin_id,
+                    locked_at=ts if admin_id else None,
                     created_at=ts,
                 ))
 
@@ -396,6 +402,7 @@ async def seed_dashboard_data(session: AsyncSession) -> int:
 
         if decision in ("escalated", "blocked"):
             top_inds = sorted(indicators, key=lambda x: x[1], reverse=True)
+            admin_id = random.choice(_ADMIN_IDS) if decision == "blocked" else None
             session.add(Alert(
                 id=uuid.uuid4(),
                 withdrawal_id=w.id,
@@ -404,6 +411,8 @@ async def seed_dashboard_data(session: AsyncSession) -> int:
                 risk_score=comp_score,
                 top_indicators=[t[0] for t in top_inds[:3]],
                 is_read=False,
+                locked_by_admin_id=admin_id,
+                locked_at=w.requested_at if admin_id else None,
                 created_at=w.requested_at,
             ))
 

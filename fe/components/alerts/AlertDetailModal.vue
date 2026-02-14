@@ -29,6 +29,19 @@ function riskColor(score: number): string {
 function typeBadge(type: string): string {
   return type === 'block' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
 }
+
+function riskLevelBadge(level: string | undefined): string {
+  if (!level) return 'bg-gray-100 text-gray-600'
+  if (level === 'high' || level === 'critical') return 'bg-red-100 text-red-700'
+  if (level === 'medium') return 'bg-amber-100 text-amber-700'
+  return 'bg-green-100 text-green-700'
+}
+
+function decisionBadge(decision: string | undefined): string {
+  if (decision === 'blocked') return 'bg-red-100 text-red-700'
+  if (decision === 'escalated') return 'bg-amber-100 text-amber-700'
+  return 'bg-green-100 text-green-700'
+}
 </script>
 
 <template>
@@ -50,7 +63,7 @@ function typeBadge(type: string): string {
             </button>
           </div>
 
-          <div class="space-y-5 px-6 py-5">
+          <div class="max-h-[70vh] space-y-5 overflow-y-auto px-6 py-5">
             <!-- Customer Info -->
             <div class="rounded-lg bg-gray-50 p-4">
               <p class="text-sm font-semibold text-gray-800">{{ alert.customer_name }}</p>
@@ -59,6 +72,35 @@ function typeBadge(type: string): string {
                 <span class="rounded px-1.5 py-0.5 text-xs font-bold uppercase" :class="typeBadge(alert.type)">{{ alert.type }}</span>
                 <span class="rounded-full px-2 py-0.5 text-xs font-bold" :class="riskColor(alert.risk_score)">Risk: {{ alert.risk_score }}</span>
               </div>
+            </div>
+
+            <!-- Reason & Risk Breakdown -->
+            <div v-if="alert.reason" class="rounded-lg border border-blue-200 bg-blue-50 p-4">
+              <p class="text-xs font-semibold uppercase tracking-wider text-blue-700">Reason</p>
+              <p class="mt-1.5 text-sm text-blue-900">{{ alert.reason }}</p>
+              <div class="mt-2.5 flex items-center gap-2">
+                <span v-if="alert.risk_level" class="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase" :class="riskLevelBadge(alert.risk_level)">
+                  {{ alert.risk_level }}
+                </span>
+                <span v-if="alert.decision" class="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase" :class="decisionBadge(alert.decision)">
+                  {{ alert.decision }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Evaluation Summary (Gray Zone Reasoning) -->
+            <div v-if="alert.evaluation_summary" class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Evaluation Summary</p>
+              <p class="mt-1.5 text-sm leading-relaxed text-gray-700">{{ alert.evaluation_summary }}</p>
+            </div>
+
+            <!-- Lockdown Provenance -->
+            <div v-if="alert.locked_by" class="flex items-center gap-2 rounded-lg border border-purple-200 bg-purple-50 px-4 py-3">
+              <Icon icon="lucide:shield-check" class="h-4 w-4 text-purple-600" />
+              <p class="text-xs text-purple-800">
+                Locked by <span class="font-semibold">{{ alert.locked_by }}</span>
+                <span v-if="alert.locked_at"> at {{ formatDate(alert.locked_at) }}</span>
+              </p>
             </div>
 
             <!-- Connected Accounts -->
@@ -92,17 +134,20 @@ function typeBadge(type: string): string {
             <!-- Indicator Scores -->
             <div>
               <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Indicator Scores</p>
-              <div class="space-y-2">
-                <div v-for="ind in alert.indicators" :key="ind.name" class="flex items-center gap-2">
-                  <span class="w-28 truncate text-xs text-gray-600">{{ INDICATOR_LABELS[ind.name] || ind.name }}</span>
-                  <div class="h-1.5 flex-1 rounded-full bg-gray-100">
-                    <div
-                      class="h-1.5 rounded-full transition-all"
-                      :class="ind.score >= 80 ? 'bg-red-500' : ind.score >= 50 ? 'bg-amber-500' : 'bg-green-500'"
-                      :style="{ width: `${ind.score}%` }"
-                    />
+              <div class="space-y-3">
+                <div v-for="ind in alert.indicators" :key="ind.name">
+                  <div class="flex items-center gap-2">
+                    <span class="w-28 truncate text-xs text-gray-600">{{ INDICATOR_LABELS[ind.name] || ind.name }}</span>
+                    <div class="h-1.5 flex-1 rounded-full bg-gray-100">
+                      <div
+                        class="h-1.5 rounded-full transition-all"
+                        :class="ind.score >= 80 ? 'bg-red-500' : ind.score >= 50 ? 'bg-amber-500' : 'bg-green-500'"
+                        :style="{ width: `${ind.score}%` }"
+                      />
+                    </div>
+                    <span class="w-8 text-right text-xs font-semibold" :class="ind.score >= 80 ? 'text-red-600' : ind.score >= 50 ? 'text-amber-600' : 'text-green-600'">{{ ind.score }}</span>
                   </div>
-                  <span class="w-8 text-right text-xs font-semibold" :class="ind.score >= 80 ? 'text-red-600' : ind.score >= 50 ? 'text-amber-600' : 'text-green-600'">{{ ind.score }}</span>
+                  <p v-if="ind.reasoning" class="mt-1 pl-[7.5rem] text-[11px] leading-tight text-gray-500">{{ ind.reasoning }}</p>
                 </div>
               </div>
             </div>

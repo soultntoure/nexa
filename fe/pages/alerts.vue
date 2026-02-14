@@ -6,6 +6,8 @@ useHead({ title: 'Alerts - Nexa' })
 const {
   alerts,
   fraudPatterns,
+  admins,
+  currentAdmin,
   selectedIds,
   selectedAlert,
   showDetail,
@@ -29,6 +31,11 @@ const {
   linkedAccounts,
   allLinkedLocked,
 } = useAlerts()
+
+function selectAdmin(event: Event) {
+  const value = (event.target as HTMLSelectElement).value
+  currentAdmin.value = admins.value.find(a => a.id === value) ?? null
+}
 </script>
 
 <template>
@@ -39,7 +46,18 @@ const {
         <h1 class="text-2xl font-bold text-gray-900">Alerts & Fraud Detection</h1>
         <p class="mt-1 text-sm text-gray-500">Real-time fraud detection and incident response</p>
       </div>
-      <CommonNotificationDropdown />
+      <div class="flex items-center gap-3">
+        <select
+          v-if="admins.length > 0"
+          class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          :value="currentAdmin?.id ?? ''"
+          @change="selectAdmin"
+        >
+          <option value="" disabled>Acting as...</option>
+          <option v-for="admin in admins" :key="admin.id" :value="admin.id">{{ admin.name }}</option>
+        </select>
+        <CommonNotificationDropdown />
+      </div>
     </div>
 
     <AlertsSummaryBar :escalation-count="escalationCount" :block-count="blockCount" :unread-count="unreadCount" />

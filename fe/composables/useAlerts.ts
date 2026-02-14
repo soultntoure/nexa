@@ -1,4 +1,4 @@
-import type { Alert, LinkedAccount, LockdownResult, FraudPattern } from '~/utils/alertTypes'
+import type { Alert, AdminOption, LinkedAccount, LockdownResult, FraudPattern } from '~/utils/alertTypes'
 import { formatDate } from '~/utils/formatters'
 
 type CardCheckEntry = { shared: boolean; linked_count: number; linked_accounts: LinkedAccount[] }
@@ -33,6 +33,22 @@ export function useAlerts() {
   const lockdownResult = ref<LockdownResult | null>(null)
   const cardCheckCache = ref<Record<string, CardCheckEntry>>({})
   const cardCheckLoading = ref(false)
+
+  // Admin identity for traceability
+  const admins = ref<AdminOption[]>([])
+  const currentAdmin = ref<AdminOption | null>(null)
+
+  async function fetchAdmins(): Promise<void> {
+    try {
+      const result = await $fetch<{ admins: AdminOption[] }>('/api/admins')
+      admins.value = result.admins
+    }
+    catch {
+      admins.value = []
+    }
+  }
+
+  fetchAdmins()
 
   const escalationCount = computed(() => alerts.value.filter(a => a.type === 'escalation').length)
   const blockCount = computed(() => alerts.value.filter(a => a.type === 'block').length)
@@ -95,7 +111,14 @@ export function useAlerts() {
     if (selectedIds.value.size === 0) return
     bulkLoading.value = true
     try {
-      await $fetch('/api/alerts/bulk-action', { method: 'POST', body: { alert_ids: Array.from(selectedIds.value), action } })
+      await $fetch('/api/alerts/bulk-action', {
+        method: 'POST',
+        body: {
+          alert_ids: Array.from(selectedIds.value),
+          action,
+          admin_id: currentAdmin.value?.id ?? null,
+        },
+      })
       selectedIds.value.clear()
       await refresh()
     }
@@ -111,7 +134,11 @@ export function useAlerts() {
     try {
       const result = await $fetch<LockdownResult>('/api/alerts/card-lockdown', {
         method: 'POST',
-        body: { customer_id: accountId, risk_score: selectedAlert.value.risk_score / 100 },
+        body: {
+          customer_id: accountId,
+          risk_score: selectedAlert.value.risk_score / 100,
+          admin_id: currentAdmin.value?.id ?? null,
+        },
       })
       lockdownResult.value = result
       delete cardCheckCache.value[accountId]
@@ -148,6 +175,8 @@ export function useAlerts() {
   return {
     alerts,
     fraudPatterns,
+    admins,
+    currentAdmin,
     selectedIds,
     selectedAlert,
     showDetail,

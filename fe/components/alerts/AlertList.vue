@@ -33,6 +33,18 @@ function linkedAccountsSummary(alert: Alert): string {
   const preview = linked.slice(0, 2).map(a => `${a.customer_name} (${a.customer_id})`)
   return linked.length > 2 ? `${preview.join(', ')} +${linked.length - 2} more` : preview.join(', ')
 }
+
+function riskLevelBadge(level: string | undefined): string {
+  if (!level) return ''
+  if (level === 'high' || level === 'critical') return 'bg-red-100 text-red-700'
+  if (level === 'medium') return 'bg-amber-100 text-amber-700'
+  return 'bg-green-100 text-green-700'
+}
+
+function truncatedReason(alert: Alert): string {
+  if (!alert.reason) return ''
+  return alert.reason.length > 80 ? `${alert.reason.slice(0, 80)}...` : alert.reason
+}
 </script>
 
 <template>
@@ -74,6 +86,13 @@ function linkedAccountsSummary(alert: Alert): string {
 
           <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
             <span
+              v-if="alert.risk_level"
+              class="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+              :class="riskLevelBadge(alert.risk_level)"
+            >
+              {{ alert.risk_level }}
+            </span>
+            <span
               v-for="ind in alert.indicators.slice(0, 3)"
               :key="ind.name"
               class="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-600"
@@ -99,6 +118,15 @@ function linkedAccountsSummary(alert: Alert): string {
             >
               No card match
             </span>
+          </div>
+
+          <p v-if="alert.reason" class="mt-1 truncate text-[11px] text-gray-500" :title="alert.reason">
+            {{ truncatedReason(alert) }}
+          </p>
+
+          <div v-if="alert.locked_by" class="mt-1 flex items-center gap-1 text-[10px] text-purple-600">
+            <Icon icon="lucide:shield-check" class="h-2.5 w-2.5" />
+            Locked by {{ alert.locked_by }}
           </div>
         </div>
 

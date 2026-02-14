@@ -1,14 +1,33 @@
+export interface AlertIndicator {
+  name: string
+  score: number
+  reasoning?: string
+}
+
 export interface Alert {
   id: string
   type: 'escalation' | 'block' | 'card_lockdown'
   customer_name: string
   account_id: string
   risk_score: number
-  indicators: { name: string; score: number }[]
+  indicators: AlertIndicator[]
   timestamp: string
   read: boolean
   amount: number
   currency: string
+  // Lockdown provenance
+  locked_by?: string
+  locked_at?: string
+  // Evaluation enrichment
+  reason?: string
+  risk_level?: string
+  decision?: string
+  evaluation_summary?: string
+}
+
+export interface AdminOption {
+  id: string
+  name: string
 }
 
 export interface LinkedAccount {
