@@ -10,9 +10,9 @@ const navItems = [
   { label: 'Withdrawal', to: '/withdrawal', icon: 'lucide:arrow-up-circle' },
   { label: 'Withdrawals', to: '/withdrawals', icon: 'lucide:list' },
   { label: 'Customers', to: '/customers', icon: 'lucide:users' },
-  { label: 'Alerts', to: '/alerts', icon: 'lucide:bell' },
+  // { label: 'Alerts', to: '/alerts', icon: 'lucide:bell' },
   { label: 'Audit', to: '/audit', icon: 'lucide:scan-search' },
-  { label: 'NL Query', to: '/query', icon: 'lucide:message-square' },
+  // { label: 'NL Query', to: '/query', icon: 'lucide:message-square' },
   { label: 'Settings', to: '/settings', icon: 'lucide:settings' },
 ]
 

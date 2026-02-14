@@ -18,6 +18,7 @@ const {
   updateTransactionStatus,
 } = useTransactions()
 const { setDiscussionFromTransaction } = useWithdrawalDiscussion()
+const { openWithContext } = useChatWidgetState()
 
 const route = useRoute()
 const selectedTransaction = ref<Transaction | null>(null)
@@ -96,31 +97,27 @@ function handleCustomerProfile(): void {
   showCustomerSummary.value = true
 }
 
-async function handleDiscuss(): Promise<void> {
+function handleDiscuss(): void {
   if (!selectedTransaction.value) return
   const tx = selectedTransaction.value
   setDiscussionFromTransaction(tx)
-  selectedTransaction.value = null
-  await navigateTo({
-    path: '/query',
-    query: {
-      focus: 'withdrawal',
-      withdrawal_id: tx.withdrawal_id || tx.id,
-      customer_external_id: tx.customer.external_id,
-      customer_name: tx.customer.name,
-      customer_email: tx.customer.email,
-      amount: String(tx.amount),
-      currency: tx.currency,
-      risk_score: tx.risk_score.toFixed(2),
-      risk_level: tx.risk_level,
-      status: tx.status,
-      payment_method: tx.payment_method,
-      recipient_name: tx.recipient.name,
-      recipient_account: tx.recipient.account_number,
-      ip_address: tx.ip_address,
-      device: tx.device,
-      created_at: tx.created_at,
-    },
+  openWithContext({
+    id: tx.id,
+    withdrawal_id: tx.withdrawal_id,
+    customer_external_id: tx.customer.external_id,
+    customer_name: tx.customer.name,
+    customer_email: tx.customer.email,
+    amount: tx.amount,
+    currency: tx.currency,
+    risk_score: tx.risk_score,
+    risk_level: tx.risk_level,
+    status: tx.status,
+    payment_method: tx.payment_method,
+    recipient_name: tx.recipient.name,
+    recipient_account: tx.recipient.account_number,
+    ip_address: tx.ip_address,
+    device: tx.device,
+    created_at: tx.created_at,
   })
 }
 </script>
@@ -222,4 +219,5 @@ async function handleDiscuss(): Promise<void> {
     :transaction="selectedTransaction"
     @close="showCustomerSummary = false"
   />
+
 </template>
