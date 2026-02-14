@@ -1,0 +1,277 @@
+[
+  {
+    "candidate_id": "audit_20260212_063825_822eb56c_cluster_6",
+    "title": "Card Cracking / Carding Ring",
+    "quality_score": 0.423,
+    "confidence": 0.5,
+    "support_events": 6,
+    "support_accounts": 6,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Card Cracking / Carding Ring",
+    "sql_findings": [
+      {
+        "query_summary": "Analysis of shared device fingerprints in withdrawals.",
+        "result_summary": "Identified multiple instances where the same device fingerprint was used by different customers (e.g., FRA and RUS accounts sharing a fingerprint), suggesting a shared infrastructure for fraudulent activity."
+      },
+      {
+        "query_summary": "Investigation of recipient accounts and risk scores.",
+        "result_summary": "Found a specific recipient account (MX012345678901234567890123456) receiving 5 withdrawals from 3 different device fingerprints, all of which were flagged with high-risk scores (0.63-0.67) and indicators like 'velocity' and 'card_error_history'."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://www.sardine.ai/blog/device-fingerprinting",
+        "title": "Visitor Fingerprint: Device Fingerprinting for Fraud and ... - Sardine",
+        "relevance": "Describes how device fingerprints and velocity are used to detect fraud rings."
+      },
+      {
+        "url": "https://www.unit21.ai/products/device-intelligence",
+        "title": "Device Intelligence - Unit21",
+        "relevance": "Explains the use of high-velocity fingerprints in credential stuffing and fraud rings."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_063825_822eb56c_cluster_0",
+    "title": "Account Takeover (ATO) Ring",
+    "quality_score": 0.6539,
+    "confidence": 0.8170555555555556,
+    "support_events": 18,
+    "support_accounts": 15,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Account Takeover (ATO) Ring",
+    "sql_findings": [
+      {
+        "query_summary": "Identify shared infrastructure (IP/Device) across different customer accounts with high risk scores.",
+        "result_summary": "Confirmed that IP 41.44.55.66 and device fingerprint 'deadbeefdeadbeefdeadbeefdeadbeef' were used to access at least two different customer accounts (80320da3 and 47f31044) for 6 high-risk withdrawals. Another shared fingerprint 'a1b2c3d4...' was also linked to multiple accounts."
+      },
+      {
+        "query_summary": "Evaluate the specific risk indicators triggered for the flagged withdrawals.",
+        "result_summary": "Withdrawals consistently triggered 'geographic_risk' (scores up to 0.90), 'velocity' (scores up to 0.80), and 'device_fingerprint' (scores up to 0.86) indicators, confirming the 'impossible travel' and 'unauthorized device' narrative."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://transmitsecurity.com/blog/how-to-detect-early-signs-of-customer-account-takeovers-and-bad-actor-accounts",
+        "title": "How to Detect Early Signs of Customer Account Takeovers",
+        "relevance": "Provides a direct definition and detection strategy for 'impossible travel' and 'new device' logins as primary indicators of ATO."
+      },
+      {
+        "url": "https://neo4j.com/developer/industry-use-cases/finserv/retail-banking/account-takeover-fraud/",
+        "title": "Account Takeover Fraud - Industry Use Cases",
+        "relevance": "Explains the 'Credential Stuffing' and 'Impossible Travel' patterns in a banking context, matching the observed data."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_063825_822eb56c_cluster_5",
+    "title": "Collusive Money Laundering Ring (Deposit-and-Run)",
+    "quality_score": 0.6073,
+    "confidence": 0.8408888888888888,
+    "support_events": 9,
+    "support_accounts": 8,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Collusive Money Laundering Ring (Deposit-and-Run)",
+    "sql_findings": [
+      {
+        "query_summary": "Investigation of withdrawal decisions for 'minimal trading' or 'deposit-and-run' indicators.",
+        "result_summary": "Identified multiple escalated withdrawals from customers sharing IP addresses (e.g., 41.44.55.66) and device fingerprints (e.g., 'deadbeef...')."
+      },
+      {
+        "query_summary": "Analysis of trading volume and trade counts for flagged customers.",
+        "result_summary": "Confirmed that 75% of the suspected accounts had 2 or fewer trades with total volumes under $20, despite requesting withdrawals of up to $2,990."
+      },
+      {
+        "query_summary": "Cross-referencing IPs and devices across the customer base.",
+        "result_summary": "Found specific IP-Device pairs (e.g., IP 185.199.108.55 with rotating fingerprints) that indicate automated or professional fraud operations."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://www.fca.org.uk/publication/corporate/money-laundering-through-markets-review-january-2025.pdf",
+        "title": "FCA: Money Laundering through Markets Review",
+        "relevance": "Directly describes 'abnormal funding patterns' including 'no trading between deposits and withdrawals' as a key money laundering risk."
+      },
+      {
+        "url": "https://www.centralbank.ae/media/k5dfsizk/cbuae_aml_typologies-in-the-financial-sector.pdf",
+        "title": "CBUAE AML Typologies in the Financial Sector",
+        "relevance": "Defines 'minimal transactional activity' and 'matching turnovers' as indicators of professional money laundering services."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_063825_822eb56c_cluster_3",
+    "title": "Collusive Money Mule Ring (Cashing Out)",
+    "quality_score": 0.418,
+    "confidence": 0.5,
+    "support_events": 6,
+    "support_accounts": 5,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Collusive Money Mule Ring (Cashing Out)",
+    "sql_findings": [
+      {
+        "query_summary": "Identify accounts sharing device fingerprints and their geographic registration.",
+        "result_summary": "Found two clusters: one sharing a device between Russia and France, and another sharing a device within Egypt. Both clusters had high-risk (blocked/escalated) withdrawal decisions."
+      },
+      {
+        "query_summary": "Analyze trading volume and PnL for accounts in the shared-device clusters.",
+        "result_summary": "Accounts showed minimal trading (0-2 trades) with negligible PnL (e.g., $0.02, $0.50), indicating trading is a facade for fund movement."
+      },
+      {
+        "query_summary": "Check for shared withdrawal recipient accounts and card errors.",
+        "result_summary": "Confirmed that two accounts in Egypt shared the exact same IBAN for withdrawals. One account in the FRA/RUS cluster had 3 distinct card transaction errors."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://fedpaymentsimprovement.org/wp-content/uploads/brief-2-fraud-types-and-authentication-for-remote-payment-use-cases.pdf",
+        "title": "Fraud Types and Authentication for Remote Payment Use Cases",
+        "relevance": "Describes the use of velocity checks and device fingerprints to identify card testing and rapid fund flows."
+      },
+      {
+        "url": "https://projecteuclid.org/journals/statistical-science/volume-17/issue-3/Statistical-Fraud-Detection-A-Review/10.1214/ss/1042727940.pdf",
+        "title": "Statistical Fraud Detection: A Review",
+        "relevance": "Discusses the detection of 'large deposit followed immediately by a similar sized withdrawal' as a key indicator of money laundering."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_063825_822eb56c_cluster_4",
+    "title": "Credit Card Cashout (Carding) / Pass-through Money Laundering",
+    "quality_score": 0.5835,
+    "confidence": 0.812875,
+    "support_events": 8,
+    "support_accounts": 7,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Credit Card Cashout (Carding) / Pass-through Money Laundering",
+    "sql_findings": [
+      {
+        "query_summary": "Analysis of withdrawal-to-deposit ratios and trade counts for flagged accounts.",
+        "result_summary": "Identified multiple accounts withdrawing >95% of deposits with <2 total trades. For example, one user withdrew $2990 of a $3000 deposit with only 1 trade."
+      },
+      {
+        "query_summary": "Infrastructure overlap check (IP and Device Fingerprint).",
+        "result_summary": "Found two accounts sharing IP 41.44.55.66 and a suspicious device fingerprint 'deadbeefdeadbeefdeadbeefdeadbeef'."
+      },
+      {
+        "query_summary": "Transaction history and error code analysis.",
+        "result_summary": "Detected 'card_restricted' errors on failed deposit attempts for a flagged customer, confirming card testing/carding behavior."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://www.netcraft.com/blog/inside-a-fake-trading-platform",
+        "title": "Online investment scams: Inside a fake trading platform - Netcraft",
+        "relevance": "Describes the use of fake trading platforms for money laundering and the importance of monitoring withdrawal-to-deposit ratios."
+      },
+      {
+        "url": "https://www.cftc.gov/sites/default/files/2023-04/SpotFraudSites.pdf",
+        "title": "10 SIGNS OF A SCAM CRYPTO OR FOREX TRADING WEBSITE (CFTC)",
+        "relevance": "Outlines signs of fraudulent trading activity, including inconsistent financial behavior and lack of economic purpose."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_063825_822eb56c_cluster_2",
+    "title": "Syndicated Money Mule Network",
+    "quality_score": 0.5839,
+    "confidence": 0.802125,
+    "support_events": 8,
+    "support_accounts": 8,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Syndicated Money Mule Network",
+    "sql_findings": [
+      {
+        "query_summary": "Shared device and recipient account lookup",
+        "result_summary": "Confirmed ahmed.hassan@example.com and fatima.nour@example.com share device 'deadbeef...' and bank account 'EG800002000156789012345678901'."
+      },
+      {
+        "query_summary": "Recipient name overlap analysis",
+        "result_summary": "Found massive overlap in recipient names: 'Elena Volkov' is a recipient for 9 unique customers, and 'John Doe' for 8 customers, indicating a large-scale mule network."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://medium.com/@amistapuramk/graph-based-approaches-for-detecting-fraud-rings-in-digital-platforms-c3031f83ef99",
+        "title": "Graph-Based Approaches for Detecting Fraud Rings",
+        "relevance": "Describes the structure of coordinated fraud rings using shared resources."
+      },
+      {
+        "url": "https://www.proof.com/blog/device-intelligence-the-hidden-layer-of-fraud-prevention",
+        "title": "Device Intelligence: The Hidden Layer of Fraud Prevention",
+        "relevance": "Explains the use of device fingerprinting to link mule accounts."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_063825_822eb56c_cluster_1",
+    "title": "Collusive Fraud Ring",
+    "quality_score": 0.5844,
+    "confidence": 0.789,
+    "support_events": 9,
+    "support_accounts": 9,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Collusive Fraud Ring",
+    "sql_findings": [
+      {
+        "query_summary": "Search for shared device fingerprints and recipient accounts among flagged withdrawals.",
+        "result_summary": "Identified a cluster of two accounts (47f31044 and 80320da3) sharing device 'deadbeef...' and recipient account 'EG800002...'."
+      },
+      {
+        "query_summary": "Detailed timeline and attribute analysis for the linked accounts.",
+        "result_summary": "Confirmed both accounts registered simultaneously (2026-02-01 12:00:00) and performed synchronized withdrawals on 2026-02-08 12:00:00 from IP 41.44.55.66."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://www.sardine.ai/blog/device-fingerprinting",
+        "title": "Visitor Fingerprint: Device Fingerprinting for Fraud - Sardine",
+        "relevance": "Describes how shared device fingerprints and IP addresses are used to link coordinated fraud rings."
+      },
+      {
+        "url": "https://trustdecision.com/articles/application-value-of-device-fingerprinting-in-payment-fraud-prevention",
+        "title": "Application Value Of Device Fingerprinting In Payment Fraud Prevention",
+        "relevance": "Explains the value of device fingerprinting in identifying bulk account registration and coordinated payment fraud."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_063825_822eb56c_cluster_7",
+    "title": "Carding and Collusive Money Laundering Ring",
+    "quality_score": 0.429,
+    "confidence": 0.5,
+    "support_events": 8,
+    "support_accounts": 6,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Carding and Collusive Money Laundering Ring",
+    "sql_findings": [
+      {
+        "query_summary": "Shared Device Fingerprint Analysis",
+        "result_summary": "Identified two distinct device fingerprints ('deadbeef...', 'a1b2c3d4...') each shared by multiple new accounts with high-risk profiles."
+      },
+      {
+        "query_summary": "Withdrawal Recipient Account Linkage",
+        "result_summary": "Found a single bank account (IBAN ending in '5678901') being used as the destination for withdrawals from multiple different customer accounts, confirming collusion."
+      },
+      {
+        "query_summary": "Transaction Error Deep-Dive",
+        "result_summary": "Confirmed multiple 'card_restricted' error codes on the flagged accounts, a hallmark of stolen card testing (carding)."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://www.getfocal.ai/blog/types-of-credit-card-fraud",
+        "title": "Types of Credit Card Fraud and Prevention Strategies - FOCAL",
+        "relevance": "Describes the 'carding' process and the use of rapid transactions/shared devices."
+      }
+    ]
+  }
+]

@@ -1,0 +1,107 @@
+{
+  "timestamp": "20260209_061244",
+  "base_url": "http://localhost:18080/api/query/chat",
+  "results": {
+    "simple": [
+      {
+        "question": "How many blocked transactions are there?",
+        "ttft_s": 0,
+        "total_s": 0.045,
+        "answer_preview": "",
+        "tools_used": [],
+        "error": null,
+        "event_count": 0
+      },
+      {
+        "question": "What is the total number of evaluations?",
+        "ttft_s": 0,
+        "total_s": 0.002,
+        "answer_preview": "",
+        "tools_used": [],
+        "error": null,
+        "event_count": 0
+      },
+      {
+        "question": "Show me approved withdrawals",
+        "ttft_s": 0,
+        "total_s": 0.043,
+        "answer_preview": "",
+        "tools_used": [],
+        "error": null,
+        "event_count": 0
+      }
+    ],
+    "medium": [
+      {
+        "question": "Which customers have the highest risk scores and why?",
+        "ttft_s": 0,
+        "total_s": 0.001,
+        "answer_preview": "",
+        "tools_used": [],
+        "error": null,
+        "event_count": 0
+      },
+      {
+        "question": "What are the most common fraud indicators across all evaluations?",
+        "ttft_s": 0,
+        "total_s": 0.042,
+        "answer_preview": "",
+        "tools_used": [],
+        "error": null,
+        "event_count": 0
+      },
+      {
+        "question": "Compare blocked vs escalated transactions by amount",
+        "ttft_s": 0,
+        "total_s": 0.002,
+        "answer_preview": "",
+        "tools_used": [],
+        "error": null,
+        "event_count": 0
+      }
+    ],
+    "complex": [
+      {
+        "question": "Analyze the correlation between geographic indicators and device fingerprint anomalies across all customers",
+        "ttft_s": 0,
+        "total_s": 0.043,
+        "answer_preview": "",
+        "tools_used": [],
+        "error": null,
+        "event_count": 0
+      },
+      {
+        "question": "Which customers show patterns consistent with account takeover based on their transaction history and indicator scores?",
+        "ttft_s": 0,
+        "total_s": 0.002,
+        "answer_preview": "",
+        "tools_used": [],
+        "error": null,
+        "event_count": 0
+      },
+      {
+        "question": "Provide a comprehensive risk assessment comparing all customers, including their indicator breakdowns and fraud patterns",
+        "ttft_s": 0,
+        "total_s": 0.042,
+        "answer_preview": "",
+        "tools_used": [],
+        "error": null,
+        "event_count": 0
+      }
+    ]
+  },
+  "summary": {
+    "simple": {
+      "avg_ttft_s": 0.0,
+      "avg_total_s": 0.03
+    },
+    "medium": {
+      "avg_ttft_s": 0.0,
+      "avg_total_s": 0.015
+    },
+    "complex": {
+      "avg_ttft_s": 0.0,
+      "avg_total_s": 0.029
+    }
+  }
+}

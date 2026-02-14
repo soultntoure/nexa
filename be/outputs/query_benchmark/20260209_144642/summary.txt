@@ -1,0 +1,23 @@
+QUERY ENDPOINT BENCHMARK SUMMARY
+================================================================================
+
+KEYWORD ENDPOINT:
+  Total queries: 20
+  Successful: 20 (100.0%)
+  Avg latency: 0.295s
+  Min latency: 0.251s
+  Max latency: 0.413s
+  Avg data rows: 0.5
+
+CHAT STREAMING ENDPOINT:
+  Total queries: 30
+  Successful: 30 (100.0%)
+  Avg latency: 4.135s
+  Min latency: 2.433s
+  Max latency: 8.314s
+  Avg TTFT: 3.791s
+  Min TTFT: 2.356s
+  Max TTFT: 7.544s
+  Avg tokens: 4.3
+  Avg tokens/sec: 1.1
+

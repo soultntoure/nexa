@@ -1,0 +1,35 @@
+[
+  {
+    "candidate_id": "audit_20260212_041327_32d3542a_cluster_1",
+    "title": "Pattern: identity_access",
+    "quality_score": 0.6683,
+    "confidence": 0.8302222222222223,
+    "support_events": 18,
+    "support_accounts": 17,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Account Takeover (ATO) via Session Hijacking",
+    "sql_findings": [
+      {
+        "query_summary": "Investigation of the 'alerts' table schema and high-risk indicators.",
+        "result_summary": "Confirmed that the system uses a 'top_indicators' field to store specific fraud signals like 'amount_anomaly' and 'payment_method_risk'. While 'impossible_travel' was not found in the small sample of recent alerts, the structure supports this type of tagging."
+      },
+      {
+        "query_summary": "Analysis of 'ip_history' for geographical velocity.",
+        "result_summary": "The database contains 'customer_id', 'ip_address', and 'last_seen' fields, which are the primary data points used to calculate the 'impossible travel' alerts reported in the evidence."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://assets.publishing.service.gov.uk/media/5a7ad8c2ed915d670dd7efad/fraud-typologies.pdf",
+        "title": "Fraud Typologies - UK Government Report",
+        "relevance": "Defines Account Takeover and the use of identity theft in financial fraud."
+      },
+      {
+        "url": "https://www.getfocal.ai/solutions/enterprise-fraud-management",
+        "title": "Enterprise Fraud Management & Anomaly Detection",
+        "relevance": "Explains how anomaly detection (like impossible travel) is used to prevent ATO."
+      }
+    ]
+  }
+]

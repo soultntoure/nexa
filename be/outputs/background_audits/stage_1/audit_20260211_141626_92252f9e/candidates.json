@@ -1,0 +1,12 @@
+[
+  {
+    "candidate_id": "audit_20260211_141626_92252f9e_cluster_0",
+    "title": "Pattern: identity_access",
+    "quality_score": 0.6539,
+    "confidence": 0.8170555555555556,
+    "support_events": 18,
+    "support_accounts": 15,
+    "novelty_status": "new",
+    "status": "pending"
+  }
+]

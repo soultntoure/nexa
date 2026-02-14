@@ -1,0 +1,194 @@
+[
+  {
+    "test_id": 1,
+    "category": "Complex Multi-Table Aggregation with NULL Handling",
+    "query": "Show me customers who have made withdrawals but never used a VPN, including their total withdrawal amount and device count",
+    "expected_issues": [
+      "NULL handling in LEFT JOIN",
+      "BOOL_OR logic for VPN detection"
+    ],
+    "sql_query": null,
+    "answer": "",
+    "tools_used": [],
+    "ttft": null,
+    "total_time": 0.04430270195007324,
+    "error": "Client error '404 Not Found' for url 'http://localhost:18080/api/chat/query'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404",
+    "timestamp": "2026-02-09T16:06:06.526379"
+  },
+  {
+    "test_id": 2,
+    "category": "Division by Zero Edge Case",
+    "query": "Calculate the average withdrawal amount per customer, but only for customers who have at least one withdrawal, and show their approval rate (approved withdrawals / total withdrawals)",
+    "expected_issues": [
+      "Division by zero",
+      "NULL handling in decimals"
+    ],
+    "sql_query": null,
+    "answer": "",
+    "tools_used": [],
+    "ttft": null,
+    "total_time": 0.004383087158203125,
+    "error": "Client error '404 Not Found' for url 'http://localhost:18080/api/chat/query'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404",
+    "timestamp": "2026-02-09T16:06:08.532707"
+  },
+  {
+    "test_id": 3,
+    "category": "Ambiguous Time Reference",
+    "query": "Show me all the suspicious activity from last month",
+    "expected_issues": [
+      "'Last month' interpretation",
+      "'Suspicious activity' definition"
+    ],
+    "sql_query": null,
+    "answer": "",
+    "tools_used": [],
+    "ttft": null,
+    "total_time": 0.003737211227416992,
+    "error": "Client error '404 Not Found' for url 'http://localhost:18080/api/chat/query'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404",
+    "timestamp": "2026-02-09T16:06:10.537373"
+  },
+  {
+    "test_id": 4,
+    "category": "Complex HAVING with Multiple Conditions",
+    "query": "Find customers who have more than 3 withdrawals, an average withdrawal over $500, AND at least one flagged transaction",
+    "expected_issues": [
+      "HAVING vs WHERE",
+      "JOIN to withdrawal_decisions"
+    ],
+    "sql_query": null,
+    "answer": "",
+    "tools_used": [],
+    "ttft": null,
+    "total_time": 0.0040209293365478516,
+    "error": "Client error '404 Not Found' for url 'http://localhost:18080/api/chat/query'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404",
+    "timestamp": "2026-02-09T16:06:12.546809"
+  },
+  {
+    "test_id": 5,
+    "category": "Nested Aggregation",
+    "query": "What's the average number of withdrawals per customer, grouped by country?",
+    "expected_issues": [
+      "AVG of COUNT",
+      "Requires CTE or subquery"
+    ],
+    "sql_query": null,
+    "answer": "",
+    "tools_used": [],
+    "ttft": null,
+    "total_time": 0.004276752471923828,
+    "error": "Client error '404 Not Found' for url 'http://localhost:18080/api/chat/query'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404",
+    "timestamp": "2026-02-09T16:06:14.554675"
+  },
+  {
+    "test_id": 6,
+    "category": "String Matching Edge Case",
+    "query": "Find customers whose names contain 'Ahmed' or 'Hassan' (case insensitive)",
+    "expected_issues": [
+      "ILIKE vs LIKE",
+      "Pattern construction"
+    ],
+    "sql_query": null,
+    "answer": "",
+    "tools_used": [],
+    "ttft": null,
+    "total_time": 0.004307985305786133,
+    "error": "Client error '404 Not Found' for url 'http://localhost:18080/api/chat/query'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404",
+    "timestamp": "2026-02-09T16:06:16.562871"
+  },
+  {
+    "test_id": 7,
+    "category": "Self-Join Comparison",
+    "query": "Find pairs of customers who share the same IP address AND the same device fingerprint",
+    "expected_issues": [
+      "Self-join",
+      "Avoiding duplicate pairs",
+      "Multiple criteria"
+    ],
+    "sql_query": null,
+    "answer": "",
+    "tools_used": [],
+    "ttft": null,
+    "total_time": 0.004589557647705078,
+    "error": "Client error '404 Not Found' for url 'http://localhost:18080/api/chat/query'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404",
+    "timestamp": "2026-02-09T16:06:18.571883"
+  },
+  {
+    "test_id": 8,
+    "category": "Percentile Calculation",
+    "query": "Show me customers whose total withdrawal amount is in the top 10% of all customers",
+    "expected_issues": [
+      "PERCENTILE_CONT or window functions"
+    ],
+    "sql_query": null,
+    "answer": "",
+    "tools_used": [],
+    "ttft": null,
+    "total_time": 0.003930330276489258,
+    "error": "Client error '404 Not Found' for url 'http://localhost:18080/api/chat/query'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404",
+    "timestamp": "2026-02-09T16:06:20.580907"
+  },
+  {
+    "test_id": 9,
+    "category": "Misleading Correlation",
+    "query": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "expected_issues": [
+      "Comparative analysis",
+      "VPN vs non-VPN groups"
+    ],
+    "sql_query": null,
+    "answer": "",
+    "tools_used": [],
+    "ttft": null,
+    "total_time": 0.003945112228393555,
+    "error": "Client error '404 Not Found' for url 'http://localhost:18080/api/chat/query'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404",
+    "timestamp": "2026-02-09T16:06:22.590778"
+  },
+  {
+    "test_id": 10,
+    "category": "Window Function with Ranking",
+    "query": "Rank customers by their total withdrawal amount and show the top 5 with their rank",
+    "expected_issues": [
+      "ROW_NUMBER vs RANK",
+      "Window functions"
+    ],
+    "sql_query": null,
+    "answer": "",
+    "tools_used": [],
+    "ttft": null,
+    "total_time": 0.0037484169006347656,
+    "error": "Client error '404 Not Found' for url 'http://localhost:18080/api/chat/query'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404",
+    "timestamp": "2026-02-09T16:06:24.598624"
+  },
+  {
+    "test_id": 11,
+    "category": "Empty Set Handling",
+    "query": "Show me all customers who made withdrawals on February 1st, 2020",
+    "expected_issues": [
+      "Empty result set",
+      "Agent should acknowledge"
+    ],
+    "sql_query": null,
+    "answer": "",
+    "tools_used": [],
+    "ttft": null,
+    "total_time": 0.0050067901611328125,
+    "error": "Client error '404 Not Found' for url 'http://localhost:18080/api/chat/query'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404",
+    "timestamp": "2026-02-09T16:06:26.609332"
+  },
+  {
+    "test_id": 12,
+    "category": "Contradictory Filters",
+    "query": "Find blocked withdrawals that were approved",
+    "expected_issues": [
+      "Logically impossible",
+      "Agent should recognize contradiction"
+    ],
+    "sql_query": null,
+    "answer": "",
+    "tools_used": [],
+    "ttft": null,
+    "total_time": 0.003962278366088867,
+    "error": "Client error '404 Not Found' for url 'http://localhost:18080/api/chat/query'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404",
+    "timestamp": "2026-02-09T16:06:28.628496"
+  }
+]

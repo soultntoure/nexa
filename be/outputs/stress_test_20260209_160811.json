@@ -1,0 +1,218 @@
+[
+  {
+    "test_id": 1,
+    "category": "Complex Multi-Table Aggregation with NULL Handling",
+    "query": "Show me customers who have made withdrawals but never used a VPN, including their total withdrawal amount and device count",
+    "expected_issues": [
+      "NULL handling in LEFT JOIN",
+      "BOOL_OR logic for VPN detection"
+    ],
+    "sql_query": "SELECT \n    c.name, \n    c.email, \n    SUM(w.amount) AS total_withdrawn, \n    COUNT(DISTINCT d.id) AS device_count\nFROM customers c\nJOIN withdrawals w ON c.id = w.customer_id\nLEFT JOIN devices d ON c.id = d.customer_id\nLEFT JOIN ip_history ih ON c.id = ih.customer_id\nGROUP BY c.id, c.name, c.email\nHAVING BOOL_OR(ih.is_vpn) IS FALSE OR BOOL_OR(ih.is_vpn) IS NULL\nORDER BY total_withdrawn DESC\nLIMIT 10;",
+    "answer": "I've identified the top 10 customers who have processed withdrawals without ever using a VPN. James Wilson leads this group with a significantly higher total withdrawal volume compared to others.\n\n1. James Wilson (james.wilson@example.com): $597,934.12 withdrawn across 1 device.\n2. Raj Patel (raj.patel@example.com): $84,442.95 withdrawn across 1 device.\n3. Kenji Sato (kenji.sato@example.com): $22,587.33 withdrawn across 1 device.\n4. Yuki Tanaka (yuki.tanaka@example.com): $22,376.64 withdrawn across 2 devices.\n5. Sarah Chen (sarah.chen@example.com): $17,518.64 withdrawn across 1 device.\n6. Maria Santos (maria.santos@example.com): $15,000.00 withdrawn across 1 device.\n7. Tom Brown (tom.brown@example.com): $12,107.76 withdrawn across 1 device.\n8. Nina Volkov (nina.volkov@example.com): $11,481.72 withdrawn across 2 devices.\n9. Aisha Mohammed (aisha.mo@example.com): $3,874.20 withdrawn across 1 device.\n10. Victor Petrov (victor.petrov@example.com): $2,990.00 withdrawn across 1 device.\n\nWould you like me to check if any of these high-volume customers have had their withdrawals flagged or escalated for review?",
+    "tools_used": [
+      "sql_db_query"
+    ],
+    "ttft": 2.985769033432007,
+    "total_time": 4.52720046043396,
+    "error": null,
+    "timestamp": "2026-02-09T16:07:06.509811"
+  },
+  {
+    "test_id": 2,
+    "category": "Division by Zero Edge Case",
+    "query": "Calculate the average withdrawal amount per customer, but only for customers who have at least one withdrawal, and show their approval rate (approved withdrawals / total withdrawals)",
+    "expected_issues": [
+      "Division by zero",
+      "NULL handling in decimals"
+    ],
+    "sql_query": "SELECT \n    c.name,\n    COUNT(w.id) AS total_withdrawals,\n    AVG(w.amount) AS avg_withdrawal_amount,\n    ROUND(\n        (COUNT(CASE WHEN wd.decision = 'approved' THEN 1 END)::NUMERIC / COUNT(w.id)) * 100, \n        2\n    ) AS approval_rate_percent\nFROM customers c\nJOIN withdrawals w ON c.id = w.customer_id\nLEFT JOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\nGROUP BY c.id, c.name\nORDER BY avg_withdrawal_amount DESC\nLIMIT 10;",
+    "answer": "Here is the breakdown of the top 10 customers by their average withdrawal amount and their corresponding approval rates.\n\n1. James Wilson: $11,498.73 average (13 withdrawals, 0% approved)\n2. Maria Santos: $5,000.00 average (1 withdrawal, 0% approved)\n3. Victor Petrov: $2,990.00 average (1 withdrawal, 0% approved)\n4. Raj Patel: $2,558.88 average (11 withdrawals, 0% approved)\n5. Ahmed Hassan: $1,950.00 average (1 withdrawal, 0% approved)\n6. Fatima Nour: $1,480.00 average (1 withdrawal, 0% approved)\n7. Kenji Sato: $1,075.59 average (7 withdrawals, 0% approved)\n8. Nina Volkov: $956.81 average (3 withdrawals, 0% approved)\n9. David Park: $862.35 average (5 withdrawals, 0% approved)\n10. Yuki Tanaka: $745.89 average (5 withdrawals, 0% approved)\n\nIt appears that many of these high-value withdrawals have not reached an \"approved\" decision status yet. Would you like me to check the specific reasons why James Wilson's or Raj Patel's withdrawals are being held or escalated?",
+    "tools_used": [
+      "sql_db_query"
+    ],
+    "ttft": 3.207838773727417,
+    "total_time": 4.891551494598389,
+    "error": null,
+    "timestamp": "2026-02-09T16:07:13.415987"
+  },
+  {
+    "test_id": 3,
+    "category": "Ambiguous Time Reference",
+    "query": "Show me all the suspicious activity from last month",
+    "expected_issues": [
+      "'Last month' interpretation",
+      "'Suspicious activity' definition"
+    ],
+    "sql_query": "SELECT \n    w.id AS withdrawal_id,\n    c.name AS customer_name,\n    w.amount,\n    w.currency,\n    wd.decision,\n    wd.reasoning,\n    w.requested_at\nFROM withdrawals w\nJOIN customers c ON w.customer_id = c.id\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\nWHERE wd.decision IN ('blocked', 'escalated')\n  AND w.requested_at >= DATE_TRUNC('month', NOW() - INTERVAL '1 month')\n  AND w.requested_at < DATE_TRUNC('month', NOW())\nORDER BY w.requested_at DESC\nLIMIT 10;",
+    "answer": "I found 10 suspicious withdrawals from last month that were either blocked or escalated for further review. These cases involve a mix of high-risk indicators, including rapid account turnover and unusual login patterns.\n\n1. **Derrick Smith** ($9,844.14 USD) – Escalated: High-frequency trading followed by an immediate large withdrawal request.\n2. **Derrick Smith** ($9,844.14 USD) – Escalated: Multiple withdrawal attempts within a short timeframe.\n3. **Derrick Smith** ($9,844.14 USD) – Escalated: Withdrawal requested from an IP address previously associated with flagged activity.\n4. **Derrick Smith** ($9,844.14 USD) – Escalated: Significant deviation from typical withdrawal amounts for this customer.\n5. **Derrick Smith** ($9,844.14 USD) – Escalated: Account accessed from a new device fingerprint just before the request.\n6. **Derrick Smith** ($9,844.14 USD) – Escalated: Potential account takeover suspected due to geographic login shifts.\n7. **Derrick Smith** ($9,844.14 USD) – Escalated: System flagged this as a \"velocity\" risk based on recent transaction volume.\n8. **Derrick Smith** ($9,844.14 USD) – Escalated: Recipient account details do not match previously verified payment methods.\n9. **Derrick Smith** ($9,844.14 USD) – Escalated: Manual review required due to the high dollar value and account age.\n10. **Derrick Smith** ($9,844.14 USD) – Escalated: Linked to a device fingerprint used by another flagged account.\n\nWould you like me to check the device history for Derrick Smith to see if these requests originated from a known suspicious device?",
+    "tools_used": [
+      "sql_db_query"
+    ],
+    "ttft": 2.8566300868988037,
+    "total_time": 5.6463539600372314,
+    "error": null,
+    "timestamp": "2026-02-09T16:07:21.076037"
+  },
+  {
+    "test_id": 4,
+    "category": "Complex HAVING with Multiple Conditions",
+    "query": "Find customers who have more than 3 withdrawals, an average withdrawal over $500, AND at least one flagged transaction",
+    "expected_issues": [
+      "HAVING vs WHERE",
+      "JOIN to withdrawal_decisions"
+    ],
+    "sql_query": "SELECT \n    c.name, \n    c.email, \n    COUNT(w.id) AS withdrawal_count, \n    AVG(w.amount) AS avg_withdrawal_amount,\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_count\nFROM customers c\nJOIN withdrawals w ON c.id = w.customer_id\nLEFT JOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\nGROUP BY c.id, c.name, c.email\nHAVING COUNT(w.id) > 3 \n   AND AVG(w.amount) > 500 \n   AND COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) >= 1\nLIMIT 10;",
+    "answer": "I found 3 customers who meet these high-risk criteria, showing a pattern of frequent, high-value withdrawals alongside at least one flagged event.\n\n1. **Lydia Cook** (lydia.cook@example.com): 5 withdrawals, averaging $740.00, with 1 flagged transaction.\n2. **Sienna Miller** (sienna.miller@example.com): 4 withdrawals, averaging $675.00, with 1 flagged transaction.\n3. **Isabella Smith** (isabella.smith@example.com): 4 withdrawals, averaging $625.00, with 1 flagged transaction.\n\nWould you like me to check if these customers are using a VPN or if they share any device fingerprints?",
+    "tools_used": [
+      "sql_db_query"
+    ],
+    "ttft": 3.3451380729675293,
+    "total_time": 4.195187568664551,
+    "error": null,
+    "timestamp": "2026-02-09T16:07:27.284465"
+  },
+  {
+    "test_id": 5,
+    "category": "Nested Aggregation",
+    "query": "What's the average number of withdrawals per customer, grouped by country?",
+    "expected_issues": [
+      "AVG of COUNT",
+      "Requires CTE or subquery"
+    ],
+    "sql_query": "SELECT \n    c.country, \n    ROUND(COUNT(w.id)::numeric / COUNT(DISTINCT c.id), 2) as avg_withdrawals_per_customer,\n    COUNT(DISTINCT c.id) as total_customers,\n    COUNT(w.id) as total_withdrawals\nFROM customers c\nLEFT JOIN withdrawals w ON c.id = w.customer_id\nGROUP BY c.country\nORDER BY avg_withdrawals_per_customer DESC\nLIMIT 20;",
+    "answer": "On average, customers in the USA and India show the highest withdrawal activity, with 13 and 11 withdrawals per person respectively.\n\n1. USA: 13.00 average (13 total withdrawals)\n2. India (IND): 11.00 average (11 total withdrawals)\n3. United Kingdom (GBR): 7.00 average (14 total withdrawals)\n4. Australia (AUS): 7.00 average (7 total withdrawals)\n5. Japan (JPN): 6.00 average (12 total withdrawals)\n6. United Arab Emirates (ARE): 6.00 average (6 total withdrawals)\n7. Mexico (MEX): 5.00 average (5 total withdrawals)\n8. South Korea (KOR): 5.00 average (5 total withdrawals)\n9. Ukraine (UKR): 3.00 average (3 total withdrawals)\n10. Egypt (EGY): 1.00 average (2 total withdrawals)\n\nWould you like me to check if any of these high-frequency countries have a high rate of flagged or blocked withdrawals?",
+    "tools_used": [
+      "sql_db_query"
+    ],
+    "ttft": 2.8076024055480957,
+    "total_time": 3.94107985496521,
+    "error": null,
+    "timestamp": "2026-02-09T16:07:33.226564"
+  },
+  {
+    "test_id": 6,
+    "category": "String Matching Edge Case",
+    "query": "Find customers whose names contain 'Ahmed' or 'Hassan' (case insensitive)",
+    "expected_issues": [
+      "ILIKE vs LIKE",
+      "Pattern construction"
+    ],
+    "sql_query": "SELECT name, email, country, registration_date, is_flagged FROM customers WHERE name ILIKE '%Ahmed%' OR name ILIKE '%Hassan%' LIMIT 20;",
+    "answer": "I found one customer matching those names in our database.\n\n1. Ahmed Hassan (ahmed.hassan@example.com) from Egypt, registered on February 1, 2026. This account is currently not flagged.\n\nWould you like me to check this customer's recent withdrawal history or see if they have any linked devices?",
+    "tools_used": [
+      "sql_db_query"
+    ],
+    "ttft": 2.503509521484375,
+    "total_time": 2.642883539199829,
+    "error": null,
+    "timestamp": "2026-02-09T16:07:37.875797"
+  },
+  {
+    "test_id": 7,
+    "category": "Self-Join Comparison",
+    "query": "Find pairs of customers who share the same IP address AND the same device fingerprint",
+    "expected_issues": [
+      "Self-join",
+      "Avoiding duplicate pairs",
+      "Multiple criteria"
+    ],
+    "sql_query": "SELECT \n    c1.name AS customer_1, \n    c2.name AS customer_2, \n    w1.ip_address, \n    w1.device_fingerprint,\n    COUNT(*) as shared_withdrawals\nFROM withdrawals w1\nJOIN withdrawals w2 ON w1.ip_address = w2.ip_address \n    AND w1.device_fingerprint = w2.device_fingerprint \n    AND w1.customer_id < w2.customer_id\nJOIN customers c1 ON w1.customer_id = c1.id\nJOIN customers c2 ON w2.customer_id = c2.id\nGROUP BY c1.name, c2.name, w1.ip_address, w1.device_fingerprint\nORDER BY shared_withdrawals DESC\n",
+    "answer": "I found one pair of customers who have accessed the platform using both the same IP address and the same device fingerprint.\n\n1. Ahmed Hassan and Fatima Nour (IP: 41.44.55.66, Device: deadbeef...)\n\nThis overlap is a strong indicator of account sharing or multi-accounting. Would you like me to check if these two customers have sent withdrawals to the same recipient account?",
+    "tools_used": [
+      "sql_db_query"
+    ],
+    "ttft": 3.375197172164917,
+    "total_time": 3.5545928478240967,
+    "error": null,
+    "timestamp": "2026-02-09T16:07:43.443318"
+  },
+  {
+    "test_id": 8,
+    "category": "Percentile Calculation",
+    "query": "Show me customers whose total withdrawal amount is in the top 10% of all customers",
+    "expected_issues": [
+      "PERCENTILE_CONT or window functions"
+    ],
+    "sql_query": "WITH customer_totals AS (\n    SELECT \n        c.name, \n        c.email, \n        SUM(w.amount) as total_withdrawn,\n        PERCENT_RANK() OVER (ORDER BY SUM(w.amount) DESC) as rank_percent\n    FROM customers c\n    JOIN withdrawals w ON c.id = w.customer_id\n    GROUP BY c.id, c.name, c.email\n)\nSELECT name, email, total_withdrawn\nFROM customer_totals\nWHERE rank_percent <= 0.1\nORDER BY total_withdrawn DESC\nLIMIT 10;",
+    "answer": "These two customers represent the top 10% of total withdrawal volume across the platform, with James Wilson significantly leading the group.\n\n1. James Wilson (james.wilson@example.com): $149,483.53\n2. Raj Patel (raj.patel@example.com): $28,147.65\n\nWould you like me to check if these high-volume withdrawals were made from a trusted device or a known VPN?",
+    "tools_used": [
+      "sql_db_query"
+    ],
+    "ttft": 2.8785064220428467,
+    "total_time": 3.4087467193603516,
+    "error": null,
+    "timestamp": "2026-02-09T16:07:48.867393"
+  },
+  {
+    "test_id": 9,
+    "category": "Misleading Correlation",
+    "query": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "expected_issues": [
+      "Comparative analysis",
+      "VPN vs non-VPN groups"
+    ],
+    "sql_query": "SELECT \n    ih.is_vpn, \n    COUNT(DISTINCT w.id) as withdrawal_count,\n    AVG(w.amount) as average_withdrawal_amount\nFROM withdrawals w\nJOIN ip_history ih ON w.customer_id = ih.customer_id AND w.ip_address = ih.ip_address\nGROUP BY ih.is_vpn;",
+    "answer": "Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\n\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\n\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?",
+    "tools_used": [
+      "sql_db_query"
+    ],
+    "ttft": 2.6861002445220947,
+    "total_time": 3.3083388805389404,
+    "error": null,
+    "timestamp": "2026-02-09T16:07:54.182148"
+  },
+  {
+    "test_id": 10,
+    "category": "Window Function with Ranking",
+    "query": "Rank customers by their total withdrawal amount and show the top 5 with their rank",
+    "expected_issues": [
+      "ROW_NUMBER vs RANK",
+      "Window functions"
+    ],
+    "sql_query": "SELECT \n    c.name, \n    SUM(w.amount) as total_withdrawn, \n    w.currency,\n    RANK() OVER (ORDER BY SUM(w.amount) DESC) as rank\nFROM customers c\nJOIN withdrawals w ON c.id = w.customer_id\nGROUP BY c.id, c.name, w.currency\nORDER BY total_withdrawn DESC\nLIMIT 5;",
+    "answer": "Here are the top 5 customers ranked by their total withdrawal volume. James Wilson is currently the highest-volume user by a significant margin.\n\n1. James Wilson: $149,483.53 (Rank 1)\n2. Raj Patel: $28,147.65 (Rank 2)\n3. Kenji Sato: $7,529.11 (Rank 3)\n4. Maria Santos: $5,000.00 (Rank 4)\n5. Sarah Chen: $4,379.66 (Rank 5)\n\nWould you like me to check if any of these high-volume withdrawals were flagged for manual review?",
+    "tools_used": [
+      "sql_db_query"
+    ],
+    "ttft": 2.5957131385803223,
+    "total_time": 3.247605323791504,
+    "error": null,
+    "timestamp": "2026-02-09T16:07:59.434118"
+  },
+  {
+    "test_id": 11,
+    "category": "Empty Set Handling",
+    "query": "Show me all customers who made withdrawals on February 1st, 2020",
+    "expected_issues": [
+      "Empty result set",
+      "Agent should acknowledge"
+    ],
+    "sql_query": "SELECT DISTINCT c.name, c.email, w.amount, w.currency, w.status\nFROM customers c\nJOIN withdrawals w ON c.id = w.customer_id\nWHERE w.requested_at >= '2020-02-01 00:00:00' AND w.requested_at < '2020-02-02 00:00:00'\nLIMIT 20;",
+    "answer": "On February 1st, 2020, there were no recorded withdrawal requests in the system.\n\nWould you like me to check for withdrawals on a different date, or perhaps look for the most recent activity instead?",
+    "tools_used": [
+      "sql_db_query"
+    ],
+    "ttft": 2.8976712226867676,
+    "total_time": 2.8999462127685547,
+    "error": null,
+    "timestamp": "2026-02-09T16:08:04.340435"
+  },
+  {
+    "test_id": 12,
+    "category": "Contradictory Filters",
+    "query": "Find blocked withdrawals that were approved",
+    "expected_issues": [
+      "Logically impossible",
+      "Agent should recognize contradiction"
+    ],
+    "sql_query": "SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\nFROM withdrawals w\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\nWHERE wd.decision = 'blocked' AND w.status = 'approved'\nORDER BY wd.decided_at DESC\nLIMIT 10;",
+    "answer": "I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\n\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?",
+    "tools_used": [
+      "sql_db_query"
+    ],
+    "ttft": 2.3553690910339355,
+    "total_time": 2.7201919555664062,
+    "error": null,
+    "timestamp": "2026-02-09T16:08:09.070531"
+  }
+]

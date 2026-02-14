@@ -1,0 +1,6 @@
+{
+  "extract_s": 0.01,
+  "embed_cluster_s": 1.51,
+  "candidate_report_s": 80.08,
+  "artifact_write_s": 0.0
+}

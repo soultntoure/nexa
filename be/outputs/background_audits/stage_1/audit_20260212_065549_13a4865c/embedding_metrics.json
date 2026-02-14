@@ -1,0 +1,5 @@
+{
+  "model": "gemini-embedding-001",
+  "dimensionality": 768,
+  "total_units": 72
+}

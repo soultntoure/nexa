@@ -1,0 +1,48 @@
+🧪 Starting Nexa Agent Stress Test
+📅 2026-02-09 16:07:01
+🔗 Target: http://localhost:18080
+📊 Total Tests: 12
+
+[1/12] Testing: Complex Multi-Table Aggregation with NULL Handling
+   Query: Show me customers who have made withdrawals but never used a...
+   ✅ Completed in 4.53s
+[2/12] Testing: Division by Zero Edge Case
+   Query: Calculate the average withdrawal amount per customer, but on...
+   ✅ Completed in 4.89s
+[3/12] Testing: Ambiguous Time Reference
+   Query: Show me all the suspicious activity from last month...
+   ✅ Completed in 5.65s
+[4/12] Testing: Complex HAVING with Multiple Conditions
+   Query: Find customers who have more than 3 withdrawals, an average ...
+   ✅ Completed in 4.20s
+[5/12] Testing: Nested Aggregation
+   Query: What's the average number of withdrawals per customer, group...
+   ✅ Completed in 3.94s
+[6/12] Testing: String Matching Edge Case
+   Query: Find customers whose names contain 'Ahmed' or 'Hassan' (case...
+   ✅ Completed in 2.64s
+[7/12] Testing: Self-Join Comparison
+   Query: Find pairs of customers who share the same IP address AND th...
+   ✅ Completed in 3.55s
+[8/12] Testing: Percentile Calculation
+   Query: Show me customers whose total withdrawal amount is in the to...
+   ✅ Completed in 3.41s
+[9/12] Testing: Misleading Correlation
+   Query: Do customers who use VPNs have higher withdrawal amounts on ...
+   ✅ Completed in 3.31s
+[10/12] Testing: Window Function with Ranking
+   Query: Rank customers by their total withdrawal amount and show the...
+   ✅ Completed in 3.25s
+[11/12] Testing: Empty Set Handling
+   Query: Show me all customers who made withdrawals on February 1st, ...
+   ✅ Completed in 2.90s
+[12/12] Testing: Contradictory Filters
+   Query: Find blocked withdrawals that were approved...
+   ✅ Completed in 2.72s
+
+✅ Stress test complete! Results saved to outputs/stress_test_20260209_160811.json
+
+📊 Summary:
+   Passed: 12/12
+   Failed: 0/12
+   Success Rate: 100.0%

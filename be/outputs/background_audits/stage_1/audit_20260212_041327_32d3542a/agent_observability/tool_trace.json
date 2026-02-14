@@ -1,0 +1,59 @@
+[
+  {
+    "candidate_id": "audit_20260212_041327_32d3542a_cluster_1",
+    "tool_calls": [
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT customer_id, description, severity, created_at FROM alerts WHERE description LIKE '%impossible travel%' OR description LIKE '%unauthorized%' ORDER BY created_at DESC LIMIT 10;\"}",
+        "result_preview": "Error: (psycopg2.errors.UndefinedColumn) column \"description\" does not exist\nLINE 1: SELECT customer_id, description, severity, created_at FROM a...\n                            ^\n\n[SQL: SELECT custome"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': 'SELECT * FROM alerts LIMIT 1;'}",
+        "result_preview": "[(UUID('88555787-fd46-4e36-bb83-f12723fedbc7'), UUID('3fc44abb-caaa-4d0b-9908-ea916fa53037'), UUID('696fc5ab-ab16-5f64-847e-fb0d5df337e5'), 'block', 0.7491, ['amount_anomaly', 'recipient_analysis', 'p"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT * FROM alerts WHERE 'impossible_travel' = ANY(tags) OR 'unauthorized_access' = ANY(tags) OR risk_score > 0.9 LIMIT 10;\"}",
+        "result_preview": "Error: (psycopg2.errors.UndefinedColumn) column \"tags\" does not exist\nLINE 1: ...ECT * FROM alerts WHERE 'impossible_travel' = ANY(tags) OR '...\n                                                       "
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT column_name FROM information_schema.columns WHERE table_name = 'alerts';\"}",
+        "result_preview": "[('created_at',), ('withdrawal_id',), ('customer_id',), ('id',), ('risk_score',), ('top_indicators',), ('is_read',), ('alert_type',)]"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT customer_id, alert_type, top_indicators, risk_score, created_at FROM alerts WHERE 'impossible_travel' = ANY(top_indicators) OR alert_type = 'unauthorized_access' ORDER BY created_at ",
+        "result_preview": "Error: (psycopg2.errors.WrongObjectType) op ANY/ALL (array) requires array on right side\nLINE 1: ... created_at FROM alerts WHERE 'impossible_travel' = ANY(top_...\n                                    "
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT customer_id, alert_type, top_indicators, risk_score, created_at FROM alerts WHERE top_indicators::text LIKE '%impossible_travel%' OR top_indicators::text LIKE '%unauthorized%' ORDER ",
+        "result_preview": ""
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': 'SELECT customer_id, alert_type, top_indicators, risk_score, created_at FROM alerts WHERE risk_score > 0.8 ORDER BY created_at DESC LIMIT 5;'}",
+        "result_preview": ""
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT a.customer_id, a.country as country1, b.country as country2, a.last_seen as time1, b.last_seen as time2 FROM ip_history a JOIN ip_history b ON a.customer_id = b.customer_id WHERE a.c",
+        "result_preview": "Error: (psycopg2.errors.UndefinedColumn) column a.country does not exist\nLINE 1: SELECT a.customer_id, a.country as country1, b.country as co...\n                              ^\n\n[SQL: SELECT a.custome"
+      },
+      {
+        "tool": "fraud_web_search",
+        "args_preview": "{'query': 'fraud typology \"impossible travel\" \"new device\" \"unauthorized\"'}",
+        "result_preview": "{\"query\": \"fraud typology impossible travel new device unauthorized\", \"follow_up_questions\": null, \"answer\": null, \"images\": [], \"results\": [{\"title\": \"Fraud - Wikipedia\", \"url\": \"https://en.m.wikiped"
+      },
+      {
+        "tool": "AgentSynthesisResult",
+        "args_preview": "{'formal_pattern_name': 'Account Takeover (ATO) via Session Hijacking', 'uncertainty': \"It is unclear if the 'Identity verification failed' message refers to a failed MFA prompt or a more intensive do",
+        "result_preview": "Returning structured response: plain_language='We have detected a series of unauthorized access attempts where individuals are trying to log into customer accounts from locations that are physically i"
+      }
+    ],
+    "total_tool_calls": 10,
+    "duration_s": 38.92
+  }
+]

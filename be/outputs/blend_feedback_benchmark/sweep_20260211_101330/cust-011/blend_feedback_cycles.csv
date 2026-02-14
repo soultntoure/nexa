@@ -1,0 +1,4 @@
+after_investigator_weight,after_rule_weight,after_sample_count,before_investigator_weight,before_rule_weight,before_sample_count,customer_id,cycle,decision_elapsed_s,delta_investigator_weight,delta_rule_weight,evaluation_id,feedback_wait_s,final_decision,investigate_elapsed_s,investigator_avg,investigator_count,officer_action,phase,rule_decision,status
+0.3176,0.6824,17,0.4,0.6,0,CUST-011,1,0.016,-0.0824,0.0824,4465a5ed-11c1-44d4-afce-ba806ad01278,1.027,blocked,8.974,0.95,2,approved,favor_rule,escalated,success
+0.3111,0.6889,18,0.3176,0.6824,17,CUST-011,2,0.038,-0.0065,0.0065,0c529e24-0e75-4929-b347-d26e85baafef,1.032,blocked,9.172,0.975,2,approved,favor_rule,escalated,success
+0.3263,0.6737,19,0.3111,0.6889,18,CUST-011,1,0.035,0.0152,-0.0152,f92e1a6c-34f8-489a-ad4e-af71a1889f10,1.036,blocked,8.032,0.975,2,blocked,favor_investigators,escalated,success

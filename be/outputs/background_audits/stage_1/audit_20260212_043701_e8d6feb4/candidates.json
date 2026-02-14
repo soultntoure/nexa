@@ -1,0 +1,322 @@
+[
+  {
+    "candidate_id": "audit_20260212_043701_e8d6feb4_cluster_7",
+    "title": "Pattern: constellation_analysis",
+    "quality_score": 0.455,
+    "confidence": 0.5,
+    "support_events": 10,
+    "support_accounts": 10,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Carding / Card Cracking Ring",
+    "sql_findings": [
+      {
+        "query_summary": "Investigation of indicator results for recent flagged withdrawals.",
+        "result_summary": "Identified multiple accounts sharing device fingerprints (e.g., 'a1b2...', 'deadbeef...') and triggering both 'card_error_history' and 'device_fingerprint' flags."
+      },
+      {
+        "query_summary": "Transaction history for flagged accounts.",
+        "result_summary": "Found multiple 'failed' transactions with 'card_restricted' error codes followed by successful deposits and immediate withdrawal attempts."
+      },
+      {
+        "query_summary": "IP history overlap check for flagged accounts.",
+        "result_summary": "Confirmed IP overlap (41.44.55.66) and geographic concentration in Cairo, Egypt for multiple accounts in the cluster."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://www.aba.com/advocacy/community-programs/consumer-resources/protect-your-money/how-avoid-card-cracking",
+        "title": "\"Card Cracking\" Scams - American Bankers Association",
+        "relevance": "Defines 'card cracking' and the behavior of rapid withdrawals after fraudulent deposits."
+      },
+      {
+        "url": "https://www.alloy.com/guides/fraud-types-guide",
+        "title": "Common types of financial fraud explained - Alloy",
+        "relevance": "Describes high-velocity fraud attacks and fraud ring characteristics."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_043701_e8d6feb4_cluster_1",
+    "title": "Pattern: identity_access",
+    "quality_score": 0.6683,
+    "confidence": 0.8302222222222223,
+    "support_events": 18,
+    "support_accounts": 17,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Account Takeover (ATO) via Credential Stuffing",
+    "sql_findings": [
+      {
+        "query_summary": "Identify withdrawals with 'travel' or 'device' indicators and their status.",
+        "result_summary": "Found multiple escalated withdrawals from VPNs and unexpected locations (Moscow, Cairo, Paris). One customer had five $400 attempts from a single VPN IP."
+      },
+      {
+        "query_summary": "Check for shared IPs across different flagged customers.",
+        "result_summary": "IP 41.44.55.66 (Cairo, EGY) was used to access two different customer accounts within an hour, indicating a shared attacker source."
+      },
+      {
+        "query_summary": "Verify 'impossible travel' by comparing IP history for flagged accounts.",
+        "result_summary": "Confirmed for customer 851b3a09... who moved from Mexico City to a USA VPN in 5 days, and for other accounts showing similar geographic jumps."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://abnormal.ai/blog/impossible-travel-cybersecurity",
+        "title": "How to Detect and Respond to Impossible Travel in Cybersecurity",
+        "relevance": "Explains the 'Impossible Travel' detection logic and its role in identifying ATO."
+      },
+      {
+        "url": "https://www.fraud.com/post/top-5-account-takeover-fraud-scenarios",
+        "title": "Top 5 account takeover fraud scenarios",
+        "relevance": "Describes the use of automated scripts and credential stuffing in ATO scenarios."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_043701_e8d6feb4_cluster_6",
+    "title": "Pattern: financial_behavior",
+    "quality_score": 0.6295,
+    "confidence": 0.85,
+    "support_events": 12,
+    "support_accounts": 11,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Collusive Money Laundering (Mule Network)",
+    "sql_findings": [
+      {
+        "query_summary": "Identify customers with minimal trading and high withdrawal counts.",
+        "result_summary": "Found 4 primary suspects (Sophie Laurent, Ahmed Hassan, Victor Petrov, Fatima Nour) with 0-2 trades and 4-9 withdrawals each."
+      },
+      {
+        "query_summary": "Check for shared infrastructure (IP, Device, Payment Method) among suspects.",
+        "result_summary": "Confirmed two collusive groups: Group A (Petrov/Laurent) sharing device 'a1b2c3d4...' and card '1111'; Group B (Hassan/Nour) sharing device 'deadbeef...' and card '4444'."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://hal.science/hal-04209615v1/file/Paper_98-Semi_Supervised_Method_to_Detect_Fraudulent_Transactions%20%281%29.pdf",
+        "title": "Semi-supervised Method to Detect Fraudulent Transactions (Smurfing)",
+        "relevance": "Describes 'Smurfing' and money mule behavior similar to the observed pattern."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_043701_e8d6feb4_cluster_4",
+    "title": "Pattern: constellation_analysis",
+    "quality_score": 0.442,
+    "confidence": 0.5,
+    "support_events": 9,
+    "support_accounts": 8,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Collusive Carding Ring & Money Laundering",
+    "sql_findings": [
+      {
+        "query_summary": "Identify shared device fingerprints and associated customer counts.",
+        "result_summary": "Fingerprint 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4' links accounts in FRA and RUS; 'deadbeef...' links accounts in EGY."
+      },
+      {
+        "query_summary": "Analyze transaction history and card errors for linked accounts.",
+        "result_summary": "Customer 696fc... (FRA) had 7+ 'card_restricted' failures before succeeding; followed by a burst of 9 withdrawals in 8 days."
+      },
+      {
+        "query_summary": "Compare total deposits vs. total withdrawals and trading PnL.",
+        "result_summary": "FRA account deposited $500 but withdrew $29,396 with near-zero trading profit, confirming a massive funding/withdrawal anomaly."
+      },
+      {
+        "query_summary": "Check for shared payment methods across the customer base.",
+        "result_summary": "Visa *1111 is shared by FRA/RUS; Visa *4444 is shared in EGY; Visa *6677 is shared by MEX/UKR."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://www.investopedia.com/terms/c/carding.asp",
+        "title": "Carding Fraud: Stolen Card Use and Protection Strategies",
+        "relevance": "Description of carding rings using velocity checks and device fingerprints."
+      },
+      {
+        "url": "https://stripe.com/resources/more/what-is-carding-how-this-type-of-fraud-works-and-how-businesses-can-prevent-it",
+        "title": "What carding is and how businesses can prevent it | Stripe",
+        "relevance": "General overview of carding and 'cash-out' assistance in fraud rings."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_043701_e8d6feb4_cluster_5",
+    "title": "Pattern: financial_behavior",
+    "quality_score": 0.6151,
+    "confidence": 0.7890714285714286,
+    "support_events": 14,
+    "support_accounts": 12,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Pass-through Money Laundering (No-Trade Cash-out)",
+    "sql_findings": [
+      {
+        "query_summary": "Identify customers with high withdrawal-to-trade ratios.",
+        "result_summary": "Found 4 primary accounts (Petrov, Hassan, Nour, Laurent) with withdrawals up to $2,990 and <3 trades. One account had 0 trades."
+      },
+      {
+        "query_summary": "Check for shared infrastructure among flagged accounts.",
+        "result_summary": "Confirmed that Ahmed Hassan and Fatima Nour share device fingerprint 'deadbeef...' and IP '41.44.55.66'."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "http://www.fca.org.uk/publication/thematic-reviews/tr19-004.pdf",
+        "title": "FCA: Understanding the Money Laundering Risks in the Capital Markets",
+        "relevance": "Explicitly defines 'No trading activity followed by cash withdrawal' as a capital markets money laundering risk."
+      },
+      {
+        "url": "https://www.fincen.gov/system/files/sar_report/sar_tti_15.pdf",
+        "title": "FinCEN: SAR Activity Review Trends, Tips & Issues",
+        "relevance": "Describes patterns of deposits followed by withdrawals without investment purpose as suspicious activity."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_043701_e8d6feb4_cluster_3",
+    "title": "Pattern: cross_account",
+    "quality_score": 0.6089,
+    "confidence": 0.7939166666666666,
+    "support_events": 12,
+    "support_accounts": 11,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Collusive Multi-Accounting Fraud Ring",
+    "sql_findings": [
+      {
+        "query_summary": "Identified accounts sharing device fingerprints and recipient bank accounts.",
+        "result_summary": "Found two accounts (ahmed.hassan@example.com and fatima.nour@example.com) sharing device 'deadbeef...' and bank account 'EG80...901'."
+      },
+      {
+        "query_summary": "Analyzed IP history and registration timing for the linked accounts.",
+        "result_summary": "Both accounts registered at the same second and shared IP 41.44.55.66 (Cairo, Egypt) with no VPN usage."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://docs.seon.io/knowledge-base/device-intelligence/block-multi-accounting-with-device-intelligence",
+        "title": "Block multi-accounting with Device Intelligence - SEON Docs",
+        "relevance": "Describes the use of device intelligence to detect multi-accounting and fraud rings in fintech."
+      },
+      {
+        "url": "https://www.linkedin.com/posts/soupsranjan_over-the-holidays-we-took-down-a-seriously-activity-7415137260133879808-Aa-p",
+        "title": "Sophisticated Fraud Ring Busted Across Fintechs - LinkedIn",
+        "relevance": "Discusses how coordinated fraud rings use shared signals like counterparty accounts and email patterns."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_043701_e8d6feb4_cluster_2",
+    "title": "Pattern: cross_account",
+    "quality_score": 0.5875,
+    "confidence": 0.7791,
+    "support_events": 10,
+    "support_accounts": 10,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Coordinated Fraud Ring (Money Mule Network)",
+    "sql_findings": [
+      {
+        "query_summary": "Identify withdrawals sharing recipient accounts and device fingerprints.",
+        "result_summary": "Found a cluster of 2 accounts (ahmed.hassan@example.com, fatima.nour@example.com) sharing recipient EG800002000156789012345678901 and device 'deadbeef...'."
+      },
+      {
+        "query_summary": "Check registration and IP history for identified accounts.",
+        "result_summary": "Confirmed both accounts registered at exactly 2026-02-01 12:00:00 and shared IP 41.44.55.66."
+      },
+      {
+        "query_summary": "Check for shared payment methods and additional linked accounts.",
+        "result_summary": "Both accounts used a Visa card ending in 4444, further proving they are controlled by the same entity."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://www.sardine.ai/blog/device-fingerprinting",
+        "title": "Visitor Fingerprint: Device Fingerprinting for Fraud Detection",
+        "relevance": "Describes how device fingerprinting identifies coordinated fraud rings and mule operations."
+      },
+      {
+        "url": "https://www.rapyd.net/blog/fraud-rules-engine/",
+        "title": "A Fraud Rules Engine Blueprint",
+        "relevance": "Explains how shared device IDs and rapid withdrawals to the same beneficiary indicate fraud rings."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_043701_e8d6feb4_cluster_8",
+    "title": "Pattern: constellation_analysis",
+    "quality_score": 0.453,
+    "confidence": 0.5,
+    "support_events": 11,
+    "support_accounts": 9,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Collusive Pass-through Money Laundering Ring",
+    "sql_findings": [
+      {
+        "query_summary": "Identified flagged withdrawals for new accounts with low trade volume.",
+        "result_summary": "Found 4 accounts with near-total withdrawal requests and 0-2 trades."
+      },
+      {
+        "query_summary": "Checked transaction history for failed deposits and shared fingerprints.",
+        "result_summary": "Confirmed 'card_restricted' errors and identified two shared device fingerprints linking the accounts."
+      },
+      {
+        "query_summary": "Analyzed IP history for geographic risk.",
+        "result_summary": "Identified shared IP usage in Cairo, Egypt and high-risk logins from Moscow, Russia."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://bsaaml.ffiec.gov/manual/Appendices/07",
+        "title": "FFIEC BSA/AML Red Flags - Appendix F",
+        "relevance": "Lists 'large deposits and withdrawals shortly after opening' as a primary money laundering red flag."
+      },
+      {
+        "url": "https://www.fraud.com/post/smurfing",
+        "title": "What is Smurfing? Methods and Mitigation",
+        "relevance": "Describes 'smurfing' and 'layering' techniques similar to the observed pass-through behavior."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_043701_e8d6feb4_cluster_0",
+    "title": "Pattern: identity_access",
+    "quality_score": 0.5697,
+    "confidence": 0.7914285714285715,
+    "support_events": 7,
+    "support_accounts": 5,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Collusive Fraud Ring / Multi-accounting",
+    "sql_findings": [
+      {
+        "query_summary": "Identification of shared device fingerprints among flagged withdrawals.",
+        "result_summary": "Found two devices shared by multiple customers. Device 'a1b2c3d4...' was shared by customers in Russia and France. Device 'deadbeef...' was shared by two customers in Egypt."
+      },
+      {
+        "query_summary": "Deep-dive into cross-border shared device 'a1b2c3d4...'.",
+        "result_summary": "The Russian account (ID: 606db...) and French account (ID: 696fc...) both have escalated withdrawals. IPs match their registration countries despite the shared device."
+      },
+      {
+        "query_summary": "Risk indicator analysis for the flagged cluster.",
+        "result_summary": "High risk scores detected for device fingerprinting (0.79), recipient analysis (0.83), and card error history (0.88), confirming systematic fraud attempts."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://www.sardine.ai/blog/zero-day-protection",
+        "title": "Prevent account takeovers with zero-day signals - Sardine",
+        "relevance": "Corroborates that shared device fingerprints across multiple accounts is a primary indicator of fraud rings and multi-accounting."
+      },
+      {
+        "url": "https://neo4j.com/developer/industry-use-cases/finserv/retail-banking/account-takeover-fraud/",
+        "title": "Account Takeover Fraud - Neo4j Industry Use Cases",
+        "relevance": "Describes the pattern of a single device accessing multiple accounts as a key indicator of credential stuffing and fraud networks."
+      }
+    ]
+  }
+]

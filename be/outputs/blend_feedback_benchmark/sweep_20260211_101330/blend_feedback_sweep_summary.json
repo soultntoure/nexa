@@ -1,0 +1,233 @@
+{
+  "run_at": "2026-02-11T02:14:56.510203+00:00",
+  "base_url": "http://localhost:18080",
+  "customers": [
+    "CUST-011",
+    "CUST-013",
+    "CUST-014"
+  ],
+  "rule_cycles_target": 2,
+  "investigator_cycles_target": 1,
+  "reset_first": true,
+  "rows": 9,
+  "prompt_snapshots": 48,
+  "overall_phase_summaries": [
+    {
+      "phase": "favor_rule",
+      "attempts": 6,
+      "successes": 6,
+      "avg_rule_weight_delta": 0.0408,
+      "avg_investigator_weight_delta": -0.0408,
+      "avg_investigator_score": 0.968,
+      "avg_feedback_wait_s": 0.857
+    },
+    {
+      "phase": "favor_investigators",
+      "attempts": 3,
+      "successes": 3,
+      "avg_rule_weight_delta": -0.019,
+      "avg_investigator_weight_delta": 0.019,
+      "avg_investigator_score": 0.8722,
+      "avg_feedback_wait_s": 0.358
+    }
+  ],
+  "customer_summaries": [
+    {
+      "run_at": "2026-02-11T02:13:59.670084+00:00",
+      "base_url": "http://localhost:18080",
+      "customer_id": "CUST-011",
+      "rule_cycles_target": 2,
+      "investigator_cycles_target": 1,
+      "reset_first": true,
+      "initial_blend": {
+        "rule_engine": 0.6,
+        "investigators": 0.4
+      },
+      "final_blend": {
+        "rule_engine": 0.6737,
+        "investigators": 0.3263
+      },
+      "initial_sample_count": 0,
+      "final_sample_count": 19,
+      "phase_summaries": [
+        {
+          "phase": "favor_rule",
+          "attempts": 2,
+          "successes": 2,
+          "avg_rule_weight_delta": 0.0445,
+          "avg_investigator_weight_delta": -0.0445,
+          "avg_investigator_score": 0.9625,
+          "avg_feedback_wait_s": 1.03
+        },
+        {
+          "phase": "favor_investigators",
+          "attempts": 1,
+          "successes": 1,
+          "avg_rule_weight_delta": -0.0152,
+          "avg_investigator_weight_delta": 0.0152,
+          "avg_investigator_score": 0.975,
+          "avg_feedback_wait_s": 1.036
+        }
+      ],
+      "boundary_cross_required": true,
+      "boundary_crossed": true,
+      "boundary_cross_step": 1,
+      "boundary_cross_phase": "favor_rule",
+      "boundary_crossings": [
+        {
+          "indicator": "trading_behavior",
+          "direction": "dampened",
+          "multiplier": 0.7492,
+          "sample_size": 17,
+          "precision": 0.3208
+        },
+        {
+          "indicator": "device_fingerprint",
+          "direction": "dampened",
+          "multiplier": 0.7678,
+          "sample_size": 17,
+          "precision": 0.3341
+        },
+        {
+          "indicator": "velocity",
+          "direction": "dampened",
+          "multiplier": 0.7716,
+          "sample_size": 16,
+          "precision": 0.3369
+        }
+      ],
+      "extra_boundary_cycles": 0,
+      "prompt_snapshots": 16,
+      "rows": 3
+    },
+    {
+      "run_at": "2026-02-11T02:14:26.427915+00:00",
+      "base_url": "http://localhost:18080",
+      "customer_id": "CUST-013",
+      "rule_cycles_target": 2,
+      "investigator_cycles_target": 1,
+      "reset_first": true,
+      "initial_blend": {
+        "rule_engine": 0.6,
+        "investigators": 0.4
+      },
+      "final_blend": {
+        "rule_engine": 0.6737,
+        "investigators": 0.3263
+      },
+      "initial_sample_count": 0,
+      "final_sample_count": 19,
+      "phase_summaries": [
+        {
+          "phase": "favor_rule",
+          "attempts": 2,
+          "successes": 2,
+          "avg_rule_weight_delta": 0.0445,
+          "avg_investigator_weight_delta": -0.0445,
+          "avg_investigator_score": 0.95,
+          "avg_feedback_wait_s": 0.519
+        },
+        {
+          "phase": "favor_investigators",
+          "attempts": 1,
+          "successes": 1,
+          "avg_rule_weight_delta": -0.0152,
+          "avg_investigator_weight_delta": 0.0152,
+          "avg_investigator_score": 0.675,
+          "avg_feedback_wait_s": 0.02
+        }
+      ],
+      "boundary_cross_required": true,
+      "boundary_crossed": true,
+      "boundary_cross_step": 1,
+      "boundary_cross_phase": "favor_rule",
+      "boundary_crossings": [
+        {
+          "indicator": "trading_behavior",
+          "direction": "dampened",
+          "multiplier": 0.7542,
+          "sample_size": 17,
+          "precision": 0.3244
+        },
+        {
+          "indicator": "device_fingerprint",
+          "direction": "dampened",
+          "multiplier": 0.7756,
+          "sample_size": 17,
+          "precision": 0.3397
+        },
+        {
+          "indicator": "velocity",
+          "direction": "dampened",
+          "multiplier": 0.7765,
+          "sample_size": 16,
+          "precision": 0.3403
+        },
+        {
+          "indicator": "recipient",
+          "direction": "dampened",
+          "multiplier": 0.7864,
+          "sample_size": 17,
+          "precision": 0.3474
+        }
+      ],
+      "extra_boundary_cycles": 0,
+      "prompt_snapshots": 16,
+      "rows": 3
+    },
+    {
+      "run_at": "2026-02-11T02:14:56.506543+00:00",
+      "base_url": "http://localhost:18080",
+      "customer_id": "CUST-014",
+      "rule_cycles_target": 2,
+      "investigator_cycles_target": 1,
+      "reset_first": true,
+      "initial_blend": {
+        "rule_engine": 0.6,
+        "investigators": 0.4
+      },
+      "final_blend": {
+        "rule_engine": 0.64,
+        "investigators": 0.36
+      },
+      "initial_sample_count": 0,
+      "final_sample_count": 10,
+      "phase_summaries": [
+        {
+          "phase": "favor_rule",
+          "attempts": 2,
+          "successes": 2,
+          "avg_rule_weight_delta": 0.0334,
+          "avg_investigator_weight_delta": -0.0334,
+          "avg_investigator_score": 0.9916,
+          "avg_feedback_wait_s": 1.022
+        },
+        {
+          "phase": "favor_investigators",
+          "attempts": 1,
+          "successes": 1,
+          "avg_rule_weight_delta": -0.0267,
+          "avg_investigator_weight_delta": 0.0267,
+          "avg_investigator_score": 0.9667,
+          "avg_feedback_wait_s": 0.018
+        }
+      ],
+      "boundary_cross_required": true,
+      "boundary_crossed": true,
+      "boundary_cross_step": 1,
+      "boundary_cross_phase": "favor_rule",
+      "boundary_crossings": [
+        {
+          "indicator": "amount_anomaly",
+          "direction": "dampened",
+          "multiplier": 0.7135,
+          "sample_size": 4,
+          "precision": 0.2954
+        }
+      ],
+      "extra_boundary_cycles": 0,
+      "prompt_snapshots": 16,
+      "rows": 3
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "nexa-fe",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@iconify/vue": "^5.0.0",
+    "@nuxtjs/tailwindcss": "^6.13.2",
+    "@tailwindcss/typography": "^0.5.19",
+    "date-fns": "^4.1.0",
+    "marked": "^17.0.1",
+    "nuxt": "^4.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0"
+  }
+}

@@ -1,0 +1,71 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: deriv_postgres
+    environment:
+      POSTGRES_DB: fraud_detection
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    ports:
+      - "15432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user -d fraud_detection" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fraud_net
+    restart: unless-stopped
+
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: deriv_chromadb
+    ports:
+      - "18000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    healthcheck:
+      test: [ "CMD-SHELL", "bash -c '(echo > /dev/tcp/localhost/8000) 2>/dev/null || exit 1'" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fraud_net
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: deriv_app
+    environment:
+      POSTGRES_URL: postgresql+asyncpg://user:${POSTGRES_PASSWORD:-changeme}@db:5432/fraud_detection?ssl=disable
+      CHROMADB_HOST: chromadb
+      CHROMADB_PORT: 8000
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+      DEBUG: ${DEBUG:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      BACKGROUND_AUDIT_ENABLED: ${BACKGROUND_AUDIT_ENABLED:-false}
+    volumes:
+      - ./outputs:/app/outputs
+    ports:
+      - "18080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      chromadb:
+        condition: service_healthy
+    networks:
+      - fraud_net
+    restart: unless-stopped
+
+networks:
+  fraud_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  chroma_data:

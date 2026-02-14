@@ -1,0 +1,75 @@
+{
+  "run_at": "2026-02-11T02:14:26.427915+00:00",
+  "base_url": "http://localhost:18080",
+  "customer_id": "CUST-013",
+  "rule_cycles_target": 2,
+  "investigator_cycles_target": 1,
+  "reset_first": true,
+  "initial_blend": {
+    "rule_engine": 0.6,
+    "investigators": 0.4
+  },
+  "final_blend": {
+    "rule_engine": 0.6737,
+    "investigators": 0.3263
+  },
+  "initial_sample_count": 0,
+  "final_sample_count": 19,
+  "phase_summaries": [
+    {
+      "phase": "favor_rule",
+      "attempts": 2,
+      "successes": 2,
+      "avg_rule_weight_delta": 0.0445,
+      "avg_investigator_weight_delta": -0.0445,
+      "avg_investigator_score": 0.95,
+      "avg_feedback_wait_s": 0.519
+    },
+    {
+      "phase": "favor_investigators",
+      "attempts": 1,
+      "successes": 1,
+      "avg_rule_weight_delta": -0.0152,
+      "avg_investigator_weight_delta": 0.0152,
+      "avg_investigator_score": 0.675,
+      "avg_feedback_wait_s": 0.02
+    }
+  ],
+  "boundary_cross_required": true,
+  "boundary_crossed": true,
+  "boundary_cross_step": 1,
+  "boundary_cross_phase": "favor_rule",
+  "boundary_crossings": [
+    {
+      "indicator": "trading_behavior",
+      "direction": "dampened",
+      "multiplier": 0.7542,
+      "sample_size": 17,
+      "precision": 0.3244
+    },
+    {
+      "indicator": "device_fingerprint",
+      "direction": "dampened",
+      "multiplier": 0.7756,
+      "sample_size": 17,
+      "precision": 0.3397
+    },
+    {
+      "indicator": "velocity",
+      "direction": "dampened",
+      "multiplier": 0.7765,
+      "sample_size": 16,
+      "precision": 0.3403
+    },
+    {
+      "indicator": "recipient",
+      "direction": "dampened",
+      "multiplier": 0.7864,
+      "sample_size": 17,
+      "precision": 0.3474
+    }
+  ],
+  "extra_boundary_cycles": 0,
+  "prompt_snapshots": 16,
+  "rows": 3
+}

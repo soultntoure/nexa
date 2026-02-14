@@ -1,0 +1,1252 @@
+[
+  {
+    "latency_s": 4.855,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb75dj2xE7Ki0wI4KXPNVhjqOv0Tii3hVsiEE1MG6zwKWGhtpqTjwZzpw4wlh2d'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 1,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.649,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7KYahcduM9cy1b2r1iXm0O4B2VJrrfM8aDfjG/Z3/Ig9XXnhmXaxEvm8/Vkie'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 1,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.276,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7pZiVDuQIhO///57Jlt3lIjW9KCfbEYHE5ZwtpY2d0p0ktlbicNpUsabjaUfn'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 1,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.049,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7643m7oCAbrd7JS21EJU0a5RgDOuJrrvJNtlK6RWATcnTYTyPPvFbhDr6xTZQ'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 1,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.104,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7a/Hi4SI8/7cmpJwVEkBRmtSq28ViXZ3uL5ibSZQ4tUtojJubgylchCMxUYw/'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 1,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.45,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7F2nimq9HGkpfLoPG6cOwPcMZFcTk6Dbbm2ZrxgUjjNSAcV1cGINdveQ56hec'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 2,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.601,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7ClhANtl2HL1UoarM3Zpq05sqx98F6l1nbbt/8Axy2PqXOxBXt/4ujWs2DGOa'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 2,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.173,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7Grj+64okmO09bVUkCu7sJ8ycds5EQnQYIphMmuqKiTbwabu1rArJ7oju7El5'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 2,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.636,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7F0i1LOEQaSO/a4vMkKhvrbixR/Eg5D14KNuDLITAi5dDq2BARmDbZgDWdVcG'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 2,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.165,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7mW5b+kaLQwyMwPwAB6pSgOlH8IMRHONZtEr2RMT6gn2Dg47nX9bBF2hKXcSK'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 2,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 5.062,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7KXtUpTAGlRWP51dSmIlPWdQ9XM9opLl5ffevrDxZDzvfmhOtYm7zAYtVe6m4'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 3,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.842,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7RNRXdV70jXIPUuLe8q5oT0iFJ/LPPPu0DJqV87DjadsXHTrCxS5z9V8UhnZH'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 3,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.355,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7mCMYIPIxtpLl5dRtW52s/N34+MxQYsMBC2B3p+F9DOtDmrTvrR/D+hwxylsS'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 3,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.276,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7uQx9+5vJcaIf1NbvLOgSFHD8DV5rV7hkNs3TVzHzUE4gqXh8sjU0tvAYUzO5'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 3,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.383,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb72IDCcySjTe5KyZNe8mOoqV3dkU8uM+QTt/y98rb9er5XuUhYahya5sOyploN'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 3,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.644,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7bie9cUUkkOBIhWCZSp2Y/ySRrFWEnC9hubFirfeomPweK/UHfJ5+RiplVvlK'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 4,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.827,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7WwwAnnSKq4gWiQe7KCmGPsbU/wcrWSF0LrVDfeDt1eFFLeofH5+AyfyCdyLv'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 4,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.52,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7d+U99Hcfnw8VIJHM8t+F0nRkEgA8Uclm8mMS2dLc5vYaCQ8+epJJQMq46gj1'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 4,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.16,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7n+urIBof+tfQm3tgWpDtSBZ5Z13WK2EaUOivecy8pBNhv19MB7Y21fn1PvTh'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 4,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 2.936,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7+ly6O7kQ7hkCpcKsbCJqnOU3e1uLuT5jNFX09LYskTUmpvZtLCULiA9L5utw'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 4,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.979,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7kDjiOoZDXxF0Z+1Hye7Juj8XcWD5obwROREMmt+gHPyE/2RbGE588fQuxxKF'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 5,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 4.065,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7g2eiVDQ4EaTdkpj7/gP1HHCV/7mvWePsHa3yQoy1Cbh9Yy4I7XO61z9Tb8CK'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 5,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.187,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7Mu9pVPpRBvI7/QBbCw6uG+XGmVzkb4mVecwdsilLokc4RtqqqxR2C+sD9l2r'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 5,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.265,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7LCwZY86d+CT8WxkGLnIb+5i7DWSlUnErm862tPNNh4hfOI/TFjN9IMeeFvID'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 5,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 2.947,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7WXJuYR/6dll82wxBNQLjMwl9D1Wybs5tqnjSGtE8IM9l0Zn6ifAm7vLPOOe0'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.0,
+    "run_id": 5,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.84,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7/zTc0BAq+HNCW2TjgHznRstBkWOz7Lo+ZwmtQdt3Z6iBSU8RrNUT4uILhbtB'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 1,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.629,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb746XmayBWnNxEeeGD4+la22yAZqDGyR50vv5kv8dm6zHIbOWFvVRwvadEEIuF'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 1,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.147,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7r2AvxPf+4nW3L34rwMaA/1oGXtFevyDjYyxhuiZjf7h2KDwP75wZ1eEOgYIw'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 1,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.185,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7qOoMj/uxgXtE68b0G8FiB1Svdf2MKlHxFJaLhbZfbgLMq6ijw4taHp1Pa2AN'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 1,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.069,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7cmTmqLETQ2eIrBHqaFFgOfookcuhPLCZsnGjGB1Mq+2DwuIfGw4h03yOskik'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 1,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 5.341,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb72r/GPGncR5Rcvp2wO+K2TK5RRnNFMs3UQ5qOx70kL2M5Af3f6unwJ1zPRcZ1'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 2,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.816,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7TRG4U/21lMuHvurmlD6H1dI+RctU79TpB2gM7kx2feiExF4gm8T5cVeJ2rCr'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 2,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.159,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7sVaWUi4WhU0LexX4R92kIB6m3NrVWBRXR3MpAxzoOu4PA68kSzJcaUr9Fuap'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 2,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.171,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7RSb6mqB0AS2iMz6lbAeZA7qOMWmZlDnOiBUcOkQ/dh0WgqHDNrLy3YvoN9Xq'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 2,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.061,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7yWVmRhPWOO/Y/CCi7xFExrBy6cAYo9qHdyTj1POZmY5iHCEBYr/ly48zsguK'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 2,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 5.297,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb755bsGTOrB8uoszlT/L6JiszJHs1fNt1m4XZtwqx/lqyZ9wfFXkscVUBRi3Ei'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 3,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.733,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7xe5V53HTAIpHXIItMVjIeQxv4itwkYp6M6w1YnnhAUtT2PV6gtjCOfqBgY91'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 3,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.167,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb78gPCW7GzSHToOM5FqVznPUjSZLWkmDZBGERUcXmGg9q5RcUMbQCljG/MmP2K'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 3,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.838,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7hE44rOzVYRcnekBQv9Qaz02+w50w9B2SVzVXi/q1NS6htN9wKU3e5+G0TH/+'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 3,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.043,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7ALGPL3sbRu0BeNz+pm2qVj7iaOnKk4l9karJAwXTt5Z32+taRbLUam8OjTvs'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 3,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.671,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7nHEBvHcdjaNXEHgg+h+Ve6oQqBCKI6RjLCsv+R0bgDkc9Zd8GqkXod6NFHDw'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 4,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 4.202,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7gdyUzQjtej88zKhVAtaG0gzrbjrUbqZnc+aBnS5xGnDgwhhxGieqhnC+oclI'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 4,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.161,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7F2Ib1Sqz5PJjfnwXm4ghTZCqjvdD6tLIEOV+wDGTOv2APuMUAT5TK3tziCz/'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 4,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.395,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7hCkz1PMDDUJfaxr6lBW7o1RR058X6p55VhRTd5alWeGec0T3cpZjWFh8qFRB'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 4,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.169,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7xLYlWuOHLLBtOZgtU/y0oRxKO7nBNgajOiZBdjp3iZNvl11E0+QxPAnawj5X'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 4,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.874,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7ad29t/f8ofrj1/EpEXqxK1ygIaNZl0WHa72GtvSBjUMNAp/Jx91wnshdS7JX'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 5,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.902,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7Hya7TIqq20w1WFGpe1k54+Zkyd9+Cg7adsPWRWZXh0Gvjl/el/ZuyMjU/XJc'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 5,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.046,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7m6FrT7FrEH6IQu/P88K7karHGMNe+iWCALriR2TSFhbt8jwqXzs5kzAvhG+T'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 5,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.581,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb74HyVBBy741oT8GYD6MHAlb0xGx/QCii+kY41oiar3a5gAzRcVgR64jbjnv5N'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 5,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.026,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7vTjVPzILvXAPspaDHrIsDI8FYhJH5iuG7db9T0aZp9fLZMl/B/SrJavbovj8'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.2,
+    "run_id": 5,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.8,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7f5rQH8JBjzyda6j/NOwCNrgWx9GSBcYZth1FaqLbJcsV5/nQtoVQbCcOmdl2'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 1,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.73,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7DFpT2BjFC2NtEH7y1jEa5+G2Ql9NpDY+8Xw6oZKDpm09ipY/mBzbmupLWDTt'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 1,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.168,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7d0trew/5HwT3ZFHT44yEzkedMuXdFzk4m7g71//ymIoiVtXHlflLy7yJY4yQ'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 1,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.086,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7K8YPrz0CF7kgXkoEcAckZOzj+EM+RwI4ALZ0bzf55hVRpt3ZFKwqguUpMJYg'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 1,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.071,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7ypV4I5cU9XzfJo0UiDwvnLNkxwLAHimgmCe5UkRRnvnvr9rkDZ3OXR5SxVQg'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 1,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.758,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7Lrl7cTYl0UCpk41ItbnSKWqvZx+JvB1dHfmeiH2Ewu+hE40J2PTfw9r/viF3'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 2,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.716,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7J1DfDJakfeZ/u8z29FMavxcEppJ9D3idIVdi1zj1sQrgCdbwe7pwg5ZZar9y'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 2,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.159,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7WKgyWcYuMArAz6a4eiu+FWxitMHKg77Gx1miydB/XGVAk8SAbpVVBDX70fg1'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 2,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.4,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7j/fddrKMZynOiJOCbk1mLFKn5YgGxuivn0ds3ISaJEXnyJRcLc2v8HuwbzzE'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 2,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.061,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb76cITkIYuAVUsR6W+MqTEDATBrnGX8wLVBGKkKum3hh2hfz6a1Zmk2r708wH7'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 2,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.72,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7xgyiP/NxY1OUY1Wj5c8TzjtC+GAVUfUjysQzBJCD71C3ZqK6+T/eJ0m7MThI'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 3,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.625,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7OzDiGCiAOvy/4YyOf6iDFLM9uJkdavIvExDk4jKR8edrRCc5gNVEUZ3cvU8F'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 3,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 2.939,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb73pqgdJD4hgE/S1iH+pSjarjU+gh2d0AiNhTScLpqqHMVDtCU+4C9TAzRHLeF'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 3,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.274,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7RisEbPXvNxi3cxbVrZLt6xo70ek/5lwW+RucNF+MEfC3BMw6mFi+OQU5wH6E'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 3,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.026,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7jXuEgSvg4Ah+lBpS0DdqzWJPUuUzRT1UmHhAhDB67PENQ7N/99sV7NbCbF3t'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 3,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.664,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7Xu3RxSjl6pXKdlic4+PH1GZdUxi+G+p/v0fGzc6FtkBcRFPXURFDVYAqlCFX'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 4,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.752,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7i7JUYNmMK0G0Ivi3Mc4NdUbsoFCQMzhjKUZ9FQ5LYdykP1W+IXUR5QctFscq'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 4,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.054,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7N55Hfsy6UtsA8fLCQnoROogsB2TMUpqU2KUdmfm71E4yk8zb7ebhQI5FMh6S'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 4,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.646,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7a1Ak5LaQNBBhkNJvmSBRfyaznNK/ouMq6DAgnEKGsYqHBjqkhimIpqHd9fTx'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 4,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.323,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7nWq+5+Z+4T9UcbVOBq5gIWaSo4vRpykH/z4QLAyN7lwjRZGSsPqVSAEcxXx6'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 4,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.767,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7FMVoeyMRQCVAf3wbeAbW6hu626N1iXxWtKadOwl3lyyew1Gwt9kfgIbMgDql'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 5,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.734,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7gyxICiw/QiS3HHKBZa9JsQjgXPGptY677SQptuagLDmuIwrqpHbc6CzoFHEi'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 5,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.276,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7tEFVF/+Yxg4QhYQEqNA6N+ZqRbwRLpJB+Lgibq02MSqZaVQUbvcj6e3BlU7L'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 5,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.811,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7h71JSE3MkAojBufXR2CuhNiyGFK1BRxOpR2uW25CA8IIfyDVTiNEZZDLbj8+'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 5,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.18,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7k51JwKMYSo+F277mHxw2G/kfre1pbLEllL1iyuu93a8HD3a61plViE3rMjkJ'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.5,
+    "run_id": 5,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.854,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7Cm1JeeL/RUj7RD0d7CWoGIXI1zt+sSLjXyRxo2bp84SJnuYtGqpEGq8QOj1i'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 1,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.73,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7NBUA0ePLQKTNxMseupy5sIK8IPROB0MPIGzdUfr6CBtFfTFzlpMZPpMlvk7K'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 1,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.058,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7fjAzX/dGMkmTL//Hvc6xKOa6koEj3gjbgwbTJYPg0IKwQP96qq/c9hEC6N1U'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 1,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.404,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7GvMclDbH2aDDaROhZEbZk4FCg0sBGYtheFHDA/ek2Dt6JVpORiOmxTvoQT5S'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 1,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.166,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb798KYSG7SUTANY0suZW5CEo1XoCFZIoC3r/l5FvUlumO8KuIkDhvZYpa5IzLW'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 1,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.84,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7awJlFX13pgV24X+7b0xclx0j/cbICE7GId3sthOwQt8jcGYrUma0aEOHVBJO'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 2,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.715,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7MeflfV/idmvVaVw4zfNkyfgbA5CN0H+kB1HoCSYMj/g7HpLNk/4PJAOmS/5M'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 2,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.141,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7gD7Wa/YoWiV4E1d8E2SyXtVwWy3tvsV3lgLenP9TnxqPzTAaz4TZy/iLGT4P'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 2,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.044,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7Zi2HTbwPwxHD+txOfMj3YyEN0nasWm48+4u3tS5VbQqMpLZCIHje+8A4PWpf'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 2,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.416,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7TC7dAqqfGxiw+09s8zHS5ZfxWTxMNIlfrCygfXEu2tW2/Oe4HBIwI6my+zi3'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 2,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 5.248,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7+Vc5bEz32tPcpAYwoITEEjCaepRTqKm069Xj80BU7jY16gOsYqlj0onrZWAt'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 3,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.58,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7+sjkUzS697w0F9o4Kl8ckzo6LYc8oiSHmidiaGYrU/2KdqtR0Rv8ky3zVrMt'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 3,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 2.942,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7fpieO+ACk4CuU0EQIfMoDe8wPAJkAkH3kPLR5fT5b8D00EyuZU/vlNQJNcdW'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 3,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.513,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7IgOiTp6q6FJxKTSU+d2BFAifF2sUQwlaUmozYXttHc2N0YZiHCIGySfxPJyS'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 3,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.501,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7xLj1ZdjWZWfWVDwv2DqRIJNHvPvdzbylpBgdhR5HAJlcZ8dUrBtLPCipvYfp'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 3,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.722,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb78BgBoZx1PakbFfQaTSOIbGpA8vnfrjRQ34VAEQZ+y/Bkqs8ewEo4SDCyRusD'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 4,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.813,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7zlbinPIt4KdQtxhR/LbyurqNPRbHhLo8I3/CztE6v47bOYILWY7pSDyfbNz4'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 4,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.224,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7qaMauPOK57ZyRbUKBYmmaRa3nLo0EJrGGWMbIcnsFEhHlEkLg1ckO+2j2lwc'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 4,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.196,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7yS0UihzoZUQkGLvqoNd71CFFMKwcYaP1t/MtD8ggE8MTlKacfJiPRxsMXo3x'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 4,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.166,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb799mJCDE7yn/UyzJrWgaqWN5dEkaHMr4WwVrdMj0eg2YqfMUxNOALpZzYYl2M'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 4,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.628,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7Etf1fD+JoLiYTjJVe1qeMwHOVm6IPq1qRHV3gTEdg2cPUha6HSb+u5G4IZFa'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 5,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.511,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7cmaZbRQP7+cLHWxrLYaucQawlrHbp2jp0HzSGN9z9fBVgDz4cAtjnwdQ3XTf'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 5,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.021,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7wteLOS32JEReQZLbR9PLZ24OvKDTNIvgM2/EdxIHNL03AH0sZyORU2on7P5A'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 5,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.045,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7vf+ht8wlV5PZ9OX/wImjnMeYL4cG1K96kw1itEDFVvC0xC5FzLW7EDl4uT8h'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 5,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.16,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7vqxwmXkjgoZvgt0bmpdvPm33ErDJiwEk3gzD2N8BgMs+NnjVvynedRYn/h1X'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 0.8,
+    "run_id": 5,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.88,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7kQPoF5baZkQE4F506E/oAL/sEXYarkHNDDEfQKK0cvwhMA5DeTCuCyC9Bi3A'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 1,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.619,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7Aoulo/2nODwoiMKZmDq4s2wANiKdb0Q8Ce1OnGr3Jas5QIyWWKqqSyNn/Q5F'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 1,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.031,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7zdR/nRGECqlw7F+jKiexwRLvujAdTqCwPPn0oZJYxHQbag9NgOeop1HNqYEl'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 1,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.382,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7wpa8JX7VLjN3/3qN6BmRVXYyPQVMRiwQLfiJM8NDddqp7qxAtktaDFHCZbwt'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 1,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.278,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7VHdN73lom6DwYLykr3KsLjKNEIf+RFjZx8eIDYRDbz4Rc6dVBF2oj0LROvfP'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 1,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.728,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7lOc4fNNDkE3I1BmfC9MQ8aj7JLq07LeSUIWCt+R0a/8j1Z78dcOSsRc9OMzI'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 2,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.583,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7hjnKVnuMc1fOOF/BwVT9uVYS0vBe/yZal/TYMSNyeRF4Ba/QFupMSpUZyWJ7'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 2,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 2.935,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7zARGOHH/r0a5KGThm4WCoJ3kQTgelHmy0r3jmFv9A6yelUcAIgygtzea8ysX'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 2,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.275,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7D2Af48yV6cfYczl0J9ajEnBphu0aHBqU4mbC0KqkMWsq5qdUNB0Eq2ay9X+x'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 2,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.296,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7ZFD6KXUWSDq6YlIJ/MBiFNo753wuASqQO0giYMXpwkuO2HOzTggLLXkSCp3V'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 2,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.844,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7aCHzl4OW+YU8uQLkopiJMT2Zm4LSA3lpa8cmG0SSRpHj8gFVFLbuvFOHuQ4r'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 3,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.704,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb70vIU/GQZgL/XmgoLF2wcv3C1GaysZyz2IOI4MMTzbH+6D+1FE36D3igP8zMi'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 3,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 2.939,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb77MnJiNGNY5bUT4nvL6k/RDw2JqRPHl4nAoX5ErNXwMPWsDcB3GiZKKWYKgNv'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 3,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.195,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb70tvotKGrTcOouKF/T9SsG+Ux0PgjAIfiUWn9XThHxZfx/0GSJKlQzXjv2rO4'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 3,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.74,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7rblV7ZTixhZn6KXs9EQ9QaiJvxZFE+lUO81m80K4e4gHUNdwFK6DQd8TMm23'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 3,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.856,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7bOQEaBSnlO3pkvUmsCRAhe0xemZidk+B92UQWjM8rxcZENpombVOcqF5gRy1'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 4,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.866,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7Yq/77d/DF90lI3HSwV5CU1YEnGPt85EF7GMPEDcZ6v8hgds5NWmzbjAK09/e'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 4,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 2.975,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb7MWj28rjajkBFhNtPrPxi8wgLHHeAScDK+4zDqPA7QsSi8sZ6ftKYWo4ShHlU'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 4,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.143,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7TKYc0Z3yrVxA1LcIvurZRU3Eiuv/EaVub52NvNLEfwoUPKhwj6XWLX6Wcx3l'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 4,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.028,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7ZW9P0r+rX82BP/l3FEa0uPgjfxEUJg32zaccC+RuWBOaLb1WCKNwFV0x7eAH'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 4,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  },
+  {
+    "latency_s": 4.507,
+    "answer": "[{'type': 'text', 'text': 'There are currently no customers marked as blocked or flagged in the system.\\n\\nWould you like me to check for any recent withdrawals that have been escalated for review instead?', 'extras': {'signature': 'EjQKMgG+Pvb7yD1VqeTXj9aCfVq/B7KgWUE7SddCJGGW64W0yOL4c1RrfCjwXT+sZImk/6KT'}}]",
+    "sql": "{'query': \"SELECT COUNT(DISTINCT customer_id) FROM withdrawal_decisions WHERE decision = 'blocked';\"}; {'query': \"SELECT COUNT(DISTINCT w.customer_id) \\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd.decision = 'blocked';\"}; {'query': 'SELECT COUNT(*) FROM customers WHERE is_flagged = TRUE;'}",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 5,
+    "question": "How many customers are currently blocked?",
+    "query_type": "simple"
+  },
+  {
+    "latency_s": 3.497,
+    "answer": "[{'type': 'text', 'text': 'France, Russia, Egypt, and Mexico currently show the highest fraud rates, with all recent withdrawals from these regions being flagged for review.\\n\\n1. France: 100% fraud rate (1 flagged out of 1 total)\\n2. Russia: 100% fraud rate (1 flagged out of 1 total)\\n3. Egypt: 100% fraud rate (2 flagged out of 2 total)\\n4. Mexico: 100% fraud rate (5 flagged out of 5 total)\\n5. Ukraine: 33.33% fraud rate (1 flagged out of 3 total)\\n\\nWould you like me to check if these flagged withdrawals share a common IP address or device fingerprint?', 'extras': {'signature': 'EjQKMgG+Pvb7E3K92WXH53/JTvsBZzJY+QQpJZpKgHmhLC6577rBlQRWXXKSUziH7iiF1Mdj'}}]",
+    "sql": "{'query': \"SELECT \\n    c.country, \\n    COUNT(w.id) AS total_withdrawals,\\n    COUNT(CASE WHEN wd.decision IN ('blocked', 'escalated') THEN 1 END) AS flagged_withdrawals,\\n    ROUND(COUNT(CASE WHEN w",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 5,
+    "question": "Which countries have the highest fraud rate?",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 2.969,
+    "answer": "[{'type': 'text', 'text': 'I found 2 device fingerprints that are shared by multiple customers, which can often indicate linked accounts or shared hardware.\\n\\n1. **Fingerprint a1b2c3d4...**: Shared by **Sophie Laurent** and **Victor Petrov**.\\n2. **Fingerprint deadbeef...**: Shared by **Ahmed Hassan** and **Fatima Nour**.\\n\\nWould you like me to check if these customers also share the same IP address or have similar withdrawal patterns?', 'extras': {'signature': 'EjQKMgG+Pvb71zYmgwxzcFiJUHxhlttCASLb1vAfGlsgf+Ory3+PpjnSLFLOnM6yilZdBofu'}}]",
+    "sql": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as customer_count, STRING_AGG(DISTINCT c.name, ', ') as customer_names\\nFROM devices d\\nJOIN customers c ON d.customer_id = c.id\\nGROUP B",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 5,
+    "question": "Find customers who share the same device fingerprint",
+    "query_type": "medium"
+  },
+  {
+    "latency_s": 3.435,
+    "answer": "[{'type': 'text', 'text': 'Based on the current data, customers using VPNs actually have significantly lower withdrawal amounts on average compared to those who do not.\\n\\n1. **Non-VPN Users:** Average withdrawal of $3,420.65 (75 withdrawals)\\n2. **VPN Users:** Average withdrawal of $500.00 (6 withdrawals)\\n\\nWhile the average is lower for VPN users, the sample size for confirmed VPN transactions is currently quite small. Would you like me to check if these VPN-based withdrawals were flagged for review or if they originated from high-risk countries?', 'extras': {'signature': 'EjQKMgG+Pvb7PFhQUbphs27Be1nLV15I8fpLgVGgyMG/nffDgwdDwH2IayzATPN0LlDaBxHP'}}]",
+    "sql": "{'query': 'SELECT \\n    ih.is_vpn, \\n    COUNT(DISTINCT w.id) as withdrawal_count,\\n    AVG(w.amount) as average_withdrawal_amount\\nFROM withdrawals w\\nJOIN ip_history ih ON w.customer_id = ih.custome",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 5,
+    "question": "Do customers who use VPNs have higher withdrawal amounts on average?",
+    "query_type": "complex"
+  },
+  {
+    "latency_s": 3.052,
+    "answer": "[{'type': 'text', 'text': 'I found no withdrawals that were marked as \"blocked\" by the fraud system but still reached an \"approved\" workflow status. This suggests that your blocking controls are working correctly and preventing high-risk payouts from being processed.\\n\\nWould you like me to check for any \"escalated\" withdrawals that were approved, or should I look for blocked attempts from this past week?', 'extras': {'signature': 'EjQKMgG+Pvb7EibVk97wXkuhWfw/Virhg8OhqC85Q7600gQxRkFPdepocq6zpJk5coEsiJef'}}]",
+    "sql": "{'query': \"SELECT w.id, w.amount, w.currency, w.recipient_name, wd.decision, w.status, wd.decided_at\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.id = wd.withdrawal_id\\nWHERE wd.decision = '",
+    "error": null,
+    "temperature": 1.0,
+    "run_id": 5,
+    "question": "Find blocked withdrawals that were approved",
+    "query_type": "edge_case"
+  }
+]

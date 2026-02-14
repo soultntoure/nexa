@@ -1,0 +1,94 @@
+id,question,category,expect_chart,expect_type,got_chart,got_type,got_rows,chart_correct,type_correct,pass,ttft_s,total_s,answer_preview,error,event_count
+1,Who are our top 10 withdrawing customers?,top-N ranked,True,bar,True,bar,10,True,True,True,0.063,8.53,"James Wilson is currently our highest-volume customer, with over $150,000 in total withdrawals, followed by Raj Patel and Sophie Laurent.
+
+1. James Wilson: $150,779.16
+2. Raj Patel: $52,009.80
+3. Soph",,16
+2,Show me the top 5 customers by number of withdrawals,top-N count,True,bar,True,bar,5,True,True,True,0.044,5.641,"Here are the top 5 customers with the highest number of withdrawal requests:
+
+1. Raj Patel: 17 withdrawals
+2. James Wilson: 14 withdrawals
+3. Sarah Chen: 10 withdrawals
+4. Yuki Tanaka: 10 withdrawals
+",,10
+3,Compare the total withdrawal amounts by country,categorical comparison,True,bar,True,bar,13,True,True,True,0.045,7.215,"The United States leads with the highest total withdrawal volume, followed by India and Japan.
+
+1. USA: 150,779.16
+2. IND: 52,009.80
+3. JPN: 38,285.98
+4. EGY: 36,863.32
+5. FRA: 29,396.48
+6. GBR: 23,29",,16
+4,What are the average risk scores per customer?,per-entity metric,True,bar,True,bar,13,True,True,True,0.045,7.6,"The average risk scores range from 0.33 to 0.72, with Raj Patel and Emma Davies showing the highest average risk levels.
+
+1. Raj Patel: 0.72
+2. Emma Davies: 0.71
+3. Nina Volkov: 0.71
+4. Sophie Laurent",,14
+5,Show the number of withdrawals per payment method,categorical count,True,bar,True,bar,4,True,True,True,0.044,6.137,"Cards are the most frequently used payment method for withdrawals, followed by bank transfers.
+
+1. Card: 78 withdrawals
+2. Bank Transfer: 35 withdrawals
+3. Crypto: 10 withdrawals
+4. E-wallet: 8 withdr",,10
+6,Which customers have the most devices?,top-N devices,True,bar,True,bar,10,True,True,True,0.044,6.331,"Carlos Mendez currently leads with 3 registered devices, while Yuki Tanaka and Nina Volkov follow with 2 devices each. Most other customers in the top list are currently using a single device.
+
+1. Car",,13
+7,Show me blocked vs approved withdrawal counts by country,grouped comparison,True,bar,True,bar,13,True,True,True,0.046,23.5,"There are currently no withdrawals with a ""blocked"" decision in the system. Instead, I've compared approved withdrawals with those that have been **escalated** for further review.
+
+1. **Mexico (MEX):*",,26
+8,What is the breakdown of withdrawal statuses?,status distribution,True,pie,True,pie,2,True,True,True,0.045,8.002,"OK. Here is the breakdown of current withdrawal workflow statuses:
+
+1. **Approved**: 95 withdrawals
+2. **Pending**: 36 withdrawals
+
+Additionally, our fraud engine has flagged 10 withdrawals as **Escal",,12
+9,Show the distribution of payment methods used,method distribution,True,pie,True,pie,4,True,True,True,0.043,5.019,"OK. Most customers prefer using cards, which account for 14 of the payment methods on file, followed by bank transfers and crypto.
+
+1. **Card**: 14
+2. **Bank Transfer**: 3
+3. **Crypto**: 2
+4. **E-Wall",,11
+10,What percentage of evaluations are approved vs blocked vs escalated?,decision distribution,True,pie,False,,0,False,True,False,0.045,35.791,,"Query failed: Recursion limit of 25 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.
+For troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT",26
+11,Show me the share of total withdrawal amount by payment method,amount share,True,pie,True,pie,4,True,True,True,0.042,6.177,"Bank transfers and card payments dominate the withdrawal volume, accounting for the vast majority of the total funds moved.
+
+1. **Bank Transfer**: $215,454.73
+2. **Card**: $162,733.04
+3. **Crypto**: $",,12
+12,Show me the daily withdrawal count over the past 2 weeks,daily trend,True,line,True,line,9,True,True,True,0.042,7.317,"Over the past two weeks, withdrawal activity peaked on February 8th with 29 requests, while other days typically saw between 1 and 10 withdrawals.
+
+1. 2026-02-08: 29 withdrawals
+2. 2026-02-06: 10 with",,17
+13,What is the trend of total withdrawal amounts by day?,amount trend,True,line,True,line,11,True,True,True,0.044,7.488,"The total withdrawal volume has shown a significant upward trend over the last 30 days, peaking at $76,325.91 on February 8th.
+
+1. Feb 08: $76,325.91
+2. Feb 06: $43,253.28
+3. Feb 04: $28,183.46
+4. Feb",,18
+14,Plot the number of new customers registered per day,registration trend,True,line,True,line,12,True,True,True,0.045,6.375,"This chart shows the daily registration volume for new customers, with a peak of 3 registrations on February 8, 2025. Most days see between 1 and 2 new sign-ups.
+
+Would you like me to check if any of ",,9
+15,Show the daily average risk score trend,risk trend,True,line,True,line,9,True,True,True,0.042,6.802,"The average risk score has fluctuated over the last 30 days, peaking at 0.72 on February 7th before dropping significantly.
+
+1. Feb 07: 0.72 (Highest)
+2. Feb 01: 0.69
+3. Feb 03: 0.69
+4. Feb 02: 0.66
+5",,15
+16,How many customers are there in total?,single number,False,,False,,0,True,True,True,0.043,2.829,"There are currently 16 customers registered in the system.
+
+Would you like to see a breakdown of these customers by country or check how many have been flagged for review?",,7
+17,What is the total amount of all withdrawals?,single aggregate,False,,True,pie,3,False,True,False,0.043,8.181,"The total volume of all withdrawals is approximately **$419,118.29** (nominal sum), with the vast majority processed in USD.
+
+1. **USD**: $414,321.98 (120 withdrawals)
+2. **AUD**: $4,035.92 (7 withdra",,13
+18,Is there a customer named James Wilson?,yes/no lookup,False,,False,,0,True,True,True,0.044,3.282,"Yes, I found one customer named James Wilson. He is based in the USA and has been registered since February 9, 2023. His account is currently not flagged.
+
+Would you like me to pull up his recent with",,8
+19,What is James Wilson's email address?,single record lookup,False,,False,,0,True,True,True,0.044,2.37,"James Wilson's email address is james.wilson@example.com.
+
+Would you like me to check his recent withdrawal history or see if he has any active alerts?",,8
+20,"Hello, what can you help me with?",greeting (no SQL),False,,False,,0,True,True,True,0.045,2.723,"Hello, I'm Nexa. I'm ready to turn your words into insights. What would you like to know?
+
+I can help you analyze withdrawal patterns, investigate specific customers, and identify potential fraud risk",,9

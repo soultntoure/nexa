@@ -1,0 +1,630 @@
+2026-02-07 19:57:23,838 INFO     test_agents | Log file: outputs\logs\run_20260207_195723.log
+2026-02-07 19:57:23,838 INFO     test_agents |   Logging to: outputs\logs\run_20260207_195723.log
+2026-02-07 19:57:23,838 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:57:24,882 INFO     test_agents | 
+============================================================
+2026-02-07 19:57:24,883 INFO     test_agents |   Sarah Chen — Clean (expect APPROVE)
+2026-02-07 19:57:24,883 INFO     test_agents | ============================================================
+2026-02-07 19:57:24,883 INFO     test_agents |   [RULE ENGINE] Running 8 indicators (async SQL)...
+2026-02-07 19:57:24,977 INFO     sqlalchemy.engine.Engine | select pg_catalog.version()
+2026-02-07 19:57:24,977 INFO     sqlalchemy.engine.Engine | [raw sql] ()
+2026-02-07 19:57:25,081 INFO     sqlalchemy.engine.Engine | select current_schema()
+2026-02-07 19:57:25,081 INFO     sqlalchemy.engine.Engine | [raw sql] ()
+2026-02-07 19:57:25,084 INFO     sqlalchemy.engine.Engine | show standard_conforming_strings
+2026-02-07 19:57:25,084 INFO     sqlalchemy.engine.Engine | [raw sql] ()
+2026-02-07 19:57:25,086 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:25,086 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        COALESCE(AVG(w.amount), 0) AS avg_amt,
+        COALESCE(STDDEV(w.amount), 0) AS std_amt,
+        COUNT(*) AS total_count
+    FROM withdrawals w
+    JOIN customers c ON c.id = w.customer_id
+    WHERE c.external_id = $1
+      AND w.status IN ('approved', 'completed')
+
+2026-02-07 19:57:25,086 INFO     sqlalchemy.engine.Engine | [generated in 0.00023s] ('CUST-001',)
+2026-02-07 19:57:25,087 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:25,087 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        pm.is_verified,
+        pm.is_blacklisted,
+        pm.added_at,
+        EXTRACT(EPOCH FROM (NOW() - pm.added_at)) / 86400 AS age_days,
+        (SELECT COUNT(DISTINCT pm2.id)
+         FROM payment_methods pm2
+         WHERE pm2.customer_id = pm.customer_id
+           AND pm2.added_at >= NOW() - INTERVAL '30 days'
+        ) AS methods_added_30d
+    FROM payment_methods pm
+    JOIN customers c ON c.id = pm.customer_id
+    JOIN withdrawals w ON w.payment_method_id = pm.id
+    WHERE c.external_id = $1
+    ORDER BY pm.added_at DESC
+    LIMIT 1
+
+2026-02-07 19:57:25,087 INFO     sqlalchemy.engine.Engine | [generated in 0.00029s] ('CUST-001',)
+2026-02-07 19:57:25,088 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:25,088 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        COUNT(*) FILTER (
+            WHERE w.requested_at >= NOW() - INTERVAL '1 hour'
+        ) AS count_1h,
+        COUNT(*) FILTER (
+            WHERE w.requested_at >= NOW() - INTERVAL '24 hours'
+        ) AS count_24h,
+        COUNT(*) FILTER (
+            WHERE w.requested_at >= NOW() - INTERVAL '7 days'
+        ) AS count_7d
+    FROM withdrawals w
+    JOIN customers c ON c.id = w.customer_id
+    WHERE c.external_id = $1
+
+2026-02-07 19:57:25,088 INFO     sqlalchemy.engine.Engine | [generated in 0.00027s] ('CUST-001',)
+2026-02-07 19:57:25,088 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:25,089 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        ih.ip_address,
+        ih.location,
+        ih.is_vpn,
+        ih.last_seen_at,
+        c.country AS home_country
+    FROM ip_history ih
+    JOIN customers c ON c.id = ih.customer_id
+    WHERE c.external_id = $1
+    ORDER BY ih.last_seen_at DESC
+    LIMIT 20
+
+2026-02-07 19:57:25,089 INFO     sqlalchemy.engine.Engine | [generated in 0.00023s] ('CUST-001',)
+2026-02-07 19:57:25,089 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:25,089 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        c.name AS customer_name,
+        (SELECT COUNT(DISTINCT w2.customer_id)
+         FROM withdrawals w2
+         WHERE w2.recipient_account = $1
+        ) AS cross_account_count,
+        (SELECT COUNT(*)
+         FROM withdrawals w3
+         JOIN customers c2 ON c2.id = w3.customer_id
+         WHERE c2.external_id = $2
+           AND w3.recipient_account = $1
+        ) AS history_count
+    FROM customers c
+    WHERE c.external_id = $2
+
+2026-02-07 19:57:25,090 INFO     sqlalchemy.engine.Engine | [generated in 0.00028s] ('GB29NWBK60161331926819', 'CUST-001')
+2026-02-07 19:57:25,090 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:25,090 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        d.is_trusted,
+        d.first_seen_at,
+        EXTRACT(EPOCH FROM (NOW() - d.first_seen_at)) / 86400 AS device_age_days,
+        (SELECT COUNT(DISTINCT d2.customer_id)
+         FROM devices d2
+         WHERE d2.fingerprint = d.fingerprint
+        ) AS shared_account_count
+    FROM devices d
+    JOIN customers c ON c.id = d.customer_id
+    WHERE c.external_id = $1
+      AND d.fingerprint = $2
+    LIMIT 1
+
+2026-02-07 19:57:25,091 INFO     sqlalchemy.engine.Engine | [generated in 0.00038s] ('CUST-001', 'f1e2d3c4b5a6f1e2d3c4b5a6f1e2d3c4')
+2026-02-07 19:57:25,091 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:25,092 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        COALESCE(
+            (SELECT SUM(t.amount) FROM transactions t
+             JOIN customers c2 ON c2.id = t.customer_id
+             WHERE c2.external_id = $1 AND t.type = 'deposit'
+               AND t.status = 'success'),
+            0
+        ) AS total_deposits,
+        COALESCE(
+            (SELECT COUNT(*) FROM trades tr
+             JOIN customers c3 ON c3.id = tr.customer_id
+             WHERE c3.external_id = $1),
+            0
+        ) AS trade_count,
+        COALESCE(
+            (SELECT SUM(tr.pnl) FROM trades tr
+             JOIN customers c4 ON c4.id = tr.customer_id
+             WHERE c4.external_id = $1 AND tr.pnl IS NOT NULL),
+            0
+        ) AS total_pnl
+
+2026-02-07 19:57:25,092 INFO     sqlalchemy.engine.Engine | [generated in 0.00032s] ('CUST-001',)
+2026-02-07 19:57:25,092 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:25,092 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        COUNT(*) FILTER (
+            WHERE t.status = 'failed'
+              AND t.timestamp >= NOW() - INTERVAL '30 days'
+        ) AS fail_count_30d,
+        COUNT(*) FILTER (
+            WHERE t.error_code IS NOT NULL
+              AND t.timestamp >= NOW() - INTERVAL '30 days'
+        ) AS error_count_30d,
+        COUNT(DISTINCT t.payment_method_id) FILTER (
+            WHERE t.timestamp >= NOW() - INTERVAL '30 days'
+        ) AS distinct_methods_30d
+    FROM transactions t
+    JOIN customers c ON c.id = t.customer_id
+    WHERE c.external_id = $1
+
+2026-02-07 19:57:25,093 INFO     sqlalchemy.engine.Engine | [generated in 0.00029s] ('CUST-001',)
+2026-02-07 19:57:25,099 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:25,101 INFO     sqlalchemy.engine.Engine | 
+    SELECT COUNT(DISTINCT
+        SPLIT_PART(ih.location, ', ', 2)
+    ) AS distinct_countries
+    FROM ip_history ih
+    JOIN customers c ON c.id = ih.customer_id
+    WHERE c.external_id = $1
+      AND ih.last_seen_at >= NOW() - INTERVAL '7 days'
+
+2026-02-07 19:57:25,101 INFO     sqlalchemy.engine.Engine | [generated in 0.00025s] ('CUST-001',)
+2026-02-07 19:57:25,102 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:25,102 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:25,103 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:25,103 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:25,103 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:25,104 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:25,106 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:25,110 INFO     test_agents |     amount_anomaly: score=0.0 | Amount within normal range (z=0.09).
+2026-02-07 19:57:25,110 INFO     test_agents |     velocity: score=0.0 | Normal velocity: 1/1h, 1/24h, 1/7d.
+2026-02-07 19:57:25,110 INFO     test_agents |     payment_method: score=0.0 | Trusted payment method.
+2026-02-07 19:57:25,111 INFO     test_agents |     geographic: score=0.0 | Consistent location.
+2026-02-07 19:57:25,111 INFO     test_agents |     device_fingerprint: score=0.0 | Known trusted device.
+2026-02-07 19:57:25,111 INFO     test_agents |     trading_behavior: score=0.0 | Active trader with normal ratio.
+2026-02-07 19:57:25,111 INFO     test_agents |     recipient: score=0.0 | Known recipient, name matches.
+2026-02-07 19:57:25,111 INFO     test_agents |     card_errors: score=0.0 | Clean transaction history.
+2026-02-07 19:57:25,111 INFO     test_agents |   [RULE ENGINE] Composite=0.0 -> approved (0.23s)
+2026-02-07 19:57:25,112 INFO     test_agents |   [LLM-ONLY] Running 8 indicator agents (parallel)...
+2026-02-07 19:57:25,112 INFO     test_agents |     trading_behavior...
+2026-02-07 19:57:25,112 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:57:25,864 INFO     test_agents |     device_fingerprint...
+2026-02-07 19:57:25,864 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:57:26,630 INFO     test_agents |     geographic...
+2026-02-07 19:57:26,630 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:57:27,490 INFO     test_agents |     amount_anomaly...
+2026-02-07 19:57:27,490 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:57:28,401 INFO     test_agents |     velocity...
+2026-02-07 19:57:28,402 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:57:32,885 INFO     test_agents |       device_fingerprint -> 6.3s | score=0.0 | tools: ['sql_db_query', 'IndicatorResult']
+2026-02-07 19:57:33,100 INFO     test_agents |       velocity -> 3.9s | score=0.0 | tools: ['sql_db_query', 'IndicatorResult']
+2026-02-07 19:57:33,209 INFO     test_agents |       geographic -> 5.7s | score=0.0 | tools: ['sql_db_query', 'sql_db_query', 'IndicatorResult']
+2026-02-07 19:57:33,754 INFO     test_agents |       trading_behavior -> 7.9s | score=0.0 | tools: ['sql_db_query', 'IndicatorResult']
+2026-02-07 19:57:35,289 INFO     test_agents |       amount_anomaly -> 6.9s | score=0.0 | tools: ['sql_db_query', 'calculate_statistics', 'detect_anomaly', 'IndicatorResult']
+2026-02-07 19:57:35,289 INFO     test_agents |   [LLM-ONLY] Score=0.0 -> approved (10.2s)
+2026-02-07 19:57:35,290 INFO     test_agents | 
+  Expected: approved
+2026-02-07 19:57:35,290 INFO     test_agents |   Rule Engine: approved (PASS) in 0.23s
+2026-02-07 19:57:35,290 INFO     test_agents |   LLM-Only:    approved (PASS) in 10.2s
+2026-02-07 19:57:35,290 INFO     test_agents |   Speedup:     44.9x
+2026-02-07 19:57:35,291 INFO     test_agents |   -> wrote outputs\sarah_clean_20260207_195723.json
+2026-02-07 19:57:35,291 INFO     test_agents | 
+============================================================
+2026-02-07 19:57:35,291 INFO     test_agents |   David Park — VPN Traveler (expect ESCALATE)
+2026-02-07 19:57:35,291 INFO     test_agents | ============================================================
+2026-02-07 19:57:35,291 INFO     test_agents |   [RULE ENGINE] Running 8 indicators (async SQL)...
+2026-02-07 19:57:35,292 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:35,292 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        COALESCE(AVG(w.amount), 0) AS avg_amt,
+        COALESCE(STDDEV(w.amount), 0) AS std_amt,
+        COUNT(*) AS total_count
+    FROM withdrawals w
+    JOIN customers c ON c.id = w.customer_id
+    WHERE c.external_id = $1
+      AND w.status IN ('approved', 'completed')
+
+2026-02-07 19:57:35,292 INFO     sqlalchemy.engine.Engine | [cached since 10.21s ago] ('CUST-007',)
+2026-02-07 19:57:35,292 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:35,292 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        COUNT(*) FILTER (
+            WHERE w.requested_at >= NOW() - INTERVAL '1 hour'
+        ) AS count_1h,
+        COUNT(*) FILTER (
+            WHERE w.requested_at >= NOW() - INTERVAL '24 hours'
+        ) AS count_24h,
+        COUNT(*) FILTER (
+            WHERE w.requested_at >= NOW() - INTERVAL '7 days'
+        ) AS count_7d
+    FROM withdrawals w
+    JOIN customers c ON c.id = w.customer_id
+    WHERE c.external_id = $1
+
+2026-02-07 19:57:35,293 INFO     sqlalchemy.engine.Engine | [cached since 10.2s ago] ('CUST-007',)
+2026-02-07 19:57:35,293 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:35,293 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        pm.is_verified,
+        pm.is_blacklisted,
+        pm.added_at,
+        EXTRACT(EPOCH FROM (NOW() - pm.added_at)) / 86400 AS age_days,
+        (SELECT COUNT(DISTINCT pm2.id)
+         FROM payment_methods pm2
+         WHERE pm2.customer_id = pm.customer_id
+           AND pm2.added_at >= NOW() - INTERVAL '30 days'
+        ) AS methods_added_30d
+    FROM payment_methods pm
+    JOIN customers c ON c.id = pm.customer_id
+    JOIN withdrawals w ON w.payment_method_id = pm.id
+    WHERE c.external_id = $1
+    ORDER BY pm.added_at DESC
+    LIMIT 1
+
+2026-02-07 19:57:35,293 INFO     sqlalchemy.engine.Engine | [cached since 10.21s ago] ('CUST-007',)
+2026-02-07 19:57:35,294 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:35,294 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        ih.ip_address,
+        ih.location,
+        ih.is_vpn,
+        ih.last_seen_at,
+        c.country AS home_country
+    FROM ip_history ih
+    JOIN customers c ON c.id = ih.customer_id
+    WHERE c.external_id = $1
+    ORDER BY ih.last_seen_at DESC
+    LIMIT 20
+
+2026-02-07 19:57:35,294 INFO     sqlalchemy.engine.Engine | [cached since 10.21s ago] ('CUST-007',)
+2026-02-07 19:57:35,294 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:35,294 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        d.is_trusted,
+        d.first_seen_at,
+        EXTRACT(EPOCH FROM (NOW() - d.first_seen_at)) / 86400 AS device_age_days,
+        (SELECT COUNT(DISTINCT d2.customer_id)
+         FROM devices d2
+         WHERE d2.fingerprint = d.fingerprint
+        ) AS shared_account_count
+    FROM devices d
+    JOIN customers c ON c.id = d.customer_id
+    WHERE c.external_id = $1
+      AND d.fingerprint = $2
+    LIMIT 1
+
+2026-02-07 19:57:35,295 INFO     sqlalchemy.engine.Engine | [cached since 10.2s ago] ('CUST-007', 'a1a2a3a4b5b6a1a2a3a4b5b6a1a2a3a4')
+2026-02-07 19:57:35,300 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:35,300 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:35,301 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:35,303 INFO     sqlalchemy.engine.Engine | 
+    SELECT COUNT(DISTINCT
+        SPLIT_PART(ih.location, ', ', 2)
+    ) AS distinct_countries
+    FROM ip_history ih
+    JOIN customers c ON c.id = ih.customer_id
+    WHERE c.external_id = $1
+      AND ih.last_seen_at >= NOW() - INTERVAL '7 days'
+
+2026-02-07 19:57:35,303 INFO     sqlalchemy.engine.Engine | [cached since 10.2s ago] ('CUST-007',)
+2026-02-07 19:57:35,304 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:35,344 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:35,345 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        COALESCE(
+            (SELECT SUM(t.amount) FROM transactions t
+             JOIN customers c2 ON c2.id = t.customer_id
+             WHERE c2.external_id = $1 AND t.type = 'deposit'
+               AND t.status = 'success'),
+            0
+        ) AS total_deposits,
+        COALESCE(
+            (SELECT COUNT(*) FROM trades tr
+             JOIN customers c3 ON c3.id = tr.customer_id
+             WHERE c3.external_id = $1),
+            0
+        ) AS trade_count,
+        COALESCE(
+            (SELECT SUM(tr.pnl) FROM trades tr
+             JOIN customers c4 ON c4.id = tr.customer_id
+             WHERE c4.external_id = $1 AND tr.pnl IS NOT NULL),
+            0
+        ) AS total_pnl
+
+2026-02-07 19:57:35,345 INFO     sqlalchemy.engine.Engine | [cached since 10.25s ago] ('CUST-007',)
+2026-02-07 19:57:35,345 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:35,364 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:35,365 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        c.name AS customer_name,
+        (SELECT COUNT(DISTINCT w2.customer_id)
+         FROM withdrawals w2
+         WHERE w2.recipient_account = $1
+        ) AS cross_account_count,
+        (SELECT COUNT(*)
+         FROM withdrawals w3
+         JOIN customers c2 ON c2.id = w3.customer_id
+         WHERE c2.external_id = $2
+           AND w3.recipient_account = $1
+        ) AS history_count
+    FROM customers c
+    WHERE c.external_id = $2
+
+2026-02-07 19:57:35,365 INFO     sqlalchemy.engine.Engine | [cached since 10.28s ago] ('KR1234567890123456789012', 'CUST-007')
+2026-02-07 19:57:35,367 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:35,367 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        COUNT(*) FILTER (
+            WHERE t.status = 'failed'
+              AND t.timestamp >= NOW() - INTERVAL '30 days'
+        ) AS fail_count_30d,
+        COUNT(*) FILTER (
+            WHERE t.error_code IS NOT NULL
+              AND t.timestamp >= NOW() - INTERVAL '30 days'
+        ) AS error_count_30d,
+        COUNT(DISTINCT t.payment_method_id) FILTER (
+            WHERE t.timestamp >= NOW() - INTERVAL '30 days'
+        ) AS distinct_methods_30d
+    FROM transactions t
+    JOIN customers c ON c.id = t.customer_id
+    WHERE c.external_id = $1
+
+2026-02-07 19:57:35,367 INFO     sqlalchemy.engine.Engine | [cached since 10.27s ago] ('CUST-007',)
+2026-02-07 19:57:35,373 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:35,373 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:35,375 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:35,379 INFO     test_agents |     amount_anomaly: score=0.0 | Amount within normal range (z=0.48).
+2026-02-07 19:57:35,379 INFO     test_agents |     velocity: score=0.0 | Normal velocity: 1/1h, 1/24h, 1/7d.
+2026-02-07 19:57:35,379 INFO     test_agents |     payment_method: score=0.0 | Trusted payment method.
+2026-02-07 19:57:35,379 INFO     test_agents |     geographic: score=0.8 | VPN detected; Country mismatch (NLD vs KOR); 2 countries in 7d.
+2026-02-07 19:57:35,379 INFO     test_agents |     device_fingerprint: score=0.0 | Known trusted device.
+2026-02-07 19:57:35,379 INFO     test_agents |     trading_behavior: score=0.0 | Active trader with normal ratio.
+2026-02-07 19:57:35,380 INFO     test_agents |     recipient: score=0.0 | Known recipient, name matches.
+2026-02-07 19:57:35,380 INFO     test_agents |     card_errors: score=0.0 | Clean transaction history.
+2026-02-07 19:57:35,380 INFO     test_agents |   [RULE ENGINE] Composite=0.1043 -> escalated (0.09s)
+2026-02-07 19:57:35,380 INFO     test_agents |     Gray-zone LLM (1 call with SQL tools)...
+2026-02-07 19:57:35,380 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:57:45,696 INFO     test_agents |       -> 10.3s | LLM decision: approved
+2026-02-07 19:57:45,696 INFO     test_agents |   [LLM-ONLY] Running 8 indicator agents (parallel)...
+2026-02-07 19:57:45,696 INFO     test_agents |     trading_behavior...
+2026-02-07 19:57:45,697 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:57:46,597 INFO     test_agents |     device_fingerprint...
+2026-02-07 19:57:46,597 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:57:47,570 INFO     test_agents |     geographic...
+2026-02-07 19:57:47,570 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:57:48,548 INFO     test_agents |     amount_anomaly...
+2026-02-07 19:57:48,548 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:57:49,519 INFO     test_agents |     velocity...
+2026-02-07 19:57:49,519 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:57:53,794 INFO     test_agents |       velocity -> 3.1s | score=0.0 | tools: ['sql_db_query', 'IndicatorResult']
+2026-02-07 19:57:54,556 INFO     test_agents |       geographic -> 6.0s | score=0.8 | tools: ['sql_db_query', 'sql_db_query', 'IndicatorResult']
+2026-02-07 19:57:54,665 INFO     test_agents |       trading_behavior -> 8.1s | score=0.0 | tools: ['sql_db_query', 'IndicatorResult']
+2026-02-07 19:57:54,665 INFO     test_agents |       device_fingerprint -> 7.1s | score=0.0 | tools: ['sql_db_query', 'IndicatorResult']
+2026-02-07 19:57:59,067 INFO     test_agents |       amount_anomaly -> 9.5s | score=0.0 | tools: ['sql_db_query', 'detect_anomaly', 'sql_db_query', 'calculate_statistics', 'detect_anomaly', 'IndicatorResult']
+2026-02-07 19:57:59,067 INFO     test_agents |   [LLM-ONLY] Score=0.16 -> escalated (13.4s)
+2026-02-07 19:57:59,067 INFO     test_agents | 
+  Expected: escalated
+2026-02-07 19:57:59,067 INFO     test_agents |   Rule Engine: escalated (PASS) in 0.09s
+2026-02-07 19:57:59,067 INFO     test_agents |   LLM-Only:    escalated (PASS) in 13.4s
+2026-02-07 19:57:59,067 INFO     test_agents |   Speedup:     152.9x
+2026-02-07 19:57:59,068 INFO     test_agents |   -> wrote outputs\david_medium_20260207_195723.json
+2026-02-07 19:57:59,068 INFO     test_agents | 
+============================================================
+2026-02-07 19:57:59,069 INFO     test_agents |   Victor Petrov — No-Trade Fraud (expect BLOCK)
+2026-02-07 19:57:59,069 INFO     test_agents | ============================================================
+2026-02-07 19:57:59,069 INFO     test_agents |   [RULE ENGINE] Running 8 indicators (async SQL)...
+2026-02-07 19:57:59,069 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:59,069 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        COALESCE(AVG(w.amount), 0) AS avg_amt,
+        COALESCE(STDDEV(w.amount), 0) AS std_amt,
+        COUNT(*) AS total_count
+    FROM withdrawals w
+    JOIN customers c ON c.id = w.customer_id
+    WHERE c.external_id = $1
+      AND w.status IN ('approved', 'completed')
+
+2026-02-07 19:57:59,069 INFO     sqlalchemy.engine.Engine | [cached since 33.98s ago] ('CUST-011',)
+2026-02-07 19:57:59,070 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:59,070 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        COUNT(*) FILTER (
+            WHERE w.requested_at >= NOW() - INTERVAL '1 hour'
+        ) AS count_1h,
+        COUNT(*) FILTER (
+            WHERE w.requested_at >= NOW() - INTERVAL '24 hours'
+        ) AS count_24h,
+        COUNT(*) FILTER (
+            WHERE w.requested_at >= NOW() - INTERVAL '7 days'
+        ) AS count_7d
+    FROM withdrawals w
+    JOIN customers c ON c.id = w.customer_id
+    WHERE c.external_id = $1
+
+2026-02-07 19:57:59,070 INFO     sqlalchemy.engine.Engine | [cached since 33.98s ago] ('CUST-011',)
+2026-02-07 19:57:59,071 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:59,071 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        pm.is_verified,
+        pm.is_blacklisted,
+        pm.added_at,
+        EXTRACT(EPOCH FROM (NOW() - pm.added_at)) / 86400 AS age_days,
+        (SELECT COUNT(DISTINCT pm2.id)
+         FROM payment_methods pm2
+         WHERE pm2.customer_id = pm.customer_id
+           AND pm2.added_at >= NOW() - INTERVAL '30 days'
+        ) AS methods_added_30d
+    FROM payment_methods pm
+    JOIN customers c ON c.id = pm.customer_id
+    JOIN withdrawals w ON w.payment_method_id = pm.id
+    WHERE c.external_id = $1
+    ORDER BY pm.added_at DESC
+    LIMIT 1
+
+2026-02-07 19:57:59,071 INFO     sqlalchemy.engine.Engine | [cached since 33.98s ago] ('CUST-011',)
+2026-02-07 19:57:59,071 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:59,071 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        ih.ip_address,
+        ih.location,
+        ih.is_vpn,
+        ih.last_seen_at,
+        c.country AS home_country
+    FROM ip_history ih
+    JOIN customers c ON c.id = ih.customer_id
+    WHERE c.external_id = $1
+    ORDER BY ih.last_seen_at DESC
+    LIMIT 20
+
+2026-02-07 19:57:59,072 INFO     sqlalchemy.engine.Engine | [cached since 33.98s ago] ('CUST-011',)
+2026-02-07 19:57:59,072 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:59,072 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        d.is_trusted,
+        d.first_seen_at,
+        EXTRACT(EPOCH FROM (NOW() - d.first_seen_at)) / 86400 AS device_age_days,
+        (SELECT COUNT(DISTINCT d2.customer_id)
+         FROM devices d2
+         WHERE d2.fingerprint = d.fingerprint
+        ) AS shared_account_count
+    FROM devices d
+    JOIN customers c ON c.id = d.customer_id
+    WHERE c.external_id = $1
+      AND d.fingerprint = $2
+    LIMIT 1
+
+2026-02-07 19:57:59,073 INFO     sqlalchemy.engine.Engine | [cached since 33.98s ago] ('CUST-011', 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4')
+2026-02-07 19:57:59,080 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:59,082 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:59,082 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:59,083 INFO     sqlalchemy.engine.Engine | 
+    SELECT COUNT(DISTINCT
+        SPLIT_PART(ih.location, ', ', 2)
+    ) AS distinct_countries
+    FROM ip_history ih
+    JOIN customers c ON c.id = ih.customer_id
+    WHERE c.external_id = $1
+      AND ih.last_seen_at >= NOW() - INTERVAL '7 days'
+
+2026-02-07 19:57:59,083 INFO     sqlalchemy.engine.Engine | [cached since 33.98s ago] ('CUST-011',)
+2026-02-07 19:57:59,108 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:59,161 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:59,161 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        COALESCE(
+            (SELECT SUM(t.amount) FROM transactions t
+             JOIN customers c2 ON c2.id = t.customer_id
+             WHERE c2.external_id = $1 AND t.type = 'deposit'
+               AND t.status = 'success'),
+            0
+        ) AS total_deposits,
+        COALESCE(
+            (SELECT COUNT(*) FROM trades tr
+             JOIN customers c3 ON c3.id = tr.customer_id
+             WHERE c3.external_id = $1),
+            0
+        ) AS trade_count,
+        COALESCE(
+            (SELECT SUM(tr.pnl) FROM trades tr
+             JOIN customers c4 ON c4.id = tr.customer_id
+             WHERE c4.external_id = $1 AND tr.pnl IS NOT NULL),
+            0
+        ) AS total_pnl
+
+2026-02-07 19:57:59,161 INFO     sqlalchemy.engine.Engine | [cached since 34.07s ago] ('CUST-011',)
+2026-02-07 19:57:59,162 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:59,162 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        COUNT(*) FILTER (
+            WHERE t.status = 'failed'
+              AND t.timestamp >= NOW() - INTERVAL '30 days'
+        ) AS fail_count_30d,
+        COUNT(*) FILTER (
+            WHERE t.error_code IS NOT NULL
+              AND t.timestamp >= NOW() - INTERVAL '30 days'
+        ) AS error_count_30d,
+        COUNT(DISTINCT t.payment_method_id) FILTER (
+            WHERE t.timestamp >= NOW() - INTERVAL '30 days'
+        ) AS distinct_methods_30d
+    FROM transactions t
+    JOIN customers c ON c.id = t.customer_id
+    WHERE c.external_id = $1
+
+2026-02-07 19:57:59,162 INFO     sqlalchemy.engine.Engine | [cached since 34.07s ago] ('CUST-011',)
+2026-02-07 19:57:59,163 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:59,163 INFO     sqlalchemy.engine.Engine | BEGIN (implicit)
+2026-02-07 19:57:59,163 INFO     sqlalchemy.engine.Engine | 
+    SELECT
+        c.name AS customer_name,
+        (SELECT COUNT(DISTINCT w2.customer_id)
+         FROM withdrawals w2
+         WHERE w2.recipient_account = $1
+        ) AS cross_account_count,
+        (SELECT COUNT(*)
+         FROM withdrawals w3
+         JOIN customers c2 ON c2.id = w3.customer_id
+         WHERE c2.external_id = $2
+           AND w3.recipient_account = $1
+        ) AS history_count
+    FROM customers c
+    WHERE c.external_id = $2
+
+2026-02-07 19:57:59,164 INFO     sqlalchemy.engine.Engine | [cached since 34.07s ago] ('RU0123456789012345678901234', 'CUST-011')
+2026-02-07 19:57:59,171 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:59,172 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:59,172 INFO     sqlalchemy.engine.Engine | ROLLBACK
+2026-02-07 19:57:59,176 INFO     test_agents |     amount_anomaly: score=0.3 | Insufficient history (0 withdrawals).
+2026-02-07 19:57:59,176 INFO     test_agents |     velocity: score=0.0 | Normal velocity: 1/1h, 1/24h, 1/7d.
+2026-02-07 19:57:59,176 INFO     test_agents |     payment_method: score=0.3 | New method (5d old).
+2026-02-07 19:57:59,176 INFO     test_agents |     geographic: score=0.0 | Consistent location.
+2026-02-07 19:57:59,176 INFO     test_agents |     device_fingerprint: score=0.8 | Device shared with 1 other account; Device not trusted; Recent device (5d).
+2026-02-07 19:57:59,177 INFO     test_agents |     trading_behavior: score=0.75 | Minimal trading (1 trades); Withdrawing 100% of deposits.
+2026-02-07 19:57:59,177 INFO     test_agents |     recipient: score=0.0 | Known recipient, name matches.
+2026-02-07 19:57:59,177 INFO     test_agents |     card_errors: score=0.0 | Clean transaction history.
+2026-02-07 19:57:59,177 INFO     test_agents |   [RULE ENGINE] Composite=0.3005 -> blocked (0.11s)
+2026-02-07 19:57:59,177 INFO     test_agents |   [LLM-ONLY] Running 8 indicator agents (parallel)...
+2026-02-07 19:57:59,177 INFO     test_agents |     trading_behavior...
+2026-02-07 19:57:59,177 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:58:00,078 INFO     test_agents |     device_fingerprint...
+2026-02-07 19:58:00,079 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:58:00,892 INFO     test_agents |     geographic...
+2026-02-07 19:58:00,892 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:58:01,895 INFO     test_agents |     amount_anomaly...
+2026-02-07 19:58:01,895 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:58:02,731 INFO     test_agents |     velocity...
+2026-02-07 19:58:02,731 WARNING  google_genai._api_client | Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+2026-02-07 19:58:07,154 INFO     test_agents |       velocity -> 3.6s | score=0.0 | tools: ['sql_db_query', 'IndicatorResult']
+2026-02-07 19:58:07,212 INFO     test_agents |       trading_behavior -> 7.1s | score=0.75 | tools: ['sql_db_query', 'IndicatorResult']
+2026-02-07 19:58:07,212 INFO     test_agents |       device_fingerprint -> 6.3s | score=0.8 | tools: ['sql_db_query', 'IndicatorResult']
+2026-02-07 19:58:07,481 INFO     test_agents |       geographic -> 5.6s | score=0.0 | tools: ['sql_db_query', 'sql_db_query', 'IndicatorResult']
+2026-02-07 19:58:08,268 INFO     test_agents |       amount_anomaly -> 5.5s | score=0.3 | tools: ['sql_db_query', 'sql_db_query', 'IndicatorResult']
+2026-02-07 19:58:08,269 INFO     test_agents |   [LLM-ONLY] Score=0.37 -> blocked (9.1s)
+2026-02-07 19:58:08,269 INFO     test_agents | 
+  Expected: blocked
+2026-02-07 19:58:08,269 INFO     test_agents |   Rule Engine: blocked (PASS) in 0.11s
+2026-02-07 19:58:08,269 INFO     test_agents |   LLM-Only:    blocked (PASS) in 9.1s
+2026-02-07 19:58:08,269 INFO     test_agents |   Speedup:     84.9x
+2026-02-07 19:58:08,270 INFO     test_agents |   -> wrote outputs\victor_fraud_20260207_195723.json
+2026-02-07 19:58:08,272 INFO     test_agents |   -> wrote outputs\full_run_20260207_195723.json
+2026-02-07 19:58:08,272 INFO     test_agents | 
+============================================================
+2026-02-07 19:58:08,272 INFO     test_agents |   SUMMARY
+2026-02-07 19:58:08,272 INFO     test_agents | ============================================================
+2026-02-07 19:58:08,272 INFO     test_agents |   Scenario                            Rule Engine          LLM-Only            
+2026-02-07 19:58:08,272 INFO     test_agents |   ----------------------------------- -------------------- --------------------
+2026-02-07 19:58:08,272 INFO     test_agents |   Sarah Chen — Clean (expect APPROVE) approved PASS 0.23s   approved PASS 10.2s
+2026-02-07 19:58:08,272 INFO     test_agents |   David Park — VPN Traveler (expect E escalated PASS 0.09s   escalated PASS 13.4s
+2026-02-07 19:58:08,273 INFO     test_agents |   Victor Petrov — No-Trade Fraud (exp blocked PASS 0.11s   blocked PASS 9.1s
+2026-02-07 19:58:08,274 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,282 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,286 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,289 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,292 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,376 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,377 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,379 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,381 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,383 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,385 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,387 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,390 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,393 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,395 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,397 DEBUG    asyncio | Using proactor: IocpProactor
+2026-02-07 19:58:08,399 DEBUG    asyncio | Using proactor: IocpProactor

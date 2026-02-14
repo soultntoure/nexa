@@ -1,0 +1,128 @@
+{
+  "run_at": "2026-02-09T05:28:53.819053+00:00",
+  "total": 12,
+  "passed": 9,
+  "failed": 3,
+  "results": [
+    {
+      "test": "GET /health",
+      "method": "GET",
+      "url": "http://localhost:18080/api/health",
+      "status": 200,
+      "elapsed_s": 0.405,
+      "passed": true,
+      "note": "",
+      "response_preview": "{'status': 'ok', 'services': {'postgres': 'connected', 'chromadb': 'connected', 'agent_system': 'ready'}, 'version': '0.1.0'}"
+    },
+    {
+      "test": "GET /dashboard/stats",
+      "method": "GET",
+      "url": "http://localhost:18080/api/dashboard/stats",
+      "status": 200,
+      "elapsed_s": 0.356,
+      "passed": true,
+      "note": "",
+      "response_preview": "{'total_payouts_today': 81, 'total_payout_amount': 220439.29, 'auto_approved_rate': 100.0, 'auto_approved_trend': 4.7, 'pending_review_count': 20, 'active_alerts': 0, 'alert_severity': {'high': 0, 'medium': 0, 'low': 0}, 'risk_distribution': {'approved': 61, 'escalated': 0, 'blocked': 0}, 'top_risk_indicators': [], 'recent_activity': [], 'avg_decision_time_seconds': 0.3}"
+    },
+    {
+      "test": "GET /alerts",
+      "method": "GET",
+      "url": "http://localhost:18080/api/alerts",
+      "status": 200,
+      "elapsed_s": 0.321,
+      "passed": true,
+      "note": "",
+      "response_preview": "{'alerts': [], 'total': 0, 'patterns': [{'name': 'No Trade Pattern', 'key': 'no_trade', 'accounts_affected': 0, 'total_exposure': 0, 'confidence': 94}, {'name': 'Velocity Abuse', 'key': 'velocity', 'accounts_affected': 0, 'total_exposure': 0, 'confidence': 78}, {'name': 'Card Testing', 'key': 'card_testing', 'accounts_affected': 0, 'total_exposure': 0, 'confidence': 91}, {'name': 'Geographic Anomaly', 'key': 'geographic', 'accounts_affected': 0, 'total_exposure': 0, 'confidence': 87}]}"
+    },
+    {
+      "test": "POST /alerts/bulk-action",
+      "method": "POST",
+      "url": "http://localhost:18080/api/alerts/bulk-action",
+      "status": 200,
+      "elapsed_s": 0.321,
+      "passed": true,
+      "note": "",
+      "response_preview": "{'action': 'dismiss', 'affected_alert_ids': ['2aa976da-83dd-49d4-9718-cc6e5126b93c'], 'affected_count': 1, 'status': 'completed'}"
+    },
+    {
+      "test": "GET /payout/queue",
+      "method": "GET",
+      "url": "http://localhost:18080/api/payout/queue",
+      "status": 200,
+      "elapsed_s": 0.352,
+      "passed": true,
+      "note": "",
+      "response_preview": "{'items': [], 'total': 0}"
+    },
+    {
+      "test": "POST /payout/evaluate",
+      "method": "POST",
+      "url": "http://localhost:18080/api/payout/evaluate",
+      "status": 422,
+      "elapsed_s": 0.317,
+      "passed": false,
+      "note": "decision=None score=None",
+      "response_preview": "{'detail': [{'type': 'missing', 'loc': ['body', 'customer_country'], 'msg': 'Field required', 'input': {'withdrawal_id': 'a533e885-9d5b-4b6b-b5c7-f5cb3c73c285', 'customer_id': 'CUST-001', 'amount': 5000.0, 'recipient_name': 'Test User', 'recipient_account': 'ACC-TEST-001', 'ip_address': '192.168.1.1', 'device_fingerprint': 'fp-test-001', 'run_llm_comparison': False}}]}"
+    },
+    {
+      "test": "GET /payout/evaluate/{id}",
+      "method": "GET",
+      "url": "http://localhost:18080/api/payout/evaluate/7d365ad5-6103-4786-be63-e747c21d0e7d",
+      "status": 404,
+      "elapsed_s": 0.346,
+      "passed": false,
+      "note": "",
+      "response_preview": "{'detail': 'No evaluation found for this withdrawal.'}"
+    },
+    {
+      "test": "POST /payout/investigate",
+      "method": "POST",
+      "url": "http://localhost:18080/api/payout/investigate",
+      "status": 422,
+      "elapsed_s": 0.316,
+      "passed": false,
+      "note": "decision=None score=None",
+      "response_preview": "{'detail': [{'type': 'missing', 'loc': ['body', 'customer_country'], 'msg': 'Field required', 'input': {'withdrawal_id': 'e6e6c386-4724-434c-a3a4-02d671e3ba6a', 'customer_id': 'CUST-005', 'amount': 15000.0, 'recipient_name': 'Suspicious Recipient', 'recipient_account': 'ACC-SUSP-001', 'ip_address': '10.0.0.1', 'device_fingerprint': 'fp-susp-001'}}]}"
+    },
+    {
+      "test": "POST /payout/decision",
+      "method": "POST",
+      "url": "http://localhost:18080/api/payout/decision",
+      "status": 200,
+      "elapsed_s": 0.352,
+      "passed": true,
+      "note": "",
+      "response_preview": "{'withdrawal_id': 'f378352a-ba5a-4796-85e4-8c2ccb0dc66f', 'evaluation_id': '7083d10b-bad9-430f-9d2c-575230eb0387', 'officer_id': 'officer-test', 'action': 'approved', 'reason': 'Test approval', 'decided_at': '2026-02-09T05:28:32.740858Z', 'status': 'processed'}"
+    },
+    {
+      "test": "POST /query (SSE)",
+      "method": "POST",
+      "url": "http://localhost:18080/api/query",
+      "status": 200,
+      "elapsed_s": 20.367,
+      "passed": true,
+      "note": "content-type=text/event-stream; charset=utf-8",
+      "response_preview": "data: {\"type\": \"status\", \"message\": \"Thinking...\"}\n\ndata: {\"type\": \"tool_start\", \"name\": \"sql_db_query\", \"preview\": \"SELECT type, status, COUNT(*) as count, SUM(amount) as total_amount, currency FROM transactions GROUP BY type, status, currency ORDER BY count DESC LIMIT 10;\"}\n\ndata: {\"type\": \"tool_end\", \"name\": \"sql_db_query\"}\n\ndata: {\"type\": \"tool_start\", \"name\": \"sql_db_query\", \"preview\": \"SELECT type, COUNT(*) FROM transactions GROUP BY type;\"}\n\ndata: {\"type\": \"tool_end\", \"name\": \"sql_db_quer"
+    },
+    {
+      "test": "GET /transactions",
+      "method": "GET",
+      "url": "http://localhost:18080/api/transactions",
+      "status": 200,
+      "elapsed_s": 0.331,
+      "passed": true,
+      "note": "",
+      "response_preview": "{'items': [{'id': 'TXN-61A92A61', 'withdrawal_id': '61a92a61-e49b-52db-9f5c-2a9a1999b394', 'customer': {'name': 'Tom Brown', 'email': 'tom.brown@example.com', 'country': 'AUS', 'registration_date': '2025-02-08T12:00:00+00:00', 'account_age_days': 365, 'total_deposits': 0, 'total_withdrawals': 0, 'account_type': 'Standard'}, 'amount': 800.0, 'currency': 'AUD', 'payment_method': 'crypto', 'recipient': {'name': 'Tom Brown', 'account_number': 'bc1q42lja79elem0anu8q860g3ez26r0ckpv6e0gah', 'bank': ''}"
+    },
+    {
+      "test": "GET /payout/investigate/{id}",
+      "method": "GET",
+      "url": "http://localhost:18080/api/payout/investigate/039b9f7e-3d64-484c-b98a-261e30d81eeb",
+      "status": 404,
+      "elapsed_s": 0.358,
+      "passed": true,
+      "note": "status=404",
+      "response_preview": "{'detail': 'Withdrawal 039b9f7e-3d64-484c-b98a-261e30d81eeb not found'}"
+    }
+  ]
+}

@@ -1,0 +1,245 @@
+[
+  {
+    "candidate_id": "audit_20260212_065549_13a4865c_cluster_6",
+    "title": "Collusive Fraud Ring (Carding & Money Laundering)",
+    "quality_score": 0.423,
+    "confidence": 0.5,
+    "support_events": 6,
+    "support_accounts": 6,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Collusive Fraud Ring (Carding & Money Laundering)",
+    "sql_findings": [
+      {
+        "query_summary": "Investigation of shared device fingerprints among flagged withdrawals.",
+        "result_summary": "Identified two major shared fingerprints ('a1b2c3d4e5f6...' and 'deadbeef...') used by multiple accounts across different countries (RUS, FRA)."
+      },
+      {
+        "query_summary": "Analysis of transaction error codes for the flagged cluster.",
+        "result_summary": "Found a high volume of 'card_restricted' errors, confirming carding/card testing behavior."
+      },
+      {
+        "query_summary": "IP history analysis for cross-account links.",
+        "result_summary": "Confirmed IP address '41.44.55.66' is shared by accounts that also share device fingerprints, solidifying the link between entities."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://www.craftingsoftware.com/real-time-fraud-monitoring-for-enterprise-fintech-stacks",
+        "title": "Real-Time Fraud Monitoring for Enterprise Fintech Stacks",
+        "relevance": "Corroborates the pattern of using device fingerprinting and velocity to detect organized carding rings."
+      },
+      {
+        "url": "https://www.euroshop-tradefair.com/en/media-news/euroshopmag/retail-technology/how-machine-learning-powers-real-time-fraud-detection-in-payments",
+        "title": "How machine learning powers real-time fraud detection in payments",
+        "relevance": "Discusses how machine learning uses device profiles to identify clusters of fraudulent accounts."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_065549_13a4865c_cluster_0",
+    "title": "Account Takeover (ATO) via Geo-Velocity Anomaly (Impossible Travel)",
+    "quality_score": 0.6539,
+    "confidence": 0.8170555555555556,
+    "support_events": 18,
+    "support_accounts": 15,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Account Takeover (ATO) via Geo-Velocity Anomaly (Impossible Travel)",
+    "sql_findings": [
+      {
+        "query_summary": "Searched for shared IP or device infrastructure across different customers.",
+        "result_summary": "Identified IP 41.44.55.66 being used by two distinct customer accounts (47f31044... and 80320da3...) within the past 7 days."
+      },
+      {
+        "query_summary": "Analyzed recent high-risk withdrawal indicators.",
+        "result_summary": "Withdrawal 6333209d... showed high risk scores for Recipient Analysis (0.83), Device Fingerprint (0.79), and Geographic Risk (0.65), confirming the multi-layered failure described in the prompt."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://www.pingidentity.com/en/resources/cybersecurity-fundamentals/detect-risk/impossible-travel-101.html",
+        "title": "Impossible Travel 101: What You Need to Know - Ping Identity",
+        "relevance": "Explains the 'Impossible Travel' detection technique and how it identifies unauthorized access."
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/entra/id-protection/concept-identity-protection-risks",
+        "title": "What are risk detections? - Microsoft Entra ID Protection",
+        "relevance": "Describes how Microsoft Entra ID uses 'Atypical Travel' and 'Impossible Travel' to detect credential compromise."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_065549_13a4865c_cluster_5",
+    "title": "Money Laundering (Pass-through / Minimal Trading Typology)",
+    "quality_score": 0.6073,
+    "confidence": 0.8408888888888888,
+    "support_events": 9,
+    "support_accounts": 8,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Money Laundering (Pass-through / Minimal Trading Typology)",
+    "sql_findings": [
+      {
+        "query_summary": "Identify customers with low trade counts and high withdrawal activity.",
+        "result_summary": "Found multiple accounts (Petrov, Hassan) with only 1 trade each but 4-6 withdrawals totaling thousands of dollars."
+      },
+      {
+        "query_summary": "Check for shared payment methods among low-activity traders.",
+        "result_summary": "Confirmed that at least two separate accounts with minimal trading activity shared a Visa card ending in '1111'."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://www.finra.org/rules-guidance/key-topics/aml/red-flags",
+        "title": "FINRA: Anti-Money Laundering (AML) Red Flags",
+        "relevance": "Describes minimal trading as a key red flag for money laundering."
+      },
+      {
+        "url": "https://www.fatf-gafi.org/en/publications/Methodsandtechniques/More-about-money-laundering.html",
+        "title": "FATF Money Laundering Typologies",
+        "relevance": "Discusses 'pass-through' accounts and layering."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_065549_13a4865c_cluster_3",
+    "title": "Collusive Carding and Churning Ring",
+    "quality_score": 0.418,
+    "confidence": 0.5,
+    "support_events": 6,
+    "support_accounts": 5,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Collusive Carding and Churning Ring",
+    "sql_findings": [
+      {
+        "query_summary": "Identify accounts sharing device fingerprints and their geographic locations.",
+        "result_summary": "Found two major shared fingerprints linked to accounts in FRA, RUS, and EGY, indicating a cross-border fraud ring."
+      },
+      {
+        "query_summary": "Analyze the time window between deposits and withdrawals for shared-device accounts.",
+        "result_summary": "Confirmed a rapid 'churn' cycle where withdrawals occur within 16-24 hours of deposits, often for amounts significantly larger than the trading volume."
+      },
+      {
+        "query_summary": "Examine trading activity for suspected fraud ring members.",
+        "result_summary": "Discovered 'token trading' behavior where users place trades as low as $10 while withdrawing thousands, a tactic used to bypass automated AML filters."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://www.checkout.com/blog/common-types-of-online-payment-fraud",
+        "title": "Common types of online payment fraud and how to prevent them",
+        "relevance": "Describes card testing (carding) and geographic inconsistency as key fraud indicators."
+      },
+      {
+        "url": "https://www.centralbank.ae/media/k5dfsizk/cbuae_aml_typologies-in-the-financial-sector.pdf",
+        "title": "TYPOLOGIES IN THE FINANCIAL SECTOR",
+        "relevance": "Identifies rapid movement of funds and minimal initial activity as a money laundering/fraud typology."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_065549_13a4865c_cluster_4",
+    "title": "Pass-through Money Laundering / Credit Card Cashing",
+    "quality_score": 0.5835,
+    "confidence": 0.812875,
+    "support_events": 8,
+    "support_accounts": 7,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Pass-through Money Laundering / Credit Card Cashing",
+    "sql_findings": [
+      {
+        "query_summary": "Aggregated deposit, trade, and withdrawal activity for customers flagged with high 'trading_behavior' risk scores.",
+        "result_summary": "Multiple customers (Fatima Nour, Sophie Laurent, Emma Davies) showed high withdrawal-to-deposit ratios with near-zero trade counts. Several used placeholder device fingerprints like 'deadbeefdeadbeef...'."
+      },
+      {
+        "query_summary": "Investigation of shared withdrawal recipient accounts.",
+        "result_summary": "Confirmed a direct link between Ahmed Hassan and Fatima Nour, who both withdrew funds to the same Egyptian bank account (EG80...901) on the same day."
+      },
+      {
+        "query_summary": "Detailed transaction and withdrawal audit for Fatima Nour.",
+        "result_summary": "The user deposited $1,500 but attempted withdrawals totaling over $18,000 to multiple recipients including 'John Doe' and 'Elena Volkov', indicating balance manipulation or float exploitation."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://bsaaml.ffiec.gov/manual/Appendices/07",
+        "title": "Money Laundering Red Flags (FFIEC)",
+        "relevance": "Describes the 'Pass-through' and 'Layering' patterns where accounts are used briefly for large transfers with no business purpose."
+      },
+      {
+        "url": "https://www.niceactimize.com/Documents/fraud_white_paper_check_kiting_in_the_digital_age.pdf",
+        "title": "Check Kiting in the Digital Age - NICE Actimize",
+        "relevance": "Explains 'Check Kiting' and 'Float' fraud where more money is taken out than put in."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_065549_13a4865c_cluster_2",
+    "title": "Collusive Fraud Ring (Multi-Accounting)",
+    "quality_score": 0.5839,
+    "confidence": 0.802125,
+    "support_events": 8,
+    "support_accounts": 8,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Collusive Fraud Ring (Multi-Accounting)",
+    "sql_findings": [
+      {
+        "query_summary": "Identify customers sharing device fingerprints and recipient bank accounts.",
+        "result_summary": "Found two customers (ahmed.hassan@example.com and fatima.nour@example.com) sharing device 'deadbeef...' and recipient account 'EG800002000156789012345678901'."
+      },
+      {
+        "query_summary": "Check IP address overlap and VPN usage for the identified accounts.",
+        "result_summary": "Both accounts shared the same IP (41.44.55.66) in Egypt; no VPN was detected in the IP history for these specific sessions."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://docs.seon.io/knowledge-base/device-intelligence/block-multi-accounting-with-device-intelligence",
+        "title": "Block multi-accounting with Device Intelligence - SEON Docs",
+        "relevance": "Describes the mechanics of multi-accounting and how device fingerprinting identifies fraud rings."
+      },
+      {
+        "url": "https://www.unit21.ai/trust-safety-dictionary/fraud-ring",
+        "title": "Fraud Ring: Definition, 6 Types, & How to Stop Criminals - Unit21",
+        "relevance": "Defines fraud rings and explains how they reuse financial credentials and device IDs across multiple accounts."
+      }
+    ]
+  },
+  {
+    "candidate_id": "audit_20260212_065549_13a4865c_cluster_7",
+    "title": "Carding & Pass-through Money Laundering Ring",
+    "quality_score": 0.429,
+    "confidence": 0.5,
+    "support_events": 8,
+    "support_accounts": 6,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Carding & Pass-through Money Laundering Ring",
+    "sql_findings": [
+      {
+        "query_summary": "Identified accounts with shared device fingerprints and high withdrawal-to-deposit ratios.",
+        "result_summary": "Found 4 accounts (Laurent, Petrov, Hassan, Nour) sharing two device fingerprints. Withdrawal requests were consistently >95% of the initial deposit amount."
+      },
+      {
+        "query_summary": "Analyzed transaction error rates and IP history for the identified accounts.",
+        "result_summary": "Account 'Sophie Laurent' showed a 75% card error rate (3 failures in 4 attempts), indicating card testing. Accounts 'Ahmed Hassan' and 'Fatima Nour' were linked to the same IP address in Egypt."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://stripe.com/resources/more/fintech-fraud-detection-explained-a-guide",
+        "title": "Fintech Fraud Detection: Money Laundering Patterns",
+        "relevance": "Describes the 'pass-through' method of using financial platforms to launder stolen funds via rapid withdrawals."
+      },
+      {
+        "url": "https://www.alloy.com/guides/fraud-types-guide",
+        "title": "Common types of financial fraud: Carding and Cash-outs",
+        "relevance": "Explains how fraudsters use trading platforms to cash out stolen credit cards."
+      }
+    ]
+  }
+]

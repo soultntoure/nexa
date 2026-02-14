@@ -1,0 +1,44 @@
+[
+  {
+    "candidate_id": "audit_20260212_065549_13a4865c_cluster_6",
+    "tool_calls": [],
+    "total_tool_calls": 0,
+    "duration_s": 39.56
+  },
+  {
+    "candidate_id": "audit_20260212_065549_13a4865c_cluster_0",
+    "tool_calls": [],
+    "total_tool_calls": 0,
+    "duration_s": 39.24
+  },
+  {
+    "candidate_id": "audit_20260212_065549_13a4865c_cluster_5",
+    "tool_calls": [],
+    "total_tool_calls": 0,
+    "duration_s": 26.96
+  },
+  {
+    "candidate_id": "audit_20260212_065549_13a4865c_cluster_3",
+    "tool_calls": [],
+    "total_tool_calls": 0,
+    "duration_s": 29.77
+  },
+  {
+    "candidate_id": "audit_20260212_065549_13a4865c_cluster_4",
+    "tool_calls": [],
+    "total_tool_calls": 0,
+    "duration_s": 52.89
+  },
+  {
+    "candidate_id": "audit_20260212_065549_13a4865c_cluster_2",
+    "tool_calls": [],
+    "total_tool_calls": 0,
+    "duration_s": 30.8
+  },
+  {
+    "candidate_id": "audit_20260212_065549_13a4865c_cluster_7",
+    "tool_calls": [],
+    "total_tool_calls": 0,
+    "duration_s": 28.28
+  }
+]

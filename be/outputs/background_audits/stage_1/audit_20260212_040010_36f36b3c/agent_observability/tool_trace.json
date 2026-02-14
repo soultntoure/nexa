@@ -1,0 +1,36 @@
+{
+  "audit_20260212_040010_36f36b3c_cluster_1": [
+    {
+      "tool": "fraud_web_search",
+      "args_preview": "{'query': '\"impossible travel\" fraud typology account takeover'}"
+    },
+    {
+      "tool": "fraud_web_search",
+      "args_preview": "{'query': '\"new device appearing from unexpected location\" fraud pattern'}"
+    },
+    {
+      "tool": "fraud_web_search",
+      "args_preview": "{'query': '\"Identity verification failed multiple checks\" \"impossible travel detected\" fraud'}"
+    },
+    {
+      "tool": "fraud_web_search",
+      "args_preview": "{'query': '\"Impossible travel detected\" \"Identity verification failed\" fraud ring patterns'}"
+    },
+    {
+      "tool": "fraud_web_search",
+      "args_preview": "{'query': '\"Impossible travel detected\" login fraud SQL query examples'}"
+    },
+    {
+      "tool": "fraud_web_search",
+      "args_preview": "{'query': '\"Identity verification failed multiple checks\" \"new device appearing from unexpected location\"'}"
+    },
+    {
+      "tool": "fraud_web_search",
+      "args_preview": "{'query': '\"Impossible travel detected\" fraud pattern SQL query'}"
+    },
+    {
+      "tool": "AgentSynthesisResult",
+      "args_preview": "{'clustering_notes': 'The evidence provided was highly uniform, all pointing to the same identity verification failure message. No sub-patterns were detected, suggesting a consistent automated detecti"
+    }
+  ]
+}

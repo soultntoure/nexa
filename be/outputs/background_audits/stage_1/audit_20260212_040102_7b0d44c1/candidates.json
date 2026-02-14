@@ -1,0 +1,35 @@
+[
+  {
+    "candidate_id": "audit_20260212_040102_7b0d44c1_cluster_1",
+    "title": "Pattern: identity_access",
+    "quality_score": 0.6683,
+    "confidence": 0.8302222222222223,
+    "support_events": 18,
+    "support_accounts": 17,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Account Takeover (ATO) via Impossible Travel Detection",
+    "sql_findings": [
+      {
+        "query_summary": "Hypothetical check for shared device fingerprints among flagged accounts.",
+        "result_summary": "In a typical ATO scenario, multiple accounts (customer_id) would be linked to a single 'device_fingerprint' in the 'devices' table, confirming a single attacker."
+      },
+      {
+        "query_summary": "Hypothetical check for withdrawal activity post-alert.",
+        "result_summary": "The 'withdrawals' table should be monitored for any 'pending' status transactions for these customers; however, since identity verification failed, it is likely no funds were moved."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://abnormal.ai/blog/impossible-travel-cybersecurity",
+        "title": "How to Detect and Respond to Impossible Travel in Cybersecurity - Abnormal AI",
+        "relevance": "Explains the 'Impossible Travel' detection logic and its role in identifying compromised credentials."
+      },
+      {
+        "url": "https://www.sardine.ai/blog/tackling-account-takeovers-ato",
+        "title": "Tackling Account Takeovers - Sardine",
+        "relevance": "Case study on ATO attacks and the importance of monitoring for new device attributes."
+      }
+    ]
+  }
+]

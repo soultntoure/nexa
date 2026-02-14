@@ -1,0 +1,22 @@
+[
+  {
+    "candidate_id": "audit_20260211_145358_d1089049_cluster_5",
+    "title": "Pattern: financial_behavior, constellation_analysis",
+    "quality_score": 0.6181,
+    "confidence": 0.7890714285714286,
+    "support_events": 15,
+    "support_accounts": 12,
+    "novelty_status": "new",
+    "status": "pending"
+  },
+  {
+    "candidate_id": "audit_20260211_145358_d1089049_cluster_0",
+    "title": "Pattern: identity_access",
+    "quality_score": 0.6683,
+    "confidence": 0.8302222222222223,
+    "support_events": 18,
+    "support_accounts": 17,
+    "novelty_status": "new",
+    "status": "pending"
+  }
+]

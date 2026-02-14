@@ -1,0 +1,3 @@
+{
+  "audit_20260212_041327_32d3542a_cluster_1": "The provided evidence was highly consistent, showing a single clear behavioral cluster: unauthorized access via geographical and device anomalies. No sub-clustering was required as the indicators (impossible travel, new device, IDV failure) are intrinsically linked in ATO scenarios."
+}

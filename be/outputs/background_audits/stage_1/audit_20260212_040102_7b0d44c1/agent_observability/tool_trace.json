@@ -1,0 +1,24 @@
+{
+  "audit_20260212_040102_7b0d44c1_cluster_1": [
+    {
+      "tool": "fraud_web_search",
+      "args_preview": "{'query': 'fraud typology \"impossible travel\" \"new device\" account takeover'}"
+    },
+    {
+      "tool": "fraud_web_search",
+      "args_preview": "{'query': \"SELECT * FROM alerts WHERE description LIKE '%Impossible travel%' OR description LIKE '%new device%' LIMIT 10;\"}"
+    },
+    {
+      "tool": "fraud_web_search",
+      "args_preview": "{'query': \"SELECT customer_id, description, created_at FROM alerts WHERE description LIKE '%Identity verification failed multiple checks%' ORDER BY created_at DESC LIMIT 10;\"}"
+    },
+    {
+      "tool": "fraud_web_search",
+      "args_preview": "{'query': '\"Identity verification failed multiple checks\" \"impossible travel detected\" \"new device appearing from unexpected location\"'}"
+    },
+    {
+      "tool": "AgentSynthesisResult",
+      "args_preview": "{'plain_language': \"We have detected a series of unauthorized access attempts where someone tried to log into customer accounts from locations that are physically impossible to reach in the time since"
+    }
+  ]
+}

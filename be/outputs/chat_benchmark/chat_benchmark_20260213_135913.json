@@ -1,0 +1,125 @@
+{
+  "timestamp": "20260213_135913",
+  "base_url": "http://localhost:18080/api/query/chat",
+  "results": {
+    "simple": [
+      {
+        "question": "How many blocked transactions are there?",
+        "ttft_s": 0.015,
+        "total_s": 4.017,
+        "answer_preview": "There are currently 11 withdrawals that have been blocked following a fraud assessment.\n\nWould you like me to break these down by the specific reasons they were blocked, or should I show you the most recent ones?",
+        "tools_used": [
+          "sql_db_query"
+        ],
+        "error": null,
+        "event_count": 8
+      },
+      {
+        "question": "What is the total number of evaluations?",
+        "ttft_s": 0.042,
+        "total_s": 3.975,
+        "answer_preview": "There have been a total of 12 fraud evaluations performed on withdrawals.\n\nWould you like to see a breakdown of the decisions made during these evaluations, such as how many were approved versus blocked?",
+        "tools_used": [
+          "sql_db_query"
+        ],
+        "error": null,
+        "event_count": 8
+      },
+      {
+        "question": "Show me approved withdrawals",
+        "ttft_s": 0.049,
+        "total_s": 8.162,
+        "answer_preview": "I've found 10 recently approved withdrawals. Here are the most recent ones:\n\n1. **David Park**: $1,000.00 USD\n2. **Sarah Chen**: $500.00 USD\n3. **Yuki Tanaka**: $1,500.00 USD\n4. **Tom Brown**: $800.00 AUD\n5. **Maria Santos**: $5,000.00 USD\n6. **Raj Patel**: $3,000.00 USD\n7. **Emma Davies**: \u00a3150.00 ",
+        "tools_used": [
+          "sql_db_query"
+        ],
+        "error": null,
+        "event_count": 17
+      }
+    ],
+    "medium": [
+      {
+        "question": "Which customers have the highest risk scores and why?",
+        "ttft_s": 0.045,
+        "total_s": 8.138,
+        "answer_preview": "Several customers have reached the maximum risk score of 1.0, primarily due to suspicious device fingerprints and unusual trading behavior.\n\n1. **Ahmed Hassan (Risk: 1.0)**: Flagged for device fingerprint issues, recipient mismatches, and suspicious trading behavior on a $1,950 withdrawal.\n2. **Vict",
+        "tools_used": [
+          "sql_db_query"
+        ],
+        "error": null,
+        "event_count": 16
+      },
+      {
+        "question": "What are the most common fraud indicators across all evaluations?",
+        "ttft_s": 0.043,
+        "total_s": 6.831,
+        "answer_preview": "The most frequent fraud indicators across all evaluations are **Velocity**, **Device Fingerprint**, and **Amount Anomaly**, each appearing in 171 evaluations.\n\n1. **Velocity (171)**: High frequency of requests in a short period.\n2. **Device Fingerprint (171)**: Suspicious or unrecognized hardware si",
+        "tools_used": [
+          "sql_db_query"
+        ],
+        "error": null,
+        "event_count": 13
+      },
+      {
+        "question": "Compare blocked vs escalated transactions by amount",
+        "ttft_s": 0.042,
+        "total_s": 6.877,
+        "answer_preview": "Blocked withdrawals involve significantly higher amounts than escalated ones, with a total of $39,500 across 11 cases.\n\n1. **Blocked**: 11 transactions totaling **$39,500** (Average: $3,590.91)\n2. **Escalated**: 8 transactions totaling **$4,450** (Average: $556.25)\n\nThe much higher average for block",
+        "tools_used": [
+          "sql_db_query"
+        ],
+        "error": null,
+        "event_count": 12
+      }
+    ],
+    "complex": [
+      {
+        "question": "Analyze the correlation between geographic indicators and device fingerprint anomalies across all customers",
+        "ttft_s": 0.045,
+        "total_s": 8.716,
+        "answer_preview": "There is a strong correlation between geographic risk and device fingerprint anomalies, particularly in specific regions. In several countries, 100% of evaluated customers triggered both high geographic and high device risk flags.\n\n1. **Russia (RUS)**: 3 out of 3 customers evaluated showed both high",
+        "tools_used": [
+          "sql_db_query"
+        ],
+        "error": null,
+        "event_count": 14
+      },
+      {
+        "question": "Which customers show patterns consistent with account takeover based on their transaction history and indicator scores?",
+        "ttft_s": 0.046,
+        "total_s": 8.396,
+        "answer_preview": "Based on high risk scores combined with VPN usage and multiple device logins, several customers show patterns highly consistent with **Account Takeover (ATO)**:\n\n1.  **Sophie Laurent (Risk: 0.91)**: Shows the highest risk profile with a combination of high velocity, geographic risk, and unusual trad",
+        "tools_used": [
+          "sql_db_query"
+        ],
+        "error": null,
+        "event_count": 17
+      },
+      {
+        "question": "Provide a comprehensive risk assessment comparing all customers, including their indicator breakdowns and fraud patterns",
+        "ttft_s": 0.043,
+        "total_s": 10.309,
+        "answer_preview": "This comprehensive risk assessment identifies the highest-risk customers based on their average risk scores, decision history, and the specific fraud indicators they trigger.\n\n1.  **Victor Petrov (Risk: 0.91)**: Highest overall risk. Triggers nearly every major indicator, including **device fingerpr",
+        "tools_used": [
+          "sql_db_query"
+        ],
+        "error": null,
+        "event_count": 22
+      }
+    ]
+  },
+  "summary": {
+    "simple": {
+      "avg_ttft_s": 0.035,
+      "avg_total_s": 5.385
+    },
+    "medium": {
+      "avg_ttft_s": 0.043,
+      "avg_total_s": 7.282
+    },
+    "complex": {
+      "avg_ttft_s": 0.045,
+      "avg_total_s": 9.14
+    }
+  }
+}

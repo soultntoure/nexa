@@ -1,0 +1,35 @@
+[
+  {
+    "candidate_id": "audit_20260212_040010_36f36b3c_cluster_1",
+    "title": "Pattern: identity_access",
+    "quality_score": 0.6683,
+    "confidence": 0.8302222222222223,
+    "support_events": 18,
+    "support_accounts": 17,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Account Takeover (ATO) via Credential Stuffing",
+    "sql_findings": [
+      {
+        "query_summary": "Identify customers and timing for 'Impossible Travel' alerts.",
+        "result_summary": "Found 5 distinct customer accounts flagged within a 24-hour window with identical 'Identity verification failed' descriptions."
+      },
+      {
+        "query_summary": "Check for common IP or device fingerprints among flagged accounts.",
+        "result_summary": "Identified that 3 of the 5 accounts were accessed from the same high-risk IP range associated with known VPN/Proxy services."
+      }
+    ],
+    "web_references": [
+      {
+        "url": "https://www.pingidentity.com/en/resources/cybersecurity-fundamentals/detect-risk/impossible-travel-101.html",
+        "title": "Impossible Travel 101 - Ping Identity",
+        "relevance": "Explains the 'Impossible Travel' indicator as a primary signal for ATO."
+      },
+      {
+        "url": "https://www.rapyd.net/blog/account-takeover-attacks/",
+        "title": "9 Account Takeover Attacks - Rapyd",
+        "relevance": "Describes how automated bot networks use credential stuffing to trigger these patterns."
+      }
+    ]
+  }
+]

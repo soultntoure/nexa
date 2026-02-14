@@ -1,0 +1,54 @@
+{
+  "run_at": "2026-02-11T02:14:56.506543+00:00",
+  "base_url": "http://localhost:18080",
+  "customer_id": "CUST-014",
+  "rule_cycles_target": 2,
+  "investigator_cycles_target": 1,
+  "reset_first": true,
+  "initial_blend": {
+    "rule_engine": 0.6,
+    "investigators": 0.4
+  },
+  "final_blend": {
+    "rule_engine": 0.64,
+    "investigators": 0.36
+  },
+  "initial_sample_count": 0,
+  "final_sample_count": 10,
+  "phase_summaries": [
+    {
+      "phase": "favor_rule",
+      "attempts": 2,
+      "successes": 2,
+      "avg_rule_weight_delta": 0.0334,
+      "avg_investigator_weight_delta": -0.0334,
+      "avg_investigator_score": 0.9916,
+      "avg_feedback_wait_s": 1.022
+    },
+    {
+      "phase": "favor_investigators",
+      "attempts": 1,
+      "successes": 1,
+      "avg_rule_weight_delta": -0.0267,
+      "avg_investigator_weight_delta": 0.0267,
+      "avg_investigator_score": 0.9667,
+      "avg_feedback_wait_s": 0.018
+    }
+  ],
+  "boundary_cross_required": true,
+  "boundary_crossed": true,
+  "boundary_cross_step": 1,
+  "boundary_cross_phase": "favor_rule",
+  "boundary_crossings": [
+    {
+      "indicator": "amount_anomaly",
+      "direction": "dampened",
+      "multiplier": 0.7135,
+      "sample_size": 4,
+      "precision": 0.2954
+    }
+  ],
+  "extra_boundary_cycles": 0,
+  "prompt_snapshots": 16,
+  "rows": 3
+}

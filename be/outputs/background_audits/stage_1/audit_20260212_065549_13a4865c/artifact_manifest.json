@@ -1,0 +1,49 @@
+{
+  "schema_version": "2.0",
+  "files": {
+    "audit_report.md": {
+      "sha256": "3b9c336105c2fd84a9dbfa68be7d6e9cb00d60effa7192452583148890a44ea1",
+      "size": 657
+    },
+    "candidates.json": {
+      "sha256": "89972a9a5964a5e67729d0a9a8af5fa426e72c34715030c9331717d7195fff22",
+      "size": 12354
+    },
+    "clusters.json": {
+      "sha256": "b9f5daa2a7b9c81ce9fb4ccb262228c4984e87df34f56e400123ad626cc4088c",
+      "size": 947
+    },
+    "embedding_metrics.json": {
+      "sha256": "66424aafa1e4c1ba3a67e074bdf149fbe0b4cd5aa80ed12348c2e9b65ef6a1be",
+      "size": 83
+    },
+    "run_summary.json": {
+      "sha256": "5d9ce1665b8addf22333bf33dfd3eb51c54d6af67a83e0b97da8dd4e757e1b06",
+      "size": 167
+    },
+    "scheduler_config_snapshot.json": {
+      "sha256": "c7b165a700fc85f899437e07dd8fc6a78616ebfa4c1ad084def08bb62d129d4d",
+      "size": 102
+    },
+    "timings.json": {
+      "sha256": "3533c792552a16b910ef1c3532c98b6b4dfa0a03711e6add19918e9c34f5410c",
+      "size": 108
+    },
+    "agent_observability/admin_brief.md": {
+      "sha256": "ddbe6f749036fbc2cd6026cb5b4861a8c3e1dd5d21ac6459d51b6cf1bd16c4db",
+      "size": 1603
+    },
+    "agent_observability/clustering_comparison.json": {
+      "sha256": "f0d58559ad96adbba20046b3a1142affd040e8747c238ab26e98f3f7f7393c1f",
+      "size": 2330
+    },
+    "agent_observability/tool_trace.json": {
+      "sha256": "4cc5626391abd8848813466081de8c6b8612135aa3554f2b22b40462ad9dfb82",
+      "size": 1023
+    },
+    "checkpoints/cp5_decision_gate.json": {
+      "sha256": "681ad18ebda3fb56d5fc122a818024e6bf841c9e35cd85da25e08eca49c9b5ec",
+      "size": 77
+    }
+  }
+}

@@ -1,0 +1,2 @@
+iteration,run_id,status,total_s,trigger_ms,stream_s,event_count,hypothesis_count,candidate_count,agent_tool_count,extract_s,embed_cluster_s,investigate_s,event_checks_passed,event_checks_total,artifact_checks_passed,artifact_checks_total,counters
+1,audit_20260212_043755_84e10854,completed,295.37,15.8,295.33,80,9,9,58,0,0,0,9,11,18,18,"{""clusters_found"": 9, ""units_extracted"": 103, ""candidates_generated"": 9}"

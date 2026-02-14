@@ -1,0 +1,355 @@
+[
+  {
+    "candidate_id": "audit_20260212_043755_84e10854_cluster_7",
+    "tool_calls": [
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    a.customer_id, \\n    c.email,\\n    w.device_fingerprint, \\n    w.ip_address,\\n    COUNT(a.id) as alert_count,\\n    string_agg(DISTINCT a.alert_type, ', ') as alert_types\\nFROM ",
+        "result_preview": "[(UUID('47f31044-9835-5562-8f2b-95839df2c7a4'), 'ahmed.hassan@example.com', '9e1c1cf1ab424a9f9d80a70aa52dd439', '194.34.176.148', 2, 'escalation'), (UUID('4c07c0e0-d166-5ade-b1f0-e3c17b499be1'), 'yuki"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    t.customer_id, \\n    c.email,\\n    COUNT(*) as total_attempts,\\n    COUNT(CASE WHEN t.status = 'failed' THEN 1 END) as failed_attempts,\\n    COUNT(DISTINCT t.payment_method_id)",
+        "result_preview": "[(UUID('80320da3-90b3-5f30-9f55-529aff175201'), 'fatima.nour@example.com', 1, 0, 1, None), (UUID('851b3a09-1d29-5d95-9257-37fbf678efd2'), 'carlos.mendez@example.com', 5, 0, 1, None), (UUID('b0546131-1"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    t.customer_id, \\n    c.email,\\n    COUNT(*) as total_tx,\\n    COUNT(CASE WHEN t.status = 'failed' THEN 1 END) as failed_tx,\\n    string_agg(DISTINCT t.error_code, ', ') as erro",
+        "result_preview": "[(UUID('696fc5ab-ab16-5f64-847e-fb0d5df337e5'), 'sophie.laurent@example.com', 3, 3, 'card_restricted', 1)]"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': 'SELECT \\n    pm.customer_id, \\n    c.email,\\n    COUNT(pm.id) as total_cards,\\n    COUNT(CASE WHEN pm.is_verified = FALSE THEN 1 END) as unverified_cards,\\n    COUNT(CASE WHEN pm.is_blackli",
+        "result_preview": "[(UUID('696fc5ab-ab16-5f64-847e-fb0d5df337e5'), 'sophie.laurent@example.com', 4, 3, 3)]"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    customer_id, \\n    COUNT(id) as withdrawal_count,\\n    SUM(amount) as total_withdrawn,\\n    MAX(requested_at) - MIN(requested_at) as time_span,\\n    COUNT(DISTINCT device_finge",
+        "result_preview": "[(UUID('696fc5ab-ab16-5f64-847e-fb0d5df337e5'), 9, Decimal('29396.48'), datetime.timedelta(days=6, seconds=53100), 9), (UUID('851b3a09-1d29-5d95-9257-37fbf678efd2'), 7, Decimal('15288.47'), datetime.t"
+      },
+      {
+        "tool": "fraud_web_search",
+        "args_preview": "{'query': 'fraud typology \"card error history\" \"velocity signals\" \"device fingerprint\"'}",
+        "result_preview": "{\"query\": \"fraud typology card error history velocity signals device fingerprint\", \"follow_up_questions\": null, \"answer\": null, \"images\": [], \"results\": [{\"url\": \"https://trustpath.io/en/blog/velocity"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT fingerprint, COUNT(DISTINCT customer_id) as user_count, string_agg(DISTINCT customer_id::text, ', ') as users\\nFROM devices\\nWHERE fingerprint IN (\\n    SELECT device_fingerprint FRO",
+        "result_preview": "[('a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', 2, '606db456-03d1-560b-b807-605e8a36e488, 696fc5ab-ab16-5f64-847e-fb0d5df337e5')]"
+      },
+      {
+        "tool": "AgentSynthesisResult",
+        "args_preview": "{'limitations': 'The investigation is limited to the provided database; external verification of the stolen cards or the physical location of the IP addresses (beyond DB records) was not performed.', ",
+        "result_preview": "Returning structured response: plain_language=\"We have identified a group of accounts working together to commit credit card fraud. These users attempt to use multiple stolen cards (often resulting in"
+      }
+    ],
+    "total_tool_calls": 8,
+    "duration_s": 34.23
+  },
+  {
+    "candidate_id": "audit_20260212_043755_84e10854_cluster_1",
+    "tool_calls": [
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    w.id, \\n    w.customer_id, \\n    w.amount, \\n    w.currency, \\n    w.ip_address, \\n    w.device_fingerprint, \\n    wd.reasoning, \\n    w.recipient_account,\\n    w.requested_at\\",
+        "result_preview": ""
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    ir.indicator_name, \\n    ir.reasoning, \\n    w.customer_id, \\n    w.id AS withdrawal_id,\\n    w.recipient_account,\\n    w.ip_address\\nFROM indicator_results ir\\nJOIN withdrawal",
+        "result_preview": ""
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    wd.reasoning, \\n    wd.decision, \\n    w.amount, \\n    w.customer_id,\\n    w.requested_at\\nFROM withdrawal_decisions wd\\nJOIN withdrawals w ON wd.withdrawal_id = w.id\\nWHERE wd",
+        "result_preview": "[('Automated decision: pending withdrawal of $2990.00', 'escalated', Decimal('2990.00'), UUID('606db456-03d1-560b-b807-605e8a36e488'), datetime.datetime(2026, 2, 8, 12, 0, tzinfo=datetime.timezone.utc"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    ir.indicator_name, \\n    ir.score, \\n    ir.reasoning, \\n    w.id,\\n    w.ip_address,\\n    w.device_fingerprint\\nFROM indicator_results ir\\nJOIN withdrawals w ON ir.withdrawal_",
+        "result_preview": "[('amount_anomaly', 0.459, 'Amount Anomaly check \u2014 score 0.46', UUID('6bf6e7f0-a2eb-5f90-b1f4-7dfa918b63f1'), '185.199.108.55', 'e2e3e4e5f6f7e2e3e4e5f6f7e2e3e4e5'), ('recipient_analysis', 0.842, 'Reci"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    customer_id, \\n    COUNT(id) as withdrawal_count,\\n    MIN(requested_at) as first_withdrawal,\\n    MAX(requested_at) as last_withdrawal\\nFROM withdrawals\\nWHERE ip_address = '1",
+        "result_preview": "[(UUID('851b3a09-1d29-5d95-9257-37fbf678efd2'), 5, datetime.datetime(2026, 2, 8, 11, 10, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 2, 8, 11, 50, tzinfo=datetime.timezone.utc))]"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    w1.customer_id,\\n    w1.ip_address as ip1,\\n    w1.requested_at as time1,\\n    w2.ip_address as ip2,\\n    w2.requested_at as time2\\nFROM withdrawals w1\\nJOIN withdrawals w2 ON ",
+        "result_preview": "[(UUID('95dfe02e-a6f6-5b14-866b-19dbadc18021'), '103.5.140.50', datetime.datetime(2026, 2, 8, 12, 0, tzinfo=datetime.timezone.utc), '118.101.80.11', datetime.datetime(2026, 2, 6, 4, 21, tzinfo=datetim"
+      },
+      {
+        "tool": "fraud_web_search",
+        "args_preview": "{'query': '\"impossible travel\" \"new device\" fraud typology account takeover'}",
+        "result_preview": "{\"query\": \"impossible travel new device fraud typology account takeover\", \"follow_up_questions\": null, \"answer\": null, \"images\": [], \"results\": [{\"url\": \"https://www.hunters.security/en/blog/impossibl"
+      },
+      {
+        "tool": "AgentSynthesisResult",
+        "args_preview": "{'sql_findings': [{'query_summary': \"Detection of 'impossible travel' via IP address changes within a 24-hour window.\", 'result_summary': 'Customer 74cd8909-2030-55c0-8ec1-9af299a3910a requested withd",
+        "result_preview": "Returning structured response: plain_language=\"We have identified a series of unauthorized access attempts where attackers gained control of legitimate user accounts. The system flagged these because "
+      }
+    ],
+    "total_tool_calls": 8,
+    "duration_s": 33.56
+  },
+  {
+    "candidate_id": "audit_20260212_043755_84e10854_cluster_6",
+    "tool_calls": [
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    c.id, \\n    c.email, \\n    COUNT(DISTINCT t.id) as tx_count, \\n    SUM(CASE WHEN t.type = 'deposit' THEN t.amount ELSE 0 END) as total_deposited,\\n    COUNT(DISTINCT tr.id) as ",
+        "result_preview": "[(UUID('47f31044-9835-5562-8f2b-95839df2c7a4'), 'ahmed.hassan@example.com', 1, Decimal('2000.00'), 1, Decimal('20.00'), 1, Decimal('2155.18'), '2c64a970fbd54d56bbc5578f4f087751', '43.228.199.108'), (U"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    c.id, \\n    c.email, \\n    c.is_flagged,\\n    pm.type as pm_type,\\n    pm.provider as pm_provider,\\n    pm.last_four,\\n    COUNT(DISTINCT pm.id) OVER (PARTITION BY pm.last_four",
+        "result_preview": "Error: (psycopg2.errors.FeatureNotSupported) DISTINCT is not implemented for window functions\nLINE 8:     COUNT(DISTINCT pm.id) OVER (PARTITION BY pm.last_four, p...\n            ^\n\n[SQL: SELECT \n    c"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    pm.last_four, \\n    pm.provider, \\n    COUNT(DISTINCT pm.customer_id) as user_count,\\n    STRING_AGG(DISTINCT c.email, ', ') as emails\\nFROM payment_methods pm\\nJOIN customers ",
+        "result_preview": "[('1111', 'visa', 2, 'sophie.laurent@example.com, victor.petrov@example.com'), ('4444', 'visa', 2, 'ahmed.hassan@example.com, fatima.nour@example.com'), ('6677', 'visa', 2, 'carlos.mendez@example.com,"
+      },
+      {
+        "tool": "fraud_web_search",
+        "args_preview": "{'query': 'fraud typology deposit and withdrawal minimal trading shared payment method'}",
+        "result_preview": "{\"query\": \"fraud typology deposit and withdrawal minimal trading shared payment method\", \"follow_up_questions\": null, \"answer\": null, \"images\": [], \"results\": [{\"url\": \"https://www.investor.gov/protec"
+      },
+      {
+        "tool": "fraud_web_search",
+        "args_preview": "{'query': '\"deposit and run\" fraud typology AML minimal trading'}",
+        "result_preview": "{\"query\": \"deposit and run fraud typology AML minimal trading\", \"follow_up_questions\": null, \"answer\": null, \"images\": [], \"results\": [{\"url\": \"https://www.tookitaki.com/compliance-hub/decoding-aml-ty"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    fingerprint, \\n    COUNT(DISTINCT customer_id) as user_count,\\n    STRING_AGG(DISTINCT customer_id::text, ', ') as customer_ids\\nFROM devices\\nWHERE fingerprint IN ('deadbeefde",
+        "result_preview": "[('a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', 2, '606db456-03d1-560b-b807-605e8a36e488, 696fc5ab-ab16-5f64-847e-fb0d5df337e5'), ('deadbeefdeadbeefdeadbeefdeadbeef', 2, '47f31044-9835-5562-8f2b-95839df2c7a4, 8"
+      },
+      {
+        "tool": "AgentSynthesisResult",
+        "args_preview": "{'formal_pattern_name': 'Pass-through Money Laundering (U-Turn Transactions)', 'uncertainty': \"It is unclear if the 'deadbeef' fingerprint is a system error or a deliberate attempt by fraudsters to ma",
+        "result_preview": "Returning structured response: plain_language=\"We have detected a network of accounts that appear to be using our platform to 'clean' money rather than for legitimate trading. These users deposit larg"
+      }
+    ],
+    "total_tool_calls": 7,
+    "duration_s": 36.61
+  },
+  {
+    "candidate_id": "audit_20260212_043755_84e10854_cluster_4",
+    "tool_calls": [
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    w.device_fingerprint, \\n    COUNT(DISTINCT w.customer_id) as shared_count,\\n    ARRAY_AGG(DISTINCT c.country) as countries,\\n    COUNT(w.id) as total_withdrawals,\\n    SUM(CASE",
+        "result_preview": "[('a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', 2, ['FRA', 'RUS'], 2, 2), ('deadbeefdeadbeefdeadbeefdeadbeef', 2, ['EGY'], 2, 2)]"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    c.id as customer_id, \\n    c.country, \\n    c.registration_date,\\n    w.device_fingerprint,\\n    t.type as tx_type,\\n    t.status as tx_status,\\n    t.amount,\\n    t.timestamp ",
+        "result_preview": "[(UUID('47f31044-9835-5562-8f2b-95839df2c7a4'), 'EGY', datetime.datetime(2026, 2, 1, 12, 0, tzinfo=datetime.timezone.utc), 'deadbeefdeadbeefdeadbeefdeadbeef', 'deposit', 'success', Decimal('2000.00'),"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    customer_id, \\n    COUNT(*) as trade_count, \\n    SUM(amount) as total_volume, \\n    SUM(pnl) as total_pnl,\\n    MIN(opened_at) as first_trade,\\n    MAX(closed_at) as last_trad",
+        "result_preview": "[(UUID('47f31044-9835-5562-8f2b-95839df2c7a4'), 1, Decimal('20.00'), Decimal('0.50'), datetime.datetime(2026, 2, 4, 12, 0, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 2, 4, 12, 0, 45, tzinf"
+      },
+      {
+        "tool": "fraud_web_search",
+        "args_preview": "{'query': 'fraud pattern shared device token trading rapid withdrawal card error history'}",
+        "result_preview": "{\"query\": \"fraud pattern shared device token trading rapid withdrawal card error history\", \"follow_up_questions\": null, \"answer\": null, \"images\": [], \"results\": [{\"url\": \"https://www.spreedly.com/blog"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    customer_id, \\n    COUNT(*) as error_count, \\n    ARRAY_AGG(DISTINCT error_code) as error_codes,\\n    COUNT(DISTINCT ip_address) as ip_count\\nFROM transactions\\nWHERE error_cod",
+        "result_preview": "[(UUID('696fc5ab-ab16-5f64-847e-fb0d5df337e5'), 3, ['card_restricted'], 1)]"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    c.id as customer_id, \\n    c.country as customer_country,\\n    ih.ip_address, \\n    ih.location as ip_location, \\n    ih.is_vpn\\nFROM customers c\\nJOIN ip_history ih ON c.id = ",
+        "result_preview": "[(UUID('606db456-03d1-560b-b807-605e8a36e488'), 'RUS', '95.173.120.45', 'Moscow, RUS', False), (UUID('696fc5ab-ab16-5f64-847e-fb0d5df337e5'), 'FRA', '88.160.45.78', 'Paris, FRA', False), (UUID('47f310"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    customer_id, \\n    COUNT(*) as withdrawal_count, \\n    SUM(amount) as total_withdrawn,\\n    MAX(requested_at) - MIN(requested_at) as time_span\\nFROM withdrawals\\nWHERE customer",
+        "result_preview": "[(UUID('606db456-03d1-560b-b807-605e8a36e488'), 4, Decimal('10653.58'), datetime.timedelta(days=5, seconds=5040)), (UUID('80320da3-90b3-5f30-9f55-529aff175201'), 4, Decimal('18326.21'), datetime.timed"
+      },
+      {
+        "tool": "AgentSynthesisResult",
+        "args_preview": "{'clustering_notes': 'The initial evidence suggested a single pattern, but SQL analysis revealed two distinct sub-groups: one international (FRA/RUS) and one regional (EGY). Both follow the same behav",
+        "result_preview": "Returning structured response: plain_language=\"We have detected a coordinated group of accounts that appear to be 'money mules.' These accounts are linked by shared devices and internet connections, e"
+      }
+    ],
+    "total_tool_calls": 8,
+    "duration_s": 38.5
+  },
+  {
+    "candidate_id": "audit_20260212_043755_84e10854_cluster_5",
+    "tool_calls": [
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    w.customer_id, \\n    w.id AS withdrawal_id, \\n    w.amount, \\n    w.currency, \\n    wd.reasoning,\\n    c.registration_date,\\n    (SELECT COUNT(*) FROM trades t WHERE t.customer",
+        "result_preview": ""
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    c.id, \\n    c.email, \\n    c.country,\\n    COUNT(DISTINCT t.id) as trade_count,\\n    SUM(DISTINCT tr.amount) FILTER (WHERE tr.type = 'deposit') as total_deposits,\\n    SUM(DIST",
+        "result_preview": "[(UUID('47f31044-9835-5562-8f2b-95839df2c7a4'), 'ahmed.hassan@example.com', 'EGY', 1, Decimal('2000.00'), Decimal('1950.00'), 1), (UUID('606db456-03d1-560b-b807-605e8a36e488'), 'victor.petrov@example."
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    'device' as type, d1.fingerprint, d1.customer_id as c1, d2.customer_id as c2\\nFROM devices d1\\nJOIN devices d2 ON d1.fingerprint = d2.fingerprint AND d1.customer_id < d2.custom",
+        "result_preview": "[('device', 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', UUID('606db456-03d1-560b-b807-605e8a36e488'), UUID('696fc5ab-ab16-5f64-847e-fb0d5df337e5')), ('device', 'deadbeefdeadbeefdeadbeefdeadbeef', UUID('47f310"
+      },
+      {
+        "tool": "fraud_web_search",
+        "args_preview": "{'query': 'fraud typology \"minimal trading\" withdrawal \"pass-through\" money laundering'}",
+        "result_preview": "{\"query\": \"fraud typology minimal trading withdrawal pass-through money laundering\", \"follow_up_questions\": null, \"answer\": null, \"images\": [], \"results\": [{\"url\": \"https://www.fincen.gov/resources/ad"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    c.id, \\n    c.email, \\n    c.country, \\n    d.fingerprint, \\n    ih.ip_address, \\n    pm.last_four\\nFROM customers c\\nJOIN devices d ON c.id = d.customer_id\\nJOIN ip_history ih",
+        "result_preview": "[(UUID('606db456-03d1-560b-b807-605e8a36e488'), 'victor.petrov@example.com', 'RUS', 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', '95.173.120.45', '1111'), (UUID('696fc5ab-ab16-5f64-847e-fb0d5df337e5'), 'sophie"
+      },
+      {
+        "tool": "AgentSynthesisResult",
+        "args_preview": "{'web_references': [{'relevance': \"Describes 'pass-through' accounts and rapid withdrawal behavior as a red flag for layering.\", 'url': 'https://www.lickslegal.com/post/typologies-of-money-laundering-",
+        "result_preview": "Returning structured response: plain_language=\"We have identified a coordinated group of users who are using the platform as a 'pass-through' for funds rather than for trading. These users deposit lar"
+      }
+    ],
+    "total_tool_calls": 6,
+    "duration_s": 34.26
+  },
+  {
+    "candidate_id": "audit_20260212_043755_84e10854_cluster_3",
+    "tool_calls": [
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT recipient_account, COUNT(DISTINCT customer_id) as unique_customers, COUNT(*) as withdrawal_count\\nFROM withdrawals\\nJOIN withdrawal_decisions wd ON withdrawals.id = wd.withdrawal_id\\",
+        "result_preview": "[('EG800002000156789012345678901', 2, 2)]"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT device_fingerprint, COUNT(DISTINCT customer_id) as unique_customers, COUNT(*) as withdrawal_count\\nFROM withdrawals\\nJOIN withdrawal_decisions wd ON withdrawals.id = wd.withdrawal_id",
+        "result_preview": "[('a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', 2, 2), ('deadbeefdeadbeefdeadbeefdeadbeef', 2, 2)]"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT ip_address, COUNT(DISTINCT customer_id) as unique_customers, COUNT(*) as withdrawal_count\\nFROM withdrawals\\nJOIN withdrawal_decisions wd ON withdrawals.id = wd.withdrawal_id\\nWHERE ",
+        "result_preview": "[('41.44.55.66', 2, 2)]"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT w.customer_id, w.recipient_account, w.device_fingerprint, w.ip_address, c.name, c.email, wd.decision\\nFROM withdrawals w\\nJOIN customers c ON w.customer_id = c.id\\nJOIN withdrawal_de",
+        "result_preview": "[(UUID('47f31044-9835-5562-8f2b-95839df2c7a4'), 'EG800002000156789012345678901', 'deadbeefdeadbeefdeadbeefdeadbeef', '41.44.55.66', 'Ahmed Hassan', 'ahmed.hassan@example.com', 'escalated'), (UUID('803"
+      },
+      {
+        "tool": "fraud_web_search",
+        "args_preview": "{'query': 'fraud ring shared device shared recipient account typology'}",
+        "result_preview": "{\"query\": \"fraud ring shared device shared recipient account typology\", \"follow_up_questions\": null, \"answer\": null, \"images\": [], \"results\": [{\"url\": \"https://www.unit21.ai/trust-safety-dictionary/fr"
+      },
+      {
+        "tool": "AgentSynthesisResult",
+        "args_preview": "{'uncertainty': 'It is unclear if the secondary cluster (Laurent/Petrov) is part of the same larger organization or simply using a shared public device. Further investigation into their login times an",
+        "result_preview": "Returning structured response: plain_language=\"We have detected a fraud ring where multiple user accounts are being used to send money to the same bank account. These accounts are also logging in from"
+      }
+    ],
+    "total_tool_calls": 6,
+    "duration_s": 34.79
+  },
+  {
+    "candidate_id": "audit_20260212_043755_84e10854_cluster_2",
+    "tool_calls": [
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': 'SELECT \\n    w.device_fingerprint, \\n    w.recipient_account, \\n    COUNT(DISTINCT w.customer_id) as customer_count, \\n    COUNT(*) as withdrawal_count,\\n    MIN(w.requested_at) as first_wi",
+        "result_preview": "[('deadbeefdeadbeefdeadbeefdeadbeef', 'EG800002000156789012345678901', 2, 2, datetime.datetime(2026, 2, 8, 12, 0, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 2, 8, 12, 0, tzinfo=datetime.ti"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    c.id, \\n    c.name, \\n    c.email, \\n    c.registration_date, \\n    c.country,\\n    ih.ip_address,\\n    ih.is_vpn,\\n    w.amount,\\n    w.requested_at\\nFROM customers c\\nJOIN wi",
+        "result_preview": "[(UUID('47f31044-9835-5562-8f2b-95839df2c7a4'), 'Ahmed Hassan', 'ahmed.hassan@example.com', datetime.datetime(2026, 2, 1, 12, 0, tzinfo=datetime.timezone.utc), 'EGY', '41.44.55.66', False, Decimal('19"
+      },
+      {
+        "tool": "fraud_web_search",
+        "args_preview": "{'query': 'fraud ring shared device fingerprint same recipient account coordinated withdrawal'}",
+        "result_preview": "{\"query\": \"fraud ring shared device fingerprint same recipient account coordinated withdrawal\", \"follow_up_questions\": null, \"answer\": null, \"images\": [], \"results\": [{\"url\": \"https://trustdecision.co"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    customer_id, \\n    ip_address, \\n    requested_at, \\n    amount \\nFROM withdrawals \\nWHERE recipient_account = 'EG800002000156789012345678901' \\n   OR device_fingerprint = 'dea",
+        "result_preview": "[(UUID('47f31044-9835-5562-8f2b-95839df2c7a4'), '41.44.55.66', datetime.datetime(2026, 2, 8, 12, 0, tzinfo=datetime.timezone.utc), Decimal('1950.00')), (UUID('80320da3-90b3-5f30-9f55-529aff175201'), '"
+      },
+      {
+        "tool": "AgentSynthesisResult",
+        "args_preview": "{'limitations': \"The investigation only identified two accounts in this specific burst. While the pattern is highly suspicious, the total volume (approx. 3,430.00 EGP/USD) is relatively low for a larg",
+        "result_preview": "Returning structured response: plain_language='A coordinated fraud ring was detected involving two accounts that acted in perfect synchronization. The accounts were created at the same time and attemp"
+      }
+    ],
+    "total_tool_calls": 5,
+    "duration_s": 24.68
+  },
+  {
+    "candidate_id": "audit_20260212_043755_84e10854_cluster_8",
+    "tool_calls": [
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    c.id, \\n    c.registration_date, \\n    COUNT(DISTINCT t.id) as tx_count,\\n    COUNT(DISTINCT tr.id) as trade_count,\\n    SUM(CASE WHEN t.type = 'deposit' THEN t.amount ELSE 0 E",
+        "result_preview": "[(UUID('696fc5ab-ab16-5f64-847e-fb0d5df337e5'), datetime.datetime(2026, 1, 25, 12, 0, tzinfo=datetime.timezone.utc), 4, 2, Decimal('36000.00'), Decimal('235171.84'), 54), (UUID('47f31044-9835-5562-8f2"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    w.customer_id, \\n    w.device_fingerprint, \\n    w.ip_address, \\n    wd.decision, \\n    wd.reasoning,\\n    t.error_code\\nFROM withdrawals w\\nJOIN withdrawal_decisions wd ON w.i",
+        "result_preview": "[(UUID('606db456-03d1-560b-b807-605e8a36e488'), 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', '95.173.120.45', 'escalated', 'Automated decision: pending withdrawal of $2990.00', None), (UUID('696fc5ab-ab16-5f64"
+      },
+      {
+        "tool": "fraud_web_search",
+        "args_preview": "{'query': 'fraud typology \"card restricted\" \"minimal trading\" withdrawal deposit'}",
+        "result_preview": "{\"query\": \"fraud typology card restricted minimal trading withdrawal deposit\", \"follow_up_questions\": null, \"answer\": null, \"images\": [], \"results\": [{\"url\": \"https://www.fsma.be/en/warnings/look-out-"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT \\n    w.recipient_name, \\n    w.recipient_account, \\n    COUNT(DISTINCT w.customer_id) as unique_customers,\\n    SUM(w.amount) as total_withdrawn\\nFROM withdrawals w\\nWHERE w.device_",
+        "result_preview": "[('Mohamed Nour', 'EG800002000156789012345678901', 2, Decimal('3430.00')), ('Victor Petrov', 'RU0123456789012345678901234', 1, Decimal('2990.00')), ('Sophie Laurent', 'FR7630006000011234567890189', 1,"
+      },
+      {
+        "tool": "AgentSynthesisResult",
+        "args_preview": "{'analyst_notes': \"Investigation into the 'Critical risk constellation' alerts revealed a coordinated fraud ring utilizing shared device fingerprints ('a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4' and 'deadbeefd",
+        "result_preview": "Returning structured response: plain_language=\"We have identified a group of fraudsters using stolen credit cards to fund new accounts. They try many different cards until one works (resulting in many"
+      }
+    ],
+    "total_tool_calls": 5,
+    "duration_s": 27.34
+  },
+  {
+    "candidate_id": "audit_20260212_043755_84e10854_cluster_0",
+    "tool_calls": [
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT d.fingerprint, COUNT(DISTINCT d.customer_id) as user_count, STRING_AGG(DISTINCT c.country, ', ') as reg_countries, STRING_AGG(DISTINCT ih.location, '; ') as ip_locations, BOOL_OR(ih.",
+        "result_preview": "[('a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', 2, 'FRA, RUS', 'Moscow, RUS; Paris, FRA', False), ('deadbeefdeadbeefdeadbeefdeadbeef', 2, 'EGY', 'Cairo, EGY', False)]"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT w.device_fingerprint, w.customer_id, w.amount, w.currency, w.recipient_name, w.recipient_account, wd.decision, w.requested_at FROM withdrawals w JOIN withdrawal_decisions wd ON w.id ",
+        "result_preview": "[('a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', UUID('606db456-03d1-560b-b807-605e8a36e488'), Decimal('2990.00'), 'USD', 'Victor Petrov', 'RU0123456789012345678901234', 'escalated', datetime.datetime(2026, 2, 8"
+      },
+      {
+        "tool": "fraud_web_search",
+        "args_preview": "{'query': 'fraud typology shared device IP mismatch simultaneous withdrawal multi-accounting'}",
+        "result_preview": "{\"query\": \"fraud typology shared device IP mismatch simultaneous withdrawal multi-accounting\", \"follow_up_questions\": null, \"answer\": null, \"images\": [], \"results\": [{\"url\": \"https://docs.seon.io/know"
+      },
+      {
+        "tool": "sql_db_query",
+        "args_preview": "{'query': \"SELECT customer_id, recipient_name, recipient_account, amount, requested_at FROM withdrawals WHERE recipient_account IN ('RU0123456789012345678901234', 'FR7630006000011234567890189', 'EG800",
+        "result_preview": "[(UUID('606db456-03d1-560b-b807-605e8a36e488'), 'Victor Petrov', 'RU0123456789012345678901234', Decimal('2990.00'), datetime.datetime(2026, 2, 8, 12, 0, tzinfo=datetime.timezone.utc)), (UUID('696fc5ab"
+      },
+      {
+        "tool": "AgentSynthesisResult",
+        "args_preview": "{'plain_language': \"We have identified a group of accounts that are clearly being controlled by the same person or group. These accounts are linked by a 'digital fingerprint' (the same computer or pho",
+        "result_preview": "Returning structured response: plain_language=\"We have identified a group of accounts that are clearly being controlled by the same person or group. These accounts are linked by a 'digital fingerprint"
+      }
+    ],
+    "total_tool_calls": 5,
+    "duration_s": 28.97
+  }
+]

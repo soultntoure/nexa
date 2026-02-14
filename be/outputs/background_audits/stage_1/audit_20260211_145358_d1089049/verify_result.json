@@ -1,0 +1,57 @@
+{
+  "run_id": "audit_20260211_145358_d1089049",
+  "verified_at": "2026-02-11T15:08:13.136370+00:00",
+  "status": "pass",
+  "gates": {
+    "S1-G1": {
+      "name": "Output dir exists",
+      "pass": true,
+      "detail": null
+    },
+    "S1-G2": {
+      "name": "Required files present",
+      "pass": true,
+      "detail": []
+    },
+    "S1-G3": {
+      "name": "Manifest checksums valid",
+      "pass": true,
+      "detail": null
+    },
+    "S1-G4": {
+      "name": "Schema version present",
+      "pass": true,
+      "detail": null
+    },
+    "S1-G5": {
+      "name": "Run summary valid",
+      "pass": true,
+      "detail": null
+    },
+    "S1-G6": {
+      "name": "Embedding model consistent",
+      "pass": true,
+      "detail": null
+    },
+    "S1-G7": {
+      "name": "Checkpoints present",
+      "pass": true,
+      "detail": null
+    },
+    "S1-G8": {
+      "name": "Candidate schema valid",
+      "pass": true,
+      "detail": null
+    },
+    "S1-G9": {
+      "name": "Clusters file valid",
+      "pass": true,
+      "detail": null
+    },
+    "S1-G10": {
+      "name": "No PII in report",
+      "pass": true,
+      "detail": null
+    }
+  }
+}

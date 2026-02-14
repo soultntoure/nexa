@@ -1,0 +1,65 @@
+id,question,category,expect_chart,expect_type,got_chart,got_type,got_rows,chart_correct,type_correct,pass,ttft_s,total_s,answer_preview,error,event_count
+1,Who are our top 10 withdrawing customers?,top-N ranked,True,bar,True,bar,10,True,True,True,0.035,8.471,"James Wilson is our top withdrawing customer by a significant margin, with over $150,000 in total withdrawals. The top 10 list is rounded out by customers with totals ranging from approximately $15,00",,16
+2,Show me the top 5 customers by number of withdrawals,top-N count,True,bar,True,bar,5,True,True,True,0.045,5.711,"Here are the top 5 customers with the highest number of withdrawal requests. Raj Patel leads the list with 17 withdrawals.
+
+1. Raj Patel: 17 withdrawals
+2. James Wilson: 14 withdrawals
+3. Sarah Chen: ",,11
+3,Compare the total withdrawal amounts by country,categorical comparison,True,bar,True,bar,13,True,True,True,0.042,7.933,"The USA leads in total withdrawal volume with over $150,000, followed by India and Japan.
+
+1. USA: $150,779.16
+2. IND: $52,009.80
+3. JPN: $38,285.98
+4. EGY: $36,863.32
+5. FRA: $29,396.48
+6. GBR: $23,2",,16
+4,What are the average risk scores per customer?,per-entity metric,True,bar,True,bar,13,True,True,True,0.045,7.18,"The average risk scores range from 0.33 to 0.72, with Raj Patel and Emma Davies showing the highest average risk levels across their activity.
+
+1. Raj Patel: 0.72
+2. Emma Davies: 0.71
+3. Nina Volkov: ",,13
+5,Show the number of withdrawals per payment method,categorical count,True,bar,True,bar,4,True,True,True,0.046,5.491,"Most withdrawals are processed via card, followed by bank transfers.
+
+1. Card: 78 withdrawals
+2. Bank Transfer: 35 withdrawals
+3. Crypto: 10 withdrawals
+4. E-wallet: 8 withdrawals
+
+Would you like to s",,10
+6,Which customers have the most devices?,top-N devices,True,bar,True,bar,10,True,True,True,0.042,6.024,"OK, here are the customers with the highest number of registered devices. Carlos Mendez leads with 3 devices, followed by Yuki Tanaka and Nina Volkov with 2 each.
+
+1. Carlos Mendez: 3 devices
+2. Yuki ",,14
+7,Show me blocked vs approved withdrawal counts by country,grouped comparison,True,bar,True,bar,13,True,True,True,0.044,20.597,"I've analyzed the withdrawal statuses across different countries. The UK, Japan, and India show the highest volume of approved withdrawals, while Mexico and France have a higher proportion of blocked ",,28
+8,What is the breakdown of withdrawal statuses?,status distribution,True,pie,True,pie,2,True,True,True,0.045,12.602,"There are currently 131 withdrawals in the system, primarily categorized by their workflow state and fraud assessment.
+
+*   **Approved:** 95 withdrawals have completed the workflow.
+*   **Pending:** 3",,17
+9,Show the distribution of payment methods used,method distribution,True,pie,True,pie,4,True,True,True,0.046,5.065,"Cards are the most common payment method, accounting for 70% of all registered methods.
+
+1. **Card**: 14
+2. **Bank Transfer**: 3
+3. **Crypto**: 2
+4. **E-wallet**: 1
+
+Would you like to see which paymen",,11
+10,What percentage of evaluations are approved vs blocked vs escalated?,decision distribution,True,pie,True,pie,3,True,True,True,0.046,12.086,"Currently, 100% of the recorded evaluations are marked as **escalated**.
+
+Out of the 131 total withdrawals in the system, only 10 have a formal fraud decision recorded so far, and all 10 have been fla",,16
+11,Show me the share of total withdrawal amount by payment method,amount share,True,pie,True,pie,4,True,True,True,0.045,6.151,"Bank transfers and card payments dominate the withdrawal volume, accounting for the vast majority of the total funds moved.
+
+1. **Bank Transfer**: $215,454.73
+2. **Card**: $162,733.04
+3. **Crypto**: $",,12
+12,Show me the daily withdrawal count over the past 2 weeks,daily trend,True,line,True,line,8,True,True,True,0.043,6.984,"Over the past two weeks, withdrawal activity remained relatively steady until a significant spike occurred on February 8th, reaching 29 requests in a single day.
+
+1. Feb 8: 29 withdrawals
+2. Feb 6: 10",,13
+13,What is the trend of total withdrawal amounts by day?,amount trend,True,line,False,,0,False,True,False,0.042,3.105,,peer closed connection without sending complete message body (incomplete chunked read),3
+14,Plot the number of new customers registered per day,registration trend,True,line,False,,0,False,True,False,0,0.004,,Server disconnected without sending a response.,0
+15,Show the daily average risk score trend,risk trend,True,line,False,,0,False,True,False,0,0.002,,Server disconnected without sending a response.,0
+16,How many customers are there in total?,single number,False,,False,,0,True,True,True,0,0.003,,Server disconnected without sending a response.,0
+17,What is the total amount of all withdrawals?,single aggregate,False,,False,,0,True,True,True,0,0.006,,Server disconnected without sending a response.,0
+18,Is there a customer named James Wilson?,yes/no lookup,False,,False,,0,True,True,True,0,0.002,,Server disconnected without sending a response.,0
+19,What is James Wilson's email address?,single record lookup,False,,False,,0,True,True,True,0,0.004,,Server disconnected without sending a response.,0
+20,"Hello, what can you help me with?",greeting (no SQL),False,,False,,0,True,True,True,0,0.002,,Server disconnected without sending a response.,0

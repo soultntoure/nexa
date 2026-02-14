@@ -1,0 +1,13 @@
+Blend Feedback Benchmark
+==========================
+Customer: CUST-014
+Base URL: http://localhost:18080
+Run At: 2026-02-11T02:14:56.506543+00:00
+
+Initial Blend: {'rule_engine': 0.6, 'investigators': 0.4}
+Final Blend:   {'rule_engine': 0.64, 'investigators': 0.36}
+Prompt Snapshots: 16
+
+Phase Summaries:
+- favor_rule: successes=2/2, avg_rule_delta=0.0334, avg_inv_delta=-0.0334
+- favor_investigators: successes=1/1, avg_rule_delta=-0.0267, avg_inv_delta=0.0267

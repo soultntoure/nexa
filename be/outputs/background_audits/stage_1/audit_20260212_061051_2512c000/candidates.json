@@ -1,0 +1,80 @@
+[
+  {
+    "candidate_id": "audit_20260212_061051_2512c000_cluster_6",
+    "title": "Carding & Collusive Fraud Ring",
+    "quality_score": 0.423,
+    "confidence": 0.5,
+    "support_events": 6,
+    "support_accounts": 6,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Unknown",
+    "sql_findings": [],
+    "web_references": []
+  },
+  {
+    "candidate_id": "audit_20260212_061051_2512c000_cluster_0",
+    "title": "Account Takeover (ATO) Ring",
+    "quality_score": 0.6539,
+    "confidence": 0.8170555555555556,
+    "support_events": 18,
+    "support_accounts": 15,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Unknown",
+    "sql_findings": [],
+    "web_references": []
+  },
+  {
+    "candidate_id": "audit_20260212_061051_2512c000_cluster_5",
+    "title": "Collusive Money Laundering Ring (Credit Card Cashing)",
+    "quality_score": 0.6073,
+    "confidence": 0.8408888888888888,
+    "support_events": 9,
+    "support_accounts": 8,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Unknown",
+    "sql_findings": [],
+    "web_references": []
+  },
+  {
+    "candidate_id": "audit_20260212_061051_2512c000_cluster_3",
+    "title": "Collusive Fraud Ring / Money Mule Network",
+    "quality_score": 0.418,
+    "confidence": 0.802125,
+    "support_events": 6,
+    "support_accounts": 5,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Unknown",
+    "sql_findings": [],
+    "web_references": []
+  },
+  {
+    "candidate_id": "audit_20260212_061051_2512c000_cluster_4",
+    "title": "Money Laundering (Layering) via Mule Account Ring",
+    "quality_score": 0.5835,
+    "confidence": 0.812875,
+    "support_events": 8,
+    "support_accounts": 7,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Unknown",
+    "sql_findings": [],
+    "web_references": []
+  },
+  {
+    "candidate_id": "audit_20260212_061051_2512c000_cluster_7",
+    "title": "Collusive Carding and Cashing-Out Ring",
+    "quality_score": 0.429,
+    "confidence": 0.5,
+    "support_events": 8,
+    "support_accounts": 6,
+    "novelty_status": "new",
+    "status": "pending",
+    "formal_pattern_name": "Unknown",
+    "sql_findings": [],
+    "web_references": []
+  }
+]

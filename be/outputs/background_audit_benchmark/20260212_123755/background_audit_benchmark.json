@@ -1,0 +1,27 @@
+{
+  "run_at": "2026-02-12T04:42:51.094150+00:00",
+  "iterations": 1,
+  "base_url": "http://localhost:18080/api",
+  "results": [
+    {
+      "iteration": 1,
+      "run_id": "audit_20260212_043755_84e10854",
+      "status": "completed",
+      "total_s": 295.37,
+      "trigger_ms": 15.8,
+      "stream_s": 295.33,
+      "event_count": 80,
+      "hypothesis_count": 9,
+      "candidate_count": 9,
+      "agent_tool_count": 58,
+      "extract_s": 0,
+      "embed_cluster_s": 0,
+      "investigate_s": 0,
+      "event_checks_passed": 9,
+      "event_checks_total": 11,
+      "artifact_checks_passed": 18,
+      "artifact_checks_total": 18,
+      "counters": "{\"clusters_found\": 9, \"units_extracted\": 103, \"candidates_generated\": 9}"
+    }
+  ]
+}

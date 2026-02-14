@@ -1,0 +1,10 @@
+after_investigator_weight,after_rule_weight,after_sample_count,before_investigator_weight,before_rule_weight,before_sample_count,customer_id,cycle,decision_elapsed_s,delta_investigator_weight,delta_rule_weight,evaluation_id,feedback_wait_s,final_decision,investigate_elapsed_s,investigator_avg,investigator_count,officer_action,phase,rule_decision,status
+0.3176,0.6824,17,0.4,0.6,0,CUST-011,1,0.016,-0.0824,0.0824,4465a5ed-11c1-44d4-afce-ba806ad01278,1.027,blocked,8.974,0.95,2,approved,favor_rule,escalated,success
+0.3111,0.6889,18,0.3176,0.6824,17,CUST-011,2,0.038,-0.0065,0.0065,0c529e24-0e75-4929-b347-d26e85baafef,1.032,blocked,9.172,0.975,2,approved,favor_rule,escalated,success
+0.3263,0.6737,19,0.3111,0.6889,18,CUST-011,1,0.035,0.0152,-0.0152,f92e1a6c-34f8-489a-ad4e-af71a1889f10,1.036,blocked,8.032,0.975,2,blocked,favor_investigators,escalated,success
+0.3176,0.6824,17,0.4,0.6,0,CUST-013,1,0.032,-0.0824,0.0824,578612fb-9885-4bdb-a5b8-0e199f419651,1.014,blocked,8.894,0.975,2,approved,favor_rule,escalated,success
+0.3111,0.6889,18,0.3176,0.6824,17,CUST-013,2,0.014,-0.0065,0.0065,a4fa9ac4-762c-45e5-8f89-a8d9e6dda2b5,0.025,blocked,8.012,0.925,2,approved,favor_rule,escalated,success
+0.3263,0.6737,19,0.3111,0.6889,18,CUST-013,1,0.035,0.0152,-0.0152,ce420cc8-d229-4799-9c17-3e182cdf3e94,0.02,blocked,8.37,0.675,2,blocked,favor_investigators,escalated,success
+0.35,0.65,8,0.4,0.6,0,CUST-014,1,0.036,-0.05,0.05,36297c26-4986-415d-94b0-b5997ef7f4de,1.033,blocked,9.393,0.9833,3,approved,favor_rule,escalated,success
+0.3333,0.6667,9,0.35,0.65,8,CUST-014,2,0.037,-0.0167,0.0167,b3db95d4-de4a-487d-ad3c-6a243ac93725,1.012,blocked,9.123,1.0,2,approved,favor_rule,escalated,success
+0.36,0.64,10,0.3333,0.6667,9,CUST-014,1,0.038,0.0267,-0.0267,dbaf3044-e01c-4b57-b3e4-ba1e23343f92,0.018,blocked,9.065,0.9667,3,blocked,favor_investigators,escalated,success
