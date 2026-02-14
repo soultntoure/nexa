@@ -9,5 +9,6 @@
         <slot />
       </div>
     </main>
+    <Chatbot />
   </div>
 </template>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Icon } from '@iconify/vue'
 import type { Transaction } from '~/composables/useTransactions'
 
 useHead({ title: 'Nexa' })
@@ -18,6 +17,7 @@ const {
   updateTransactionStatus,
 } = useTransactions()
 const { setDiscussionFromTransaction } = useWithdrawalDiscussion()
+const { openWithContext } = useChatWidgetState()
 
 const route = useRoute()
 const selectedTransaction = ref<Transaction | null>(null)
@@ -74,10 +74,27 @@ async function handleApprove(justification: string): Promise<void> {
   updateTransactionStatus(selectedTransaction.value.id, 'approved')
 }
 
-async function handleBlock(justification: string): Promise<void> {
+async function handleBlock(justification: string, lockConnected: boolean): Promise<void> {
   if (!selectedTransaction.value) return
-  await submitDecisionToBE(selectedTransaction.value, 'blocked', justification)
-  updateTransactionStatus(selectedTransaction.value.id, 'blocked')
+  const tx = selectedTransaction.value
+  await submitDecisionToBE(tx, 'blocked', justification)
+  updateTransactionStatus(tx.id, 'blocked')
+
+  if (lockConnected) {
+    try {
+      await $fetch('/api/alerts/card-lockdown', {
+        method: 'POST',
+        body: {
+          customer_id: tx.customer.external_id,
+          risk_score: tx.risk_score,
+          admin_id: 'officer-demo-001',
+        },
+      })
+    } catch {
+      // lockdown call failed — block still proceeded
+    }
+  }
+
   selectedTransaction.value = null
 }
 
@@ -96,31 +113,27 @@ function handleCustomerProfile(): void {
   showCustomerSummary.value = true
 }
 
-async function handleDiscuss(): Promise<void> {
+function handleDiscuss(): void {
   if (!selectedTransaction.value) return
   const tx = selectedTransaction.value
   setDiscussionFromTransaction(tx)
-  selectedTransaction.value = null
-  await navigateTo({
-    path: '/query',
-    query: {
-      focus: 'withdrawal',
-      withdrawal_id: tx.withdrawal_id || tx.id,
-      customer_external_id: tx.customer.external_id,
-      customer_name: tx.customer.name,
-      customer_email: tx.customer.email,
-      amount: String(tx.amount),
-      currency: tx.currency,
-      risk_score: tx.risk_score.toFixed(2),
-      risk_level: tx.risk_level,
-      status: tx.status,
-      payment_method: tx.payment_method,
-      recipient_name: tx.recipient.name,
-      recipient_account: tx.recipient.account_number,
-      ip_address: tx.ip_address,
-      device: tx.device,
-      created_at: tx.created_at,
-    },
+  openWithContext({
+    id: tx.id,
+    withdrawal_id: tx.withdrawal_id,
+    customer_external_id: tx.customer.external_id,
+    customer_name: tx.customer.name,
+    customer_email: tx.customer.email,
+    amount: tx.amount,
+    currency: tx.currency,
+    risk_score: tx.risk_score,
+    risk_level: tx.risk_level,
+    status: tx.status,
+    payment_method: tx.payment_method,
+    recipient_name: tx.recipient.name,
+    recipient_account: tx.recipient.account_number,
+    ip_address: tx.ip_address,
+    device: tx.device,
+    created_at: tx.created_at,
   })
 }
 </script>
@@ -222,4 +235,5 @@ async function handleDiscuss(): Promise<void> {
     :transaction="selectedTransaction"
     @close="showCustomerSummary = false"
   />
+
 </template>

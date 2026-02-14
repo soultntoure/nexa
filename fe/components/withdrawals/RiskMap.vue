@@ -147,7 +147,7 @@ async function initMap() {
     .addAttribution('&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>')
     .addTo(map)
 
-  // Clean, light tile style
+  // Light mode tile style
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     maxZoom: 19,
     subdomains: 'abcd',
@@ -192,11 +192,11 @@ function updateMarkers() {
     const isSelected = tx.id === props.selectedId
 
     const marker = L.circleMarker(coords, {
-      radius: isSelected ? 12 : 7,
+      radius: isSelected ? 6 : 3,
       fillColor: getMarkerColor(tx.risk_score),
       color: isSelected ? '#1d4ed8' : getMarkerBorderColor(tx.risk_score),
-      weight: isSelected ? 3 : 1.5,
-      fillOpacity: isSelected ? 1 : 0.75,
+      weight: isSelected ? 2 : 1,
+      fillOpacity: isSelected ? 1 : 0.85,
       opacity: 1,
     })
 
