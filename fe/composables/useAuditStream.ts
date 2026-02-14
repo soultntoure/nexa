@@ -34,6 +34,7 @@ const PHASES: Array<{ name: string, label: string }> = [
   { name: 'extract', label: 'Scanning Transactions' },
   { name: 'embed_cluster', label: 'Grouping Patterns' },
   { name: 'investigate', label: 'Deep-Dive Analysis' },
+  { name: 'weight_drift', label: 'Signal Health Check' },
   { name: 'artifacts', label: 'Compiling Report' },
 ]
 

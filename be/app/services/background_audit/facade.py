@@ -12,6 +12,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.agentic_system.agents.background_audit_agent import BackgroundAuditAgent
+from app.agentic_system.agents.weight_drift_agent import WeightDriftAgent
 from app.agentic_system.tools.kmeans_tool import KMeansClusterTool
 from app.agentic_system.tools.web_search_tool import create_web_search_tool
 from app.config import get_settings
@@ -25,6 +26,7 @@ from app.data.db.models.audit_run import AuditRun
 from app.data.db.repositories.audit_config_repository import AuditConfigRepository
 from app.data.db.repositories.audit_run_repository import AuditRunRepository
 from app.services.background_audit.components.candidate_report import generate_candidates
+from app.services.background_audit.components.weight_drift_analysis import run_weight_drift_analysis
 from app.services.background_audit.components.embed_cluster import embed_and_cluster
 from app.services.background_audit.components.extract import extract_cohort
 from app.services.background_audit.progress import SSEEvent, build_event
@@ -148,19 +150,22 @@ class BackgroundAuditFacade(BackgroundAuditQueries):
             units, clusters, candidates = await self._execute_phases(
                 run_id, window, settings, timings, emit, cfg=cfg,
             )
+            drift_count = sum(1 for c in candidates if (c.pattern_card or {}).get("drift_data"))
             counters = {
                 "units_extracted": len(units),
                 "clusters_found": len(clusters),
                 "candidates_generated": len(candidates),
+                "drift_candidates_generated": drift_count,
             }
             async with self._sf() as session:
                 repo = AuditRunRepository(session)
                 await repo.update_status(run_id, "completed", counters=counters, timings=timings)
 
+            pattern_count = len(candidates) - drift_count
             await emit("complete", {
                 "title": "Audit complete",
-                "detail": f"{len(candidates)} patterns found across {len(clusters)} groups",
-                "narration": f"Investigation finished. Identified {len(candidates)} fraud patterns that need attention.",
+                "detail": f"{pattern_count} patterns found across {len(clusters)} groups",
+                "narration": f"Investigation finished. Identified {pattern_count} fraud patterns that need attention.",
             })
             logger.info("Audit run %s completed: %s", run_id, counters)
 
@@ -249,13 +254,21 @@ class BackgroundAuditFacade(BackgroundAuditQueries):
         })
         tools, schema_docs = _build_agent_tools(settings)
         agent = BackgroundAuditAgent(tools=tuple(tools), schema_docs=schema_docs)
-        candidates = await generate_candidates(
-            clusters, run_id, self._sf, agent=agent,
-            max_candidates=max_candidates, emit=emit,
-            quality_gate_config=quality_gate,
+        drift_agent = WeightDriftAgent(tools=tuple(tools), schema_docs=schema_docs)
+
+        candidates_list, drift_candidates = await asyncio.gather(
+            generate_candidates(
+                clusters, run_id, self._sf, agent=agent,
+                max_candidates=max_candidates, emit=emit,
+                quality_gate_config=quality_gate,
+            ),
+            run_weight_drift_analysis(
+                run_id, window, self._sf, agent=drift_agent, emit=emit,
+            ),
         )
+        all_candidates = list(candidates_list) + list(drift_candidates)
         timings["candidate_report_s"] = round(time.monotonic() - t2, 2)
-        return units, clusters, candidates
+        return units, clusters, all_candidates
 
 
 def _build_sync_uri(async_url: str) -> str:

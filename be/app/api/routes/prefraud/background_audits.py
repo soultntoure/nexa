@@ -106,6 +106,26 @@ async def get_candidates(
     )
 
 
+@router.get("/runs/{run_id}/drift-pdf")
+async def get_drift_pdf(run_id: str, request: Request) -> StreamingResponse:
+    """Generate and return a PDF report for weight drift candidates."""
+    from io import BytesIO
+
+    from app.services.background_audit.components.internals.drift_pdf import generate_drift_pdf
+
+    facade = _get_facade(request)
+    drift_candidates = await facade.get_drift_candidates(run_id)
+    if not drift_candidates:
+        raise HTTPException(404, "No drift candidates found for this run")
+    card = drift_candidates[0].get("pattern_card", {})
+    pdf_bytes = generate_drift_pdf(card)
+    return StreamingResponse(
+        BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=drift-report-{run_id}.pdf"},
+    )
+
+
 @router.post("/candidates/{candidate_id}/action")
 async def update_candidate_action(
     candidate_id: str,

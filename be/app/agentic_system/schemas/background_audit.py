@@ -18,6 +18,15 @@ class SQLFinding(BaseModel):
     result_summary: str = Field(description="Key finding from the query")
 
 
+class Recommendation(BaseModel):
+    """A specific actionable recommendation for addressing a finding."""
+
+    action: str = Field(description="What to do, e.g. 'Pin indicator' or 'Reset customer weights'")
+    target: str = Field(description="Which indicator or customer this applies to")
+    reason: str = Field(description="Why this action is recommended")
+    priority: str = Field(default="medium", description="'high', 'medium', or 'low'")
+
+
 class AgentSynthesisResult(BaseModel):
     """Structured output from the background audit synthesis agent."""
 
@@ -28,6 +37,10 @@ class AgentSynthesisResult(BaseModel):
     formal_pattern_name: str = Field(
         default="Unknown",
         description="Recognized fraud typology name (e.g. 'Account Takeover', 'Smurfing')",
+    )
+    recommendations: list[Recommendation] = Field(
+        default_factory=list,
+        description="Actionable recommendations for addressing drift issues",
     )
     web_references: list[WebReference] = Field(
         default_factory=list,

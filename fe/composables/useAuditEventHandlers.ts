@@ -20,7 +20,7 @@ const TOOL_LABELS: Record<string, () => string> = {
   'AgentSynthesisResult': () => 'Compiling findings...',
 }
 
-const PHASE_ORDER = ['extract', 'embed_cluster', 'investigate', 'artifacts'] as const
+const PHASE_ORDER = ['extract', 'embed_cluster', 'investigate', 'weight_drift', 'artifacts'] as const
 
 export function createEventHandlers(
   phases: Ref<Phase[]>,
@@ -80,6 +80,8 @@ export function createEventHandlers(
         return 'Clustering complete'
       case 'investigate':
         return 'Investigation complete'
+      case 'weight_drift':
+        return 'Signal health check complete'
       case 'artifacts':
         return 'Artifacts queued'
       default:

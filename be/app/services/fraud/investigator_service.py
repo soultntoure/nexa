@@ -191,7 +191,7 @@ class InvestigatorService:
         if scoring.decision == "approved" and adjusted >= approve_thresh:
             effective = "escalated"
 
-        if effective in ("approved", "blocked"):
+        if effective == "approved":
             return self._build_skip_triage(scoring, adjusted), [], 0.0
 
         findings, _ = await self._run_investigators(

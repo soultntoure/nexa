@@ -24,6 +24,7 @@ FRAUD_DB_TABLES: list[str] = [
     "indicator_results",
     "alerts",
     "threshold_config",
+    "customer_weight_profiles",
 ]
 
 
