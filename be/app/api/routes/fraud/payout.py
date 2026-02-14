@@ -15,7 +15,13 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.schemas.fraud.payout import PayoutDecisionRequest, PayoutDecisionResponse
+from app.api.schemas.fraud.payout import (
+    BatchDecisionRequest,
+    BatchDecisionResponse,
+    BatchDecisionResultItem,
+    PayoutDecisionRequest,
+    PayoutDecisionResponse,
+)
 from app.api.schemas.fraud.queue import QueueResponse
 from app.data.db.engine import AsyncSessionLocal, get_session
 from app.data.db.repositories.queue_repository import QueueRepository
@@ -153,4 +159,48 @@ async def submit_payout_decision(
         action=body.action,
         reason=body.reason,
         decided_at=decided_at,
+    )
+
+
+@router.post("/batch-decision", response_model=BatchDecisionResponse)
+async def submit_batch_decision(
+    body: BatchDecisionRequest,
+    raw_request: Request,
+    session: AsyncSession = Depends(get_session),
+) -> BatchDecisionResponse:
+    """Officer approves or blocks multiple withdrawals at once."""
+    results: list[BatchDecisionResultItem] = []
+
+    for item in body.items:
+        try:
+            await submit_decision(
+                session=session,
+                withdrawal_id=str(item.withdrawal_id),
+                evaluation_id=str(item.evaluation_id) if item.evaluation_id else None,
+                officer_id=body.officer_id,
+                action=body.action,
+                reason=body.reason,
+            )
+        except Exception as exc:
+            logger.warning("Batch decision record failed for %s: %s", item.withdrawal_id, exc)
+
+        try:
+            await update_withdrawal_status(
+                AsyncSessionLocal, item.withdrawal_id, body.action,
+            )
+            results.append(BatchDecisionResultItem(
+                withdrawal_id=item.withdrawal_id, status="processed",
+            ))
+        except Exception as exc:
+            logger.warning("Batch status update failed for %s: %s", item.withdrawal_id, exc)
+            results.append(BatchDecisionResultItem(
+                withdrawal_id=item.withdrawal_id, status="failed", error=str(exc),
+            ))
+
+    succeeded = sum(1 for r in results if r.status == "processed")
+    return BatchDecisionResponse(
+        results=results,
+        total=len(results),
+        succeeded=succeeded,
+        failed=len(results) - succeeded,
     )
