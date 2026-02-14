@@ -192,8 +192,5 @@ function severityLabel(s: string): string {
         </div>
       </div>
     </div>
-
-    <!-- Outlier Table -->
-    <AuditDriftOutlierTable :outliers="outliers" />
   </div>
 </template>

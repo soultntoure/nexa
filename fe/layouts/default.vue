@@ -5,7 +5,7 @@
   <div class="flex h-screen bg-gray-50">
     <AppSidebar />
     <main class="flex flex-1 flex-col overflow-hidden">
-      <div class="flex flex-1 flex-col overflow-hidden p-4">
+      <div class="flex flex-1 flex-col overflow-y-auto p-4">
         <slot />
       </div>
     </main>
