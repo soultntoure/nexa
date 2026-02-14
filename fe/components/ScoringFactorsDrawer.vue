@@ -5,6 +5,7 @@ import { useScoringFactors, STATUS_BADGE } from '~/composables/useScoringFactors
 const props = defineProps<{
   visible: boolean
   customerId: string
+  customerName?: string
   riskScore: number
   decision: string
 }>()
@@ -54,7 +55,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
           <!-- Header -->
           <div class="flex items-center justify-between p-5 border-b border-gray-200 shrink-0">
             <div>
-              <h3 class="text-lg font-semibold text-gray-900">Scoring Factors</h3>
+              <h3 class="text-lg font-semibold text-gray-900">{{ customerName || 'Scoring Factors' }}</h3>
               <p class="text-xs text-gray-500 mt-0.5">{{ customerId }}</p>
             </div>
             <div class="flex items-center gap-2">

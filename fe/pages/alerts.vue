@@ -36,6 +36,16 @@ function selectAdmin(event: Event) {
   const value = (event.target as HTMLSelectElement).value
   currentAdmin.value = admins.value.find(a => a.id === value) ?? null
 }
+
+const showCustomerDrawer = ref(false)
+const selectedCustomerId = ref('')
+
+function handleViewCustomer() {
+  if (selectedAlert.value) {
+    selectedCustomerId.value = selectedAlert.value.account_id
+    showCustomerDrawer.value = true
+  }
+}
 </script>
 
 <template>
@@ -93,6 +103,16 @@ function selectAdmin(event: Event) {
       :card-check-loading="cardCheckLoading"
       @close="showDetail = false"
       @trigger-lockdown="triggerCardLockdown"
+      @view-customer="handleViewCustomer"
+    />
+
+    <ScoringFactorsDrawer
+      :visible="showCustomerDrawer"
+      :customer-id="selectedCustomerId"
+      :customer-name="selectedAlert?.customer_name"
+      :risk-score="0"
+      decision=""
+      @close="showCustomerDrawer = false; selectedCustomerId = ''"
     />
   </div>
 </template>

@@ -93,9 +93,11 @@ function getCountryLabel(code: string): string {
 
 const showDrawer = ref(false)
 const selectedCustomerId = ref('')
+const selectedCustomerName = ref('')
 
 function openWeightsDrawer(customer: Customer) {
   selectedCustomerId.value = customer.id
+  selectedCustomerName.value = customer.name
   showDrawer.value = true
 }
 </script>
@@ -302,9 +304,10 @@ function openWeightsDrawer(customer: Customer) {
     <ScoringFactorsDrawer
       :visible="showDrawer"
       :customer-id="selectedCustomerId"
+      :customer-name="selectedCustomerName"
       :risk-score="0"
       decision=""
-      @close="showDrawer = false; selectedCustomerId = ''"
+      @close="showDrawer = false; selectedCustomerId = ''; selectedCustomerName = ''"
     />
   </div>
 </template>

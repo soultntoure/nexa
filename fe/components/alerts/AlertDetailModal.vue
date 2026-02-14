@@ -18,6 +18,7 @@ defineProps<{
 const emit = defineEmits<{
   close: []
   triggerLockdown: []
+  viewCustomer: []
 }>()
 
 function riskColor(score: number): string {
@@ -178,7 +179,7 @@ function decisionBadge(decision: string | undefined): string {
 
           <!-- Actions -->
           <div class="flex gap-2 border-t border-gray-100 bg-gray-50/50 px-6 py-4">
-            <button class="flex-1 rounded-lg bg-primary-600 py-2.5 text-sm font-medium text-white hover:bg-primary-700">View Customer</button>
+            <button class="flex-1 rounded-lg bg-primary-600 py-2.5 text-sm font-medium text-white hover:bg-primary-700" @click="emit('viewCustomer')">View Customer</button>
             <button class="flex-1 rounded-lg border border-red-300 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50">Lock Account</button>
             <button
               class="flex-1 rounded-lg border py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
