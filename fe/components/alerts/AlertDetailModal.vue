@@ -46,17 +46,28 @@ function decisionBadge(decision: string | undefined): string {
 </script>
 
 <template>
-  <Teleport to="body">
-    <Transition
-      enter-active-class="transition ease-out duration-200"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      leave-active-class="transition ease-in duration-150"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-    >
-      <div v-if="visible && alert" class="fixed inset-0 z-[1100] flex items-center justify-center bg-black/50 p-4" @click.self="emit('close')">
-        <div class="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-xl">
+  <DialogRoot :open="visible && !!alert" @update:open="(v) => { if (!v) emit('close') }">
+    <DialogPortal>
+      <Transition
+        enter-active-class="duration-200 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="duration-150 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <DialogOverlay v-if="visible && alert" force-mount class="fixed inset-0 z-[1100] bg-black/50" />
+      </Transition>
+      <Transition
+        enter-active-class="duration-200 ease-out"
+        enter-from-class="opacity-0 scale-95"
+        enter-to-class="opacity-100 scale-100"
+        leave-active-class="duration-150 ease-in"
+        leave-from-class="opacity-100 scale-100"
+        leave-to-class="opacity-0 scale-95"
+      >
+        <DialogContent v-if="visible && alert" force-mount class="fixed left-1/2 top-1/2 z-[1100] -translate-x-1/2 -translate-y-1/2 w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-xl">
+          <DialogTitle class="sr-only">Alert Details</DialogTitle>
           <div class="flex items-center justify-between border-b border-gray-100 px-6 py-5">
             <h3 class="text-lg font-bold text-gray-900">Alert Details</h3>
             <button class="rounded-lg p-1.5 hover:bg-gray-100" @click="emit('close')">
@@ -139,13 +150,17 @@ function decisionBadge(decision: string | undefined): string {
                 <div v-for="ind in alert.indicators" :key="ind.name">
                   <div class="flex items-center gap-2">
                     <span class="w-28 truncate text-xs text-gray-600">{{ INDICATOR_LABELS[ind.name] || ind.name }}</span>
-                    <div class="h-1.5 flex-1 rounded-full bg-gray-100">
-                      <div
+                    <ProgressRoot
+                      :model-value="ind.score"
+                      :max="100"
+                      class="h-1.5 flex-1 rounded-full bg-gray-100"
+                    >
+                      <ProgressIndicator
                         class="h-1.5 rounded-full transition-all"
                         :class="ind.score >= 80 ? 'bg-red-500' : ind.score >= 50 ? 'bg-amber-500' : 'bg-green-500'"
                         :style="{ width: `${ind.score}%` }"
                       />
-                    </div>
+                    </ProgressRoot>
                     <span class="w-8 text-right text-xs font-semibold" :class="ind.score >= 80 ? 'text-red-600' : ind.score >= 50 ? 'text-amber-600' : 'text-green-600'">{{ ind.score }}</span>
                   </div>
                   <p v-if="ind.reasoning" class="mt-1 pl-[7.5rem] text-[11px] leading-tight text-gray-500">{{ ind.reasoning }}</p>
@@ -181,20 +196,36 @@ function decisionBadge(decision: string | undefined): string {
           <div class="flex gap-2 border-t border-gray-100 bg-gray-50/50 px-6 py-4">
             <button class="flex-1 rounded-lg bg-primary-600 py-2.5 text-sm font-medium text-white hover:bg-primary-700" @click="emit('viewCustomer')">View Customer</button>
             <button class="flex-1 rounded-lg border border-red-300 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50">Lock Account</button>
-            <button
-              class="flex-1 rounded-lg border py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
-              :class="hasSharedCard && !allLinkedLocked ? 'border-orange-300 text-orange-600 hover:bg-orange-50' : 'border-gray-200 text-gray-400'"
-              :disabled="lockdownLoading || cardCheckLoading || !hasSharedCard || allLinkedLocked"
-              :title="allLinkedLocked ? 'All linked accounts already locked' : !hasSharedCard ? 'No shared card found for this customer' : ''"
-              @click="emit('triggerLockdown')"
-            >
-              <Icon icon="lucide:credit-card" class="mr-1 inline h-3.5 w-3.5" />
-              {{ allLinkedLocked ? 'Cards Locked' : 'Card Lockdown' }}
-            </button>
+            <TooltipProvider>
+              <TooltipRoot>
+                <TooltipTrigger as-child>
+                  <button
+                    class="flex-1 rounded-lg border py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
+                    :class="hasSharedCard && !allLinkedLocked ? 'border-orange-300 text-orange-600 hover:bg-orange-50' : 'border-gray-200 text-gray-400'"
+                    :disabled="lockdownLoading || cardCheckLoading || !hasSharedCard || allLinkedLocked"
+                    @click="emit('triggerLockdown')"
+                  >
+                    <Icon icon="lucide:credit-card" class="mr-1 inline h-3.5 w-3.5" />
+                    {{ allLinkedLocked ? 'Cards Locked' : 'Card Lockdown' }}
+                  </button>
+                </TooltipTrigger>
+                <TooltipPortal>
+                  <TooltipContent
+                    v-if="allLinkedLocked || !hasSharedCard"
+                    side="top"
+                    :side-offset="5"
+                    class="z-[1200] rounded-lg bg-gray-900 px-3 py-1.5 text-xs text-white shadow-lg"
+                  >
+                    {{ allLinkedLocked ? 'All linked accounts already locked' : 'No shared card found for this customer' }}
+                    <TooltipArrow class="fill-gray-900" />
+                  </TooltipContent>
+                </TooltipPortal>
+              </TooltipRoot>
+            </TooltipProvider>
             <button class="rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-500 hover:bg-gray-50" @click="emit('close')">Dismiss</button>
           </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+        </DialogContent>
+      </Transition>
+    </DialogPortal>
+  </DialogRoot>
 </template>

@@ -16,24 +16,32 @@ const emit = defineEmits<{
     <p class="text-sm text-gray-600">
       Showing {{ shownCount }} of {{ totalCount }} withdrawals
     </p>
-    <div class="flex items-center gap-2">
-      <button
-        class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        :disabled="currentPage <= 1"
-        @click="emit('update:currentPage', currentPage - 1)"
-      >
-        Previous
-      </button>
-      <span class="text-sm text-gray-600 px-2">
-        Page {{ currentPage }} of {{ totalPages || 1 }}
-      </span>
-      <button
-        class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        :disabled="currentPage >= totalPages"
-        @click="emit('update:currentPage', currentPage + 1)"
-      >
-        Next
-      </button>
-    </div>
+    <PaginationRoot
+      :total="totalPages"
+      :items-per-page="1"
+      :page="currentPage"
+      @update:page="emit('update:currentPage', $event)"
+    >
+      <PaginationList v-slot="{ items }" class="flex items-center gap-1">
+        <PaginationPrev class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          Previous
+        </PaginationPrev>
+        <template v-for="(page, index) in items" :key="index">
+          <PaginationListItem
+            v-if="page.type === 'page'"
+            :value="page.value"
+            class="h-8 w-8 rounded-lg text-sm font-medium text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 transition-colors data-[selected]:bg-primary-600 data-[selected]:text-white data-[selected]:border-primary-600"
+          >
+            {{ page.value }}
+          </PaginationListItem>
+          <PaginationEllipsis v-else :index="index" class="flex h-8 w-8 items-center justify-center text-gray-500">
+            ...
+          </PaginationEllipsis>
+        </template>
+        <PaginationNext class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          Next
+        </PaginationNext>
+      </PaginationList>
+    </PaginationRoot>
   </div>
 </template>

@@ -225,6 +225,40 @@ function openWeightsDrawer(customer: Customer) {
                 </span>
               </td>
 
+<<<<<<< HEAD
+=======
+              <!-- Flagged Status -->
+              <td class="px-4 py-3.5">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="inline-flex px-2.5 py-1 text-xs font-medium rounded-full"
+                    :class="customer.is_flagged
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-green-100 text-green-700'"
+                  >
+                    {{ customer.is_flagged ? 'Flagged' : 'Clean' }}
+                  </span>
+                  <TooltipProvider v-if="customer.is_flagged && customer.flag_reason">
+                    <TooltipRoot>
+                      <TooltipTrigger as-child>
+                        <span
+                          class="text-xs text-gray-500 truncate max-w-[200px]"
+                        >
+                          {{ customer.flag_reason }}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipPortal>
+                        <TooltipContent class="z-[1300] rounded bg-gray-900 px-2 py-1 text-xs text-white shadow-lg" :side-offset="5">
+                          {{ customer.flag_reason }}
+                          <TooltipArrow class="fill-gray-900" />
+                        </TooltipContent>
+                      </TooltipPortal>
+                    </TooltipRoot>
+                  </TooltipProvider>
+                </div>
+              </td>
+
+>>>>>>> 5aed4b096fac8c53710d693955417aa35aa16fdd
               <!-- Weights Action -->
               <td class="px-4 py-3.5 text-right" @click.stop>
                 <button
@@ -255,25 +289,33 @@ function openWeightsDrawer(customer: Customer) {
         <p class="text-sm text-gray-600">
           Showing {{ paginatedCustomers.length }} of {{ filteredCustomers.length }} customers
         </p>
-        <div class="flex items-center gap-2">
-          <button
-            class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            :disabled="currentPage <= 1"
-            @click="currentPage--"
-          >
-            Previous
-          </button>
-          <span class="text-sm text-gray-600 px-2">
-            Page {{ currentPage }} of {{ totalPages }}
-          </span>
-          <button
-            class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            :disabled="currentPage >= totalPages"
-            @click="currentPage++"
-          >
-            Next
-          </button>
-        </div>
+        <PaginationRoot
+          :total="filteredCustomers.length"
+          :items-per-page="perPage"
+          :page="currentPage"
+          @update:page="currentPage = $event"
+        >
+          <PaginationList v-slot="{ items }" class="flex items-center gap-1">
+            <PaginationPrev class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              Previous
+            </PaginationPrev>
+            <template v-for="(page, index) in items" :key="index">
+              <PaginationListItem
+                v-if="page.type === 'page'"
+                :value="page.value"
+                class="h-8 w-8 rounded-lg text-sm font-medium text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 transition-colors data-[selected]:bg-primary-600 data-[selected]:text-white data-[selected]:border-primary-600"
+              >
+                {{ page.value }}
+              </PaginationListItem>
+              <PaginationEllipsis v-else :index="index" class="flex h-8 w-8 items-center justify-center text-gray-500">
+                ...
+              </PaginationEllipsis>
+            </template>
+            <PaginationNext class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              Next
+            </PaginationNext>
+          </PaginationList>
+        </PaginationRoot>
       </div>
     </div>
     <!-- Scoring Factors Drawer -->

@@ -9,7 +9,7 @@ useHead({ title: 'Nexa' })
 const input = ref('')
 const isLoading = ref(false)
 const isStreaming = ref(false)
-const messagesContainer = ref<HTMLElement>()
+const messagesContainer = ref<{ $el: HTMLElement }>()
 const inputBar = ref<InstanceType<typeof import('~/components/query/QueryInputBar.vue').default>>()
 const messages = ref<QueryMessage[]>([])
 const queryHistory = ref<string[]>([])
@@ -88,8 +88,9 @@ function toQueryNumber(value: string | null | (string | null)[] | undefined): nu
 
 function scrollToBottom() {
   nextTick(() => {
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    const el = messagesContainer.value?.$el
+    if (el) {
+      el.scrollTop = el.scrollHeight
     }
   })
 }
@@ -279,41 +280,51 @@ function buildContextualQuestion(question: string, context: WithdrawalDiscussion
         leave-from-class="translate-x-0 opacity-100"
         leave-to-class="-translate-x-full opacity-0"
       >
-        <div v-if="showHistory" class="w-64 shrink-0 overflow-y-auto rounded-xl border border-gray-200 bg-white p-4">
-          <h3 class="mb-3 text-sm font-semibold text-gray-700">Query History</h3>
-          <div v-if="queryHistory.length === 0" class="text-center text-xs text-gray-400 py-8">
-            No queries yet
-          </div>
-          <div v-else class="space-y-1">
-            <button
-              v-for="(q, i) in queryHistory"
-              :key="i"
-              class="block w-full truncate rounded-lg px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-50"
-              @click="sendQuery(q)"
-            >
-              {{ q }}
-            </button>
-          </div>
-        </div>
+        <ScrollAreaRoot v-if="showHistory" class="w-64 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-white">
+          <ScrollAreaViewport class="h-full w-full p-4">
+            <h3 class="mb-3 text-sm font-semibold text-gray-700">Query History</h3>
+            <div v-if="queryHistory.length === 0" class="text-center text-xs text-gray-400 py-8">
+              No queries yet
+            </div>
+            <div v-else class="space-y-1">
+              <button
+                v-for="(q, i) in queryHistory"
+                :key="i"
+                class="block w-full truncate rounded-lg px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-50"
+                @click="sendQuery(q)"
+              >
+                {{ q }}
+              </button>
+            </div>
+          </ScrollAreaViewport>
+          <ScrollAreaScrollbar orientation="vertical" class="flex touch-none select-none bg-transparent p-0.5 transition-colors hover:bg-gray-800/50 data-[orientation=vertical]:w-2">
+            <ScrollAreaThumb class="relative flex-1 rounded-full bg-gray-600 hover:bg-gray-500" />
+          </ScrollAreaScrollbar>
+        </ScrollAreaRoot>
       </Transition>
 
       <!-- Chat Area -->
       <div class="flex flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white">
-        <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
-          <QueryEmptyState v-if="messages.length === 0" @select="sendQuery" />
+        <ScrollAreaRoot class="flex-1 overflow-hidden">
+          <ScrollAreaViewport ref="messagesContainer" class="h-full w-full p-4 space-y-4">
+            <QueryEmptyState v-if="messages.length === 0" @select="sendQuery" />
 
-          <template v-else>
-            <QueryMessageBubble
-              v-for="msg in messages"
-              :key="msg.id"
-              :msg="msg"
-              :displayed-content="getDisplayedContent(msg)"
-              :is-active="isActiveBubble(msg)"
-              :is-animating="isActiveBubble(msg) && typewriter.isAnimating.value"
-            />
+            <template v-else>
+              <QueryMessageBubble
+                v-for="msg in messages"
+                :key="msg.id"
+                :msg="msg"
+                :displayed-content="getDisplayedContent(msg)"
+                :is-active="isActiveBubble(msg)"
+                :is-animating="isActiveBubble(msg) && typewriter.isAnimating.value"
+              />
 
-          </template>
-        </div>
+            </template>
+          </ScrollAreaViewport>
+          <ScrollAreaScrollbar orientation="vertical" class="flex touch-none select-none bg-transparent p-0.5 transition-colors hover:bg-gray-800/50 data-[orientation=vertical]:w-2">
+            <ScrollAreaThumb class="relative flex-1 rounded-full bg-gray-600 hover:bg-gray-500" />
+          </ScrollAreaScrollbar>
+        </ScrollAreaRoot>
 
         <QueryInputBar ref="inputBar" v-model="input" :disabled="isLoading" @submit="sendQuery()" />
       </div>

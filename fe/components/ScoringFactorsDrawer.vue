@@ -26,25 +26,31 @@ watch(() => props.visible, async (open) => {
 })
 
 function handleClose() { emit('close') }
-function handleKeydown(e: KeyboardEvent) { if (e.key === 'Escape') handleClose() }
-onMounted(() => document.addEventListener('keydown', handleKeydown))
-onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
 </script>
 
 <template>
-  <Teleport to="body">
-    <Transition
-      enter-active-class="transition ease-out duration-200"
-      enter-from-class="translate-x-full"
-      enter-to-class="translate-x-0"
-      leave-active-class="transition ease-in duration-150"
-      leave-from-class="translate-x-0"
-      leave-to-class="translate-x-full"
-    >
-      <div v-if="visible" class="fixed inset-0 z-[1100] flex justify-end">
-        <div class="absolute inset-0" @click="handleClose" />
-
-        <div class="relative w-full max-w-lg bg-white shadow-2xl flex flex-col overflow-hidden">
+  <DialogRoot :open="visible" @update:open="(v) => { if (!v) handleClose() }">
+    <DialogPortal>
+      <Transition
+        enter-active-class="duration-200 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="duration-150 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <DialogOverlay v-if="visible" force-mount class="fixed inset-0 z-[1100] bg-black/50" />
+      </Transition>
+      <Transition
+        enter-active-class="transition ease-out duration-200"
+        enter-from-class="translate-x-full"
+        enter-to-class="translate-x-0"
+        leave-active-class="transition ease-in duration-150"
+        leave-from-class="translate-x-0"
+        leave-to-class="translate-x-full"
+      >
+        <DialogContent v-if="visible" force-mount class="fixed inset-y-0 right-0 z-[1100] w-full max-w-lg bg-white shadow-2xl flex flex-col overflow-hidden focus:outline-none">
+          <DialogTitle class="sr-only">Scoring Factors</DialogTitle>
           <!-- Header -->
           <div class="flex items-center justify-between p-5 border-b border-gray-200 shrink-0">
             <div>
@@ -126,8 +132,8 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
               Close
             </button>
           </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+        </DialogContent>
+      </Transition>
+    </DialogPortal>
+  </DialogRoot>
 </template>

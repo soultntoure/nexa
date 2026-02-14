@@ -20,6 +20,7 @@
     "leaflet": "^1.9.4",
     "marked": "^17.0.1",
     "nuxt": "^4.3.0",
+    "reka-ui": "^2.8.0",
     "vue-chartjs": "^5.3.3"
   },
   "devDependencies": {

@@ -16,7 +16,7 @@ const emit = defineEmits<{
 }>()
 
 const justification = ref('')
-const expandedIndicators = ref<Set<string>>(new Set())
+const expandedIndicators = ref<string[]>([])
 const showScoringFactors = ref(false)
 
 function getScoreBarClass(score: number): string {
@@ -56,14 +56,6 @@ function getIndicatorLabel(name: string): string {
   return labels[name] || name
 }
 
-function toggleIndicator(name: string) {
-  if (expandedIndicators.value.has(name)) {
-    expandedIndicators.value.delete(name)
-  } else {
-    expandedIndicators.value.add(name)
-  }
-}
-
 function handleApprove() {
   if (!props.transaction || !justification.value.trim()) return
   emit('approve', { id: props.transaction.id, justification: justification.value })
@@ -83,7 +75,7 @@ function handleDiscuss() {
 
 function handleClose() {
   justification.value = ''
-  expandedIndicators.value.clear()
+  expandedIndicators.value = []
   emit('close')
 }
 
@@ -100,22 +92,28 @@ const paymentMethodIcon = computed(() => {
 </script>
 
 <template>
-  <Teleport to="body">
-    <Transition
-      enter-active-class="transition ease-out duration-200"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      leave-active-class="transition ease-in duration-150"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-    >
-      <div
-        v-if="visible && transaction"
-        class="fixed inset-0 z-[1100] flex items-center justify-center p-4"
+  <DialogRoot :open="visible && !!transaction" @update:open="(v) => { if (!v) handleClose() }">
+    <DialogPortal>
+      <Transition
+        enter-active-class="duration-200 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="duration-150 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
       >
-        <div class="absolute inset-0 bg-black/50" @click="handleClose" />
-
-        <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+        <DialogOverlay v-if="visible && transaction" force-mount class="fixed inset-0 z-[1100] bg-black/50" />
+      </Transition>
+      <Transition
+        enter-active-class="duration-200 ease-out"
+        enter-from-class="opacity-0 scale-95"
+        enter-to-class="opacity-100 scale-100"
+        leave-active-class="duration-150 ease-in"
+        leave-from-class="opacity-100 scale-100"
+        leave-to-class="opacity-0 scale-95"
+      >
+        <DialogContent v-if="visible && transaction" force-mount class="fixed left-1/2 top-1/2 z-[1100] -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+          <DialogTitle class="sr-only">Payout Review</DialogTitle>
           <!-- Header -->
           <div class="flex items-center justify-between p-5 border-b border-gray-200 shrink-0">
             <div class="flex items-center gap-3">
@@ -236,13 +234,17 @@ const paymentMethodIcon = computed(() => {
                   </span>
                 </div>
               </div>
-              <div class="w-full bg-gray-200 rounded-full h-3">
-                <div
+              <ProgressRoot
+                :model-value="transaction.risk_score * 100"
+                :max="100"
+                class="w-full bg-gray-200 rounded-full h-3"
+              >
+                <ProgressIndicator
                   class="h-3 rounded-full transition-all duration-500"
                   :class="getScoreBarClass(transaction.risk_score)"
                   :style="{ width: `${transaction.risk_score * 100}%` }"
                 />
-              </div>
+              </ProgressRoot>
               <div class="flex justify-between mt-1 text-xs text-gray-400">
                 <span>0.0 (Safe)</span>
                 <span>0.3</span>
@@ -257,83 +259,74 @@ const paymentMethodIcon = computed(() => {
                 <Icon icon="lucide:shield-alert" class="w-4 h-4" />
                 Risk Indicator Breakdown (8 Indicators)
               </h4>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div
+              <AccordionRoot v-model="expandedIndicators" type="multiple" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <AccordionItem
                   v-for="indicator in transaction.indicators"
                   :key="indicator.name"
+                  :value="indicator.name"
                   class="border border-gray-200 rounded-lg overflow-hidden"
                 >
                   <!-- Indicator Header -->
-                  <div
-                    class="p-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                    @click="toggleIndicator(indicator.name)"
-                  >
-                    <div class="flex items-center justify-between mb-2">
-                      <div class="flex items-center gap-2">
-                        <Icon :icon="indicator.icon" class="w-4 h-4 text-gray-600" />
-                        <span class="text-sm font-medium text-gray-800">{{ getIndicatorLabel(indicator.name) }}</span>
+                  <AccordionHeader>
+                    <AccordionTrigger class="w-full p-3 cursor-pointer hover:bg-gray-50 transition-colors text-left">
+                      <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                          <Icon :icon="indicator.icon" class="w-4 h-4 text-gray-600" />
+                          <span class="text-sm font-medium text-gray-800">{{ getIndicatorLabel(indicator.name) }}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <span
+                            class="text-sm font-bold"
+                            :class="getScoreTextClass(indicator.score)"
+                          >
+                            {{ indicator.score.toFixed(2) }}
+                          </span>
+                          <Icon
+                            icon="lucide:chevron-down"
+                            class="w-4 h-4 text-gray-400 transition-transform data-[state=open]:rotate-180"
+                          />
+                        </div>
                       </div>
-                      <div class="flex items-center gap-2">
-                        <span
-                          class="text-sm font-bold"
-                          :class="getScoreTextClass(indicator.score)"
-                        >
-                          {{ indicator.score.toFixed(2) }}
-                        </span>
-                        <Icon
-                          icon="lucide:chevron-down"
-                          class="w-4 h-4 text-gray-400 transition-transform"
-                          :class="expandedIndicators.has(indicator.name) ? 'rotate-180' : ''"
+
+                      <!-- Score Bar -->
+                      <ProgressRoot
+                        :model-value="indicator.score * 100"
+                        :max="100"
+                        class="w-full bg-gray-200 rounded-full h-1.5 mb-2"
+                      >
+                        <ProgressIndicator
+                          class="h-1.5 rounded-full transition-all"
+                          :class="getScoreBarClass(indicator.score)"
+                          :style="{ width: `${indicator.score * 100}%` }"
                         />
+                      </ProgressRoot>
+
+                      <!-- Meta Row -->
+                      <div class="flex items-center gap-3 text-xs text-gray-500">
+                        <span class="inline-flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-full">
+                          Weight: {{ indicator.weight.toFixed(2) }}
+                        </span>
+                        <span class="inline-flex items-center gap-1">
+                          <Icon icon="lucide:percent" class="w-3 h-3" />
+                          {{ (indicator.confidence * 100).toFixed(0) }}% confidence
+                        </span>
                       </div>
-                    </div>
-
-                    <!-- Score Bar -->
-                    <div class="w-full bg-gray-200 rounded-full h-1.5 mb-2">
-                      <div
-                        class="h-1.5 rounded-full transition-all"
-                        :class="getScoreBarClass(indicator.score)"
-                        :style="{ width: `${indicator.score * 100}%` }"
-                      />
-                    </div>
-
-                    <!-- Meta Row -->
-                    <div class="flex items-center gap-3 text-xs text-gray-500">
-                      <span class="inline-flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-full">
-                        Weight: {{ indicator.weight.toFixed(2) }}
-                      </span>
-                      <span class="inline-flex items-center gap-1">
-                        <Icon icon="lucide:percent" class="w-3 h-3" />
-                        {{ (indicator.confidence * 100).toFixed(0) }}% confidence
-                      </span>
-                    </div>
-                  </div>
+                    </AccordionTrigger>
+                  </AccordionHeader>
 
                   <!-- Expanded Details -->
-                  <Transition
-                    enter-active-class="transition-all duration-200 ease-out"
-                    enter-from-class="max-h-0 opacity-0"
-                    enter-to-class="max-h-96 opacity-100"
-                    leave-active-class="transition-all duration-150 ease-in"
-                    leave-from-class="max-h-96 opacity-100"
-                    leave-to-class="max-h-0 opacity-0"
-                  >
-                    <div
-                      v-if="expandedIndicators.has(indicator.name)"
-                      class="border-t border-gray-100 bg-gray-50 p-3 overflow-hidden"
-                    >
-                      <div class="mb-2">
-                        <p class="text-xs font-medium text-gray-600 mb-1">Reasoning</p>
-                        <p class="text-sm text-gray-700">{{ indicator.reasoning }}</p>
-                      </div>
-                      <div>
-                        <p class="text-xs font-medium text-gray-600 mb-1">Evidence</p>
-                        <pre class="text-xs bg-gray-900 text-green-400 rounded-lg p-3 overflow-x-auto">{{ JSON.stringify(indicator.evidence, null, 2) }}</pre>
-                      </div>
+                  <AccordionContent class="border-t border-gray-100 bg-gray-50 p-3 overflow-hidden data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp">
+                    <div class="mb-2">
+                      <p class="text-xs font-medium text-gray-600 mb-1">Reasoning</p>
+                      <p class="text-sm text-gray-700">{{ indicator.reasoning }}</p>
                     </div>
-                  </Transition>
-                </div>
-              </div>
+                    <div>
+                      <p class="text-xs font-medium text-gray-600 mb-1">Evidence</p>
+                      <pre class="text-xs bg-gray-900 text-green-400 rounded-lg p-3 overflow-x-auto">{{ JSON.stringify(indicator.evidence, null, 2) }}</pre>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </AccordionRoot>
             </div>
 
             <!-- Triage Verdict -->
@@ -399,13 +392,17 @@ const paymentMethodIcon = computed(() => {
                       </span>
                     </div>
                   </div>
-                  <div class="w-full bg-gray-200 rounded-full h-1.5 mb-2">
-                    <div
+                  <ProgressRoot
+                    :model-value="inv.score * 100"
+                    :max="100"
+                    class="w-full bg-gray-200 rounded-full h-1.5 mb-2"
+                  >
+                    <ProgressIndicator
                       class="h-1.5 rounded-full transition-all"
                       :class="getScoreBarClass(inv.score)"
                       :style="{ width: `${inv.score * 100}%` }"
                     />
-                  </div>
+                  </ProgressRoot>
                   <div class="flex items-center gap-2 mb-2">
                     <span class="text-xs text-gray-500">
                       <Icon icon="lucide:percent" class="w-3 h-3 inline" />
@@ -475,10 +472,10 @@ const paymentMethodIcon = computed(() => {
               </button>
             </div>
           </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+        </DialogContent>
+      </Transition>
+    </DialogPortal>
+  </DialogRoot>
 
   <ScoringFactorsDrawer
     :visible="showScoringFactors"

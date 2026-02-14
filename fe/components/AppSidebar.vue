@@ -61,30 +61,49 @@ function toggleCollapse() {
 
     <!-- Navigation -->
     <nav class="flex-1 space-y-1 py-4" :class="collapsed ? 'px-2' : 'px-3'">
-      <NuxtLink
-        v-for="item in navItems"
-        :key="item.to"
-        :to="item.to"
-        :title="collapsed ? item.label : undefined"
-        :class="[
-          'group relative flex items-center rounded-lg py-2.5 text-sm font-medium transition-colors',
-          collapsed ? 'justify-center px-2' : 'gap-3 px-3',
-          isActive(item.to)
-            ? 'bg-primary-50 text-primary-600'
-            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
-        ]"
-        @click="closeMobile"
-      >
-        <Icon :icon="item.icon" class="h-5 w-5 shrink-0" />
-        <span v-if="!collapsed">{{ item.label }}</span>
-        <!-- Tooltip on hover when collapsed -->
-        <span
-          v-if="collapsed"
-          class="pointer-events-none absolute left-full ml-2 hidden rounded-md bg-gray-900 px-2 py-1 text-xs text-white whitespace-nowrap group-hover:block"
+      <TooltipProvider v-if="collapsed">
+        <TooltipRoot v-for="item in navItems" :key="item.to">
+          <TooltipTrigger as-child>
+            <NuxtLink
+              :to="item.to"
+              :class="[
+                'group relative flex items-center rounded-lg py-2.5 text-sm font-medium transition-colors',
+                'justify-center px-2',
+                isActive(item.to)
+                  ? 'bg-primary-50 text-primary-600'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+              ]"
+              @click="closeMobile"
+            >
+              <Icon :icon="item.icon" class="h-5 w-5 shrink-0" />
+            </NuxtLink>
+          </TooltipTrigger>
+          <TooltipPortal>
+            <TooltipContent side="right" class="z-[1300] rounded bg-gray-900 px-2 py-1 text-xs text-white shadow-lg whitespace-nowrap" :side-offset="8">
+              {{ item.label }}
+              <TooltipArrow class="fill-gray-900" />
+            </TooltipContent>
+          </TooltipPortal>
+        </TooltipRoot>
+      </TooltipProvider>
+      <template v-else>
+        <NuxtLink
+          v-for="item in navItems"
+          :key="item.to"
+          :to="item.to"
+          :class="[
+            'group relative flex items-center rounded-lg py-2.5 text-sm font-medium transition-colors',
+            'gap-3 px-3',
+            isActive(item.to)
+              ? 'bg-primary-50 text-primary-600'
+              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+          ]"
+          @click="closeMobile"
         >
-          {{ item.label }}
-        </span>
-      </NuxtLink>
+          <Icon :icon="item.icon" class="h-5 w-5 shrink-0" />
+          <span>{{ item.label }}</span>
+        </NuxtLink>
+      </template>
     </nav>
 
     <!-- Collapse toggle (desktop only) -->

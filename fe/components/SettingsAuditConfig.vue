@@ -141,14 +141,19 @@ defineExpose({ save: saveConfig, resetDefaults, isSaving })
           <div class="flex items-center gap-4">
             <span class="w-10 text-sm font-medium text-gray-500">1d</span>
             <div class="flex-1">
-              <input
-                v-model.number="config.lookback_days"
-                type="range"
-                min="1"
-                max="90"
-                step="1"
-                class="w-full accent-blue-600"
-              />
+              <SliderRoot
+                :model-value="[config.lookback_days]"
+                :min="1"
+                :max="90"
+                :step="1"
+                class="relative flex h-5 w-full touch-none select-none items-center"
+                @update:model-value="(v: number[]) => config.lookback_days = v[0]"
+              >
+                <SliderTrack class="relative h-1.5 grow rounded-full bg-gray-200">
+                  <SliderRange class="absolute h-full rounded-full bg-blue-600" />
+                </SliderTrack>
+                <SliderThumb class="block h-4 w-4 rounded-full bg-white shadow-md ring-1 ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </SliderRoot>
             </div>
             <span class="w-10 text-sm font-medium text-gray-500">90d</span>
           </div>
@@ -176,37 +181,60 @@ defineExpose({ save: saveConfig, resetDefaults, isSaving })
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Min Events</label>
-            <input
-              v-model.number="config.min_events"
-              type="number"
-              min="1"
-              max="100"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
-            />
+            <NumberFieldRoot
+              v-model="config.min_events"
+              :min="1"
+              :max="100"
+              :step="1"
+              class="flex items-center gap-1"
+            >
+              <NumberFieldDecrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
+                <Icon icon="lucide:minus" class="h-3 w-3" />
+              </NumberFieldDecrement>
+              <NumberFieldInput class="h-8 w-16 rounded border border-gray-300 bg-white text-center text-sm text-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+              <NumberFieldIncrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
+                <Icon icon="lucide:plus" class="h-3 w-3" />
+              </NumberFieldIncrement>
+            </NumberFieldRoot>
             <p class="mt-1 text-xs text-gray-400">Minimum suspicious events in a cluster</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Min Accounts</label>
-            <input
-              v-model.number="config.min_accounts"
-              type="number"
-              min="1"
-              max="50"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
-            />
+            <NumberFieldRoot
+              v-model="config.min_accounts"
+              :min="1"
+              :max="50"
+              :step="1"
+              class="flex items-center gap-1"
+            >
+              <NumberFieldDecrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
+                <Icon icon="lucide:minus" class="h-3 w-3" />
+              </NumberFieldDecrement>
+              <NumberFieldInput class="h-8 w-16 rounded border border-gray-300 bg-white text-center text-sm text-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+              <NumberFieldIncrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
+                <Icon icon="lucide:plus" class="h-3 w-3" />
+              </NumberFieldIncrement>
+            </NumberFieldRoot>
             <p class="mt-1 text-xs text-gray-400">Minimum accounts involved in a pattern</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Min Confidence</label>
             <div class="flex items-center gap-2">
-              <input
-                v-model.number="config.min_confidence"
-                type="number"
-                min="0"
-                max="1"
-                step="0.05"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
-              />
+              <NumberFieldRoot
+                v-model="config.min_confidence"
+                :min="0"
+                :max="1"
+                :step="0.05"
+                class="flex items-center gap-1"
+              >
+                <NumberFieldDecrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
+                  <Icon icon="lucide:minus" class="h-3 w-3" />
+                </NumberFieldDecrement>
+                <NumberFieldInput class="h-8 w-16 rounded border border-gray-300 bg-white text-center text-sm text-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                <NumberFieldIncrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
+                  <Icon icon="lucide:plus" class="h-3 w-3" />
+                </NumberFieldIncrement>
+              </NumberFieldRoot>
               <span class="text-sm font-bold" :class="confidenceColor(config.min_confidence)">
                 {{ (config.min_confidence * 100).toFixed(0) }}%
               </span>
@@ -226,13 +254,21 @@ defineExpose({ save: saveConfig, resetDefaults, isSaving })
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Max Candidates</label>
-            <input
-              v-model.number="config.max_candidates"
-              type="number"
-              min="1"
-              max="500"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
-            />
+            <NumberFieldRoot
+              v-model="config.max_candidates"
+              :min="1"
+              :max="500"
+              :step="1"
+              class="flex items-center gap-1"
+            >
+              <NumberFieldDecrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
+                <Icon icon="lucide:minus" class="h-3 w-3" />
+              </NumberFieldDecrement>
+              <NumberFieldInput class="h-8 w-16 rounded border border-gray-300 bg-white text-center text-sm text-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+              <NumberFieldIncrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
+                <Icon icon="lucide:plus" class="h-3 w-3" />
+              </NumberFieldIncrement>
+            </NumberFieldRoot>
             <p class="mt-1 text-xs text-gray-400">Maximum patterns to report per audit run</p>
           </div>
           <div>
@@ -262,11 +298,8 @@ defineExpose({ save: saveConfig, resetDefaults, isSaving })
       </div>
 
       <!-- Version History -->
-      <div class="rounded-xl border border-gray-200 bg-white shadow-sm">
-        <button
-          class="flex w-full items-center justify-between p-6"
-          @click="historyOpen = !historyOpen"
-        >
+      <CollapsibleRoot v-model:open="historyOpen" class="rounded-xl border border-gray-200 bg-white shadow-sm">
+        <CollapsibleTrigger class="flex w-full items-center justify-between p-6">
           <div class="flex items-center gap-2">
             <Icon icon="lucide:history" class="h-5 w-5 text-gray-600" />
             <h2 class="text-base font-semibold text-gray-900">Config History</h2>
@@ -277,43 +310,45 @@ defineExpose({ save: saveConfig, resetDefaults, isSaving })
             class="h-5 w-5 text-gray-400 transition-transform"
             :class="{ 'rotate-180': historyOpen }"
           />
-        </button>
+        </CollapsibleTrigger>
 
-        <div v-if="historyOpen && history.length > 0" class="border-t border-gray-100 px-6 pb-4">
-          <div class="mt-3 overflow-hidden rounded-lg border border-gray-100">
-            <table class="w-full text-left text-sm">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Date</th>
-                  <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Lookback</th>
-                  <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Candidates</th>
-                  <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Confidence</th>
-                  <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">By</th>
-                  <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Reason</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-50">
-                <tr v-for="(entry, idx) in history" :key="entry.id ?? idx" class="hover:bg-gray-50">
-                  <td class="whitespace-nowrap px-3 py-2 text-gray-600">{{ formatDate(entry.created_at) }}</td>
-                  <td class="px-3 py-2 text-gray-700 font-medium">{{ entry.lookback_days }}d</td>
-                  <td class="px-3 py-2 text-gray-700">{{ entry.max_candidates }}</td>
-                  <td class="px-3 py-2">
-                    <span :class="confidenceColor(entry.min_confidence)" class="font-medium">
-                      {{ (entry.min_confidence * 100).toFixed(0) }}%
-                    </span>
-                  </td>
-                  <td class="px-3 py-2 text-gray-500">{{ entry.updated_by }}</td>
-                  <td class="max-w-[200px] truncate px-3 py-2 text-gray-400">{{ entry.reason || '-' }}</td>
-                </tr>
-              </tbody>
-            </table>
+        <CollapsibleContent>
+          <div v-if="history.length > 0" class="border-t border-gray-100 px-6 pb-4">
+            <div class="mt-3 overflow-hidden rounded-lg border border-gray-100">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Date</th>
+                    <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Lookback</th>
+                    <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Candidates</th>
+                    <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Confidence</th>
+                    <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">By</th>
+                    <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Reason</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                  <tr v-for="(entry, idx) in history" :key="entry.id ?? idx" class="hover:bg-gray-50">
+                    <td class="whitespace-nowrap px-3 py-2 text-gray-600">{{ formatDate(entry.created_at) }}</td>
+                    <td class="px-3 py-2 text-gray-700 font-medium">{{ entry.lookback_days }}d</td>
+                    <td class="px-3 py-2 text-gray-700">{{ entry.max_candidates }}</td>
+                    <td class="px-3 py-2">
+                      <span :class="confidenceColor(entry.min_confidence)" class="font-medium">
+                        {{ (entry.min_confidence * 100).toFixed(0) }}%
+                      </span>
+                    </td>
+                    <td class="px-3 py-2 text-gray-500">{{ entry.updated_by }}</td>
+                    <td class="max-w-[200px] truncate px-3 py-2 text-gray-400">{{ entry.reason || '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
 
-        <div v-if="historyOpen && history.length === 0" class="border-t border-gray-100 px-6 py-4">
-          <p class="text-sm text-gray-400">No configuration changes recorded yet.</p>
-        </div>
-      </div>
+          <div v-else class="border-t border-gray-100 px-6 py-4">
+            <p class="text-sm text-gray-400">No configuration changes recorded yet.</p>
+          </div>
+        </CollapsibleContent>
+      </CollapsibleRoot>
     </template>
   </div>
 </template>

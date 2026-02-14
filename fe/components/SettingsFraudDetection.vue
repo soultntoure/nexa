@@ -126,14 +126,19 @@ defineExpose({ save: saveSettings, resetDefaults, isSaving })
         <div class="flex items-center gap-4">
           <span class="w-10 text-sm font-medium text-gray-500">0.10</span>
           <div class="flex-1">
-            <input
-              v-model.number="thresholds.approve"
-              type="range"
-              min="0.10"
-              max="0.50"
-              step="0.05"
-              class="w-full accent-green-600"
-            />
+            <SliderRoot
+              :model-value="[thresholds.approve]"
+              :min="0.10"
+              :max="0.50"
+              :step="0.05"
+              class="relative flex h-5 w-full touch-none select-none items-center"
+              @update:model-value="(v: number[]) => thresholds.approve = v[0]"
+            >
+              <SliderTrack class="relative h-1.5 grow rounded-full bg-gray-200">
+                <SliderRange class="absolute h-full rounded-full bg-green-600" />
+              </SliderTrack>
+              <SliderThumb class="block h-4 w-4 rounded-full bg-white shadow-md ring-1 ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500" />
+            </SliderRoot>
           </div>
           <span class="w-10 text-sm font-medium text-gray-500">0.50</span>
         </div>
@@ -192,27 +197,41 @@ defineExpose({ save: saveSettings, resetDefaults, isSaving })
               class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-400"
             />
             <span class="text-gray-400">-</span>
-            <input
-              v-model.number="thresholds.escalate_max"
-              type="number"
-              step="0.01"
-              min="0"
-              max="1"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
-            />
+            <NumberFieldRoot
+              v-model="thresholds.escalate_max"
+              :min="0"
+              :max="1"
+              :step="0.01"
+              class="flex items-center gap-1"
+            >
+              <NumberFieldDecrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
+                <Icon icon="lucide:minus" class="h-3 w-3" />
+              </NumberFieldDecrement>
+              <NumberFieldInput class="h-8 w-16 rounded border border-gray-300 bg-white text-center text-sm text-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+              <NumberFieldIncrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
+                <Icon icon="lucide:plus" class="h-3 w-3" />
+              </NumberFieldIncrement>
+            </NumberFieldRoot>
           </div>
           <p class="mt-1 text-xs text-gray-400">Score in range = manual review + LLM investigation</p>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Block Threshold</label>
-          <input
-            v-model.number="thresholds.block"
-            type="number"
-            step="0.01"
-            min="0"
-            max="1"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
-          />
+          <NumberFieldRoot
+            v-model="thresholds.block"
+            :min="0"
+            :max="1"
+            :step="0.01"
+            class="flex items-center gap-1"
+          >
+            <NumberFieldDecrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
+              <Icon icon="lucide:minus" class="h-3 w-3" />
+            </NumberFieldDecrement>
+            <NumberFieldInput class="h-8 w-16 rounded border border-gray-300 bg-white text-center text-sm text-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+            <NumberFieldIncrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
+              <Icon icon="lucide:plus" class="h-3 w-3" />
+            </NumberFieldIncrement>
+          </NumberFieldRoot>
           <p class="mt-1 text-xs text-gray-400">Score at or above = auto-block</p>
         </div>
       </div>
@@ -230,14 +249,19 @@ defineExpose({ save: saveSettings, resetDefaults, isSaving })
         <div v-for="indicator in indicators" :key="indicator.key" class="flex items-center gap-4">
           <span class="w-40 text-sm text-gray-700">{{ indicator.label }}</span>
           <div class="flex-1">
-            <input
-              v-model.number="indicator.weight"
-              type="range"
-              min="0"
-              max="3"
-              step="0.1"
-              class="w-full accent-primary-600"
-            />
+            <SliderRoot
+              :model-value="[indicator.weight]"
+              :min="0"
+              :max="3"
+              :step="0.1"
+              class="relative flex h-5 w-full touch-none select-none items-center"
+              @update:model-value="(v: number[]) => indicator.weight = v[0]"
+            >
+              <SliderTrack class="relative h-1.5 grow rounded-full bg-gray-200">
+                <SliderRange class="absolute h-full rounded-full bg-primary-600" />
+              </SliderTrack>
+              <SliderThumb class="block h-4 w-4 rounded-full bg-white shadow-md ring-1 ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+            </SliderRoot>
           </div>
           <span class="w-12 text-right text-sm font-bold" :class="weightColor(indicator.weight)">
             {{ indicator.weight.toFixed(1) }}
@@ -254,16 +278,17 @@ defineExpose({ save: saveSettings, resetDefaults, isSaving })
       </div>
 
       <div class="space-y-3">
-        <label v-for="(value, key) in notifications" :key="key" class="flex items-center justify-between rounded-lg p-3 hover:bg-gray-50">
+        <div v-for="(value, key) in notifications" :key="key" class="flex items-center justify-between rounded-lg p-3 hover:bg-gray-50">
           <div>
             <p class="text-sm font-medium text-gray-800 capitalize">{{ String(key).replace(/_/g, ' ') }}</p>
           </div>
-          <input
-            v-model="notifications[key as keyof typeof notifications]"
-            type="checkbox"
-            class="h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-          />
-        </label>
+          <SwitchRoot
+            v-model:checked="notifications[key as keyof typeof notifications]"
+            class="relative h-6 w-11 cursor-pointer rounded-full bg-gray-300 data-[state=checked]:bg-primary-600 transition-colors"
+          >
+            <SwitchThumb class="block h-5 w-5 translate-x-0.5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-[22px]" />
+          </SwitchRoot>
+        </div>
       </div>
     </div>
 
@@ -285,13 +310,21 @@ defineExpose({ save: saveSettings, resetDefaults, isSaving })
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Timeout (seconds)</label>
-          <input
-            v-model.number="apiConfig.timeout"
-            type="number"
-            min="5"
-            max="120"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
-          />
+          <NumberFieldRoot
+            v-model="apiConfig.timeout"
+            :min="5"
+            :max="120"
+            :step="1"
+            class="flex items-center gap-1"
+          >
+            <NumberFieldDecrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
+              <Icon icon="lucide:minus" class="h-3 w-3" />
+            </NumberFieldDecrement>
+            <NumberFieldInput class="h-8 w-16 rounded border border-gray-300 bg-white text-center text-sm text-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+            <NumberFieldIncrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
+              <Icon icon="lucide:plus" class="h-3 w-3" />
+            </NumberFieldIncrement>
+          </NumberFieldRoot>
         </div>
       </div>
     </div>

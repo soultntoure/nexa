@@ -9,7 +9,7 @@ const { buildDiscussionPrompt } = useWithdrawalDiscussion()
 const input = ref('')
 const isLoading = ref(false)
 const isStreaming = ref(false)
-const messagesContainer = ref<HTMLElement>()
+const messagesContainer = ref<{ $el: HTMLElement }>()
 const inputBar = ref<InstanceType<typeof import('~/components/query/QueryInputBar.vue').default>>()
 const typewriter = useTypewriter()
 const visualize = true
@@ -32,8 +32,9 @@ function isActiveBubble(msg: QueryMessage): boolean {
 
 function scrollToBottom() {
   nextTick(() => {
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    const el = messagesContainer.value?.$el
+    if (el) {
+      el.scrollTop = el.scrollHeight
     }
   })
 }
@@ -214,21 +215,40 @@ function handleClear() {
               </div>
             </div>
             <div class="flex items-center gap-1">
-              <button
-                v-if="messages.length > 0"
-                class="rounded-lg p-1.5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
-                title="Clear chat"
-                @click="handleClear"
-              >
-                <Icon icon="lucide:trash-2" class="h-4 w-4" />
-              </button>
-              <button
-                class="rounded-lg p-1.5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
-                title="Close"
-                @click="close"
-              >
-                <Icon icon="lucide:x" class="h-4 w-4" />
-              </button>
+              <TooltipProvider>
+                <TooltipRoot v-if="messages.length > 0">
+                  <TooltipTrigger as-child>
+                    <button
+                      class="rounded-lg p-1.5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                      @click="handleClear"
+                    >
+                      <Icon icon="lucide:trash-2" class="h-4 w-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipPortal>
+                    <TooltipContent class="z-[1300] rounded bg-gray-900 px-2 py-1 text-xs text-white shadow-lg" :side-offset="5">
+                      Clear chat
+                      <TooltipArrow class="fill-gray-900" />
+                    </TooltipContent>
+                  </TooltipPortal>
+                </TooltipRoot>
+                <TooltipRoot>
+                  <TooltipTrigger as-child>
+                    <button
+                      class="rounded-lg p-1.5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                      @click="close"
+                    >
+                      <Icon icon="lucide:x" class="h-4 w-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipPortal>
+                    <TooltipContent class="z-[1300] rounded bg-gray-900 px-2 py-1 text-xs text-white shadow-lg" :side-offset="5">
+                      Close
+                      <TooltipArrow class="fill-gray-900" />
+                    </TooltipContent>
+                  </TooltipPortal>
+                </TooltipRoot>
+              </TooltipProvider>
             </div>
           </div>
 
@@ -244,19 +264,24 @@ function handleClear() {
           </div>
 
           <!-- Messages -->
-          <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
-            <QueryEmptyState v-if="messages.length === 0" @select="sendQuery" />
-            <template v-else>
-              <QueryMessageBubble
-                v-for="msg in messages"
-                :key="msg.id"
-                :msg="msg"
-                :displayed-content="getDisplayedContent(msg)"
-                :is-active="isActiveBubble(msg)"
-                :is-animating="isActiveBubble(msg) && typewriter.isAnimating.value"
-              />
-            </template>
-          </div>
+          <ScrollAreaRoot class="flex-1 overflow-hidden">
+            <ScrollAreaViewport ref="messagesContainer" class="h-full w-full p-4 space-y-4">
+              <QueryEmptyState v-if="messages.length === 0" @select="sendQuery" />
+              <template v-else>
+                <QueryMessageBubble
+                  v-for="msg in messages"
+                  :key="msg.id"
+                  :msg="msg"
+                  :displayed-content="getDisplayedContent(msg)"
+                  :is-active="isActiveBubble(msg)"
+                  :is-animating="isActiveBubble(msg) && typewriter.isAnimating.value"
+                />
+              </template>
+            </ScrollAreaViewport>
+            <ScrollAreaScrollbar orientation="vertical" class="flex touch-none select-none bg-transparent p-0.5 transition-colors hover:bg-gray-800/50 data-[orientation=vertical]:w-2">
+              <ScrollAreaThumb class="relative flex-1 rounded-full bg-gray-600 hover:bg-gray-500" />
+            </ScrollAreaScrollbar>
+          </ScrollAreaRoot>
 
           <!-- Input -->
           <QueryInputBar ref="inputBar" v-model="input" :disabled="isLoading" @submit="sendQuery()" />
