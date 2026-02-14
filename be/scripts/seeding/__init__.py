@@ -1,5 +1,6 @@
 """Seeding package — exports SCENARIO_SEEDERS and TABLES_TO_TRUNCATE."""
 
+from .admins import _seed_admins
 from .audit_patterns import _seed_audit_patterns
 from .clean_customers import (
     _seed_aisha, _seed_emma, _seed_james, _seed_kenji, _seed_raj, _seed_sarah,
@@ -25,6 +26,7 @@ TABLES_TO_TRUNCATE = [
     "indicator_results",
     "withdrawal_decisions",
     "alerts",
+    "admins",
     "withdrawals",
     "trades",
     "transactions",
@@ -39,6 +41,8 @@ TABLES_TO_TRUNCATE = [
 ]
 
 SCENARIO_SEEDERS = [
+    # Admin identities (for traceability)
+    ("Admin Identities", _seed_admins),
     # Clean (expected: APPROVE)
     ("Sarah Chen — Reliable Regular", _seed_sarah),
     ("James Wilson — VIP Whale", _seed_james),
