@@ -15,6 +15,7 @@ export interface WeightSnapshot {
   sample_count: number
   approval_count: number
   block_count: number
+  escalated_count: number
   blend: {
     baseline: { rule_engine: number; investigators: number }
     customer: { rule_engine: number; investigators: number }

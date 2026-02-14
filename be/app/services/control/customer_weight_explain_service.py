@@ -135,12 +135,16 @@ def _build_snapshot(
             1 for d in window
             if d.get("officer_action") == "blocked" or d.get("decision") == "blocked"
         )
+        escalated = sum(
+            1 for d in window
+            if d.get("officer_action") == "escalated" or d.get("decision") == "escalated"
+        )
         status = "applied" if sample >= _SAMPLE_THRESHOLD else "limited data"
         last_updated = profile.recalculated_at
     else:
         cust_blend = baseline_blend
         multipliers = {}
-        sample = approvals = blocks = 0
+        sample = approvals = blocks = escalated = 0
         status = "baseline fallback"
         last_updated = None
 
@@ -153,6 +157,7 @@ def _build_snapshot(
         sample_count=sample,
         approval_count=approvals,
         block_count=blocks,
+        escalated_count=escalated,
         blend=BlendComparison(baseline=baseline_blend, customer=cust_blend),
         indicators=indicators,
     )

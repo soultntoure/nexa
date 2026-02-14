@@ -103,9 +103,9 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
                   <p class="text-lg font-semibold text-red-700">{{ snapshot.block_count }}</p>
                   <p class="text-xs text-red-600">Blocked</p>
                 </div>
-                <div class="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-center">
-                  <p class="text-lg font-semibold text-gray-700">{{ snapshot.sample_count }}</p>
-                  <p class="text-xs text-gray-500">Total</p>
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 text-center">
+                  <p class="text-lg font-semibold text-yellow-700">{{ snapshot.escalated_count ?? 0 }}</p>
+                  <p class="text-xs text-yellow-600">Escalated</p>
                 </div>
               </div>
 
