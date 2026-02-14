@@ -18,6 +18,7 @@ from sqlalchemy import create_engine
 from app.agentic_system.prompts.analyst_chat import ANALYST_CHAT_PROMPT
 from app.agentic_system.tools.sql.schema_builder import (
     build_critical_notes,
+    build_pg_cheat_sheet,
     build_schema_description,
 )
 from app.agentic_system.tools.sql.read_only_middleware import read_only_sql
@@ -61,6 +62,7 @@ def init_analyst_agent() -> Any:
     schema_docs = (
         build_schema_description(sync_engine, FRAUD_DB_TABLES)
         + build_critical_notes()
+        + build_pg_cheat_sheet()
     )
     logger.info("Generated schema docs: %d chars", len(schema_docs))
 
