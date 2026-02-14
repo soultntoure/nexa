@@ -14,21 +14,29 @@ export default defineEventHandler(async (event) => {
 
   setResponseHeaders(event, {
     'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
+    'Cache-Control': 'no-cache, no-transform',
     'Connection': 'keep-alive',
+    'X-Accel-Buffering': 'no',
   })
 
   // Pipe the upstream ReadableStream directly to the response
   const reader = response.body.getReader()
-  const writable = event.node.res
+  const res = event.node.res
+
+  // Send headers immediately to establish SSE connection
+  res.flushHeaders()
 
   try {
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
-      writable.write(value)
+      res.write(value)
+      // Force flush each SSE chunk immediately
+      if (typeof (res as any).flush === 'function') {
+        ;(res as any).flush()
+      }
     }
   } finally {
-    writable.end()
+    res.end()
   }
 })

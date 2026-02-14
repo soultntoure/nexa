@@ -5,6 +5,5 @@ export default defineEventHandler(async (event) => {
     method: 'POST',
     baseURL: config.apiBase,
     body,
-    headers: getHeaders(event) as HeadersInit,
   })
 })
