@@ -126,8 +126,15 @@ def _build_snapshot(
         multipliers = profile.indicator_weights
         window = profile.decision_window
         sample = len(window)
-        approvals = sum(1 for d in window if d.get("decision") == "approved")
-        blocks = sum(1 for d in window if d.get("decision") == "blocked")
+        # Support both "decision" (seeded data) and "officer_action" (runtime data)
+        approvals = sum(
+            1 for d in window
+            if d.get("officer_action") == "approved" or d.get("decision") == "approved"
+        )
+        blocks = sum(
+            1 for d in window
+            if d.get("officer_action") == "blocked" or d.get("decision") == "blocked"
+        )
         status = "applied" if sample >= _SAMPLE_THRESHOLD else "limited data"
         last_updated = profile.recalculated_at
     else:
