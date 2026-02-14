@@ -1,7 +1,6 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: deriv_postgres
     environment:
       POSTGRES_DB: fraud_detection
       POSTGRES_USER: user
@@ -21,7 +20,6 @@ services:
 
   chromadb:
     image: chromadb/chroma:latest
-    container_name: deriv_chromadb
     ports:
       - "18000:8000"
     volumes:
@@ -39,7 +37,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: deriv_app
     environment:
       POSTGRES_URL: postgresql+asyncpg://user:${POSTGRES_PASSWORD:-changeme}@db:5432/fraud_detection?ssl=disable
       CHROMADB_HOST: chromadb
@@ -60,11 +57,14 @@ services:
         condition: service_healthy
     networks:
       - fraud_net
+      - dokploy-network
     restart: unless-stopped
 
 networks:
   fraud_net:
     driver: bridge
+  dokploy-network:
+    external: true
 
 volumes:
   postgres_data:
