@@ -177,8 +177,8 @@ function openWeightsDrawer(customer: Customer) {
               <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Registered
               </th>
-              <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Weights
+              <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Action
               </th>
             </tr>
           </thead>
@@ -191,26 +191,19 @@ function openWeightsDrawer(customer: Customer) {
             >
               <!-- Customer Name + Email -->
               <td class="px-4 py-3.5">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 bg-primary-50 rounded-full flex items-center justify-center shrink-0">
-                    <span class="text-primary-700 font-medium text-xs">
-                      {{ getInitials(customer.name) }}
-                    </span>
-                  </div>
-                  <div class="min-w-0">
-                    <p class="text-sm font-medium text-gray-900 truncate">
-                      {{ customer.name }}
-                    </p>
-                    <p class="text-xs text-gray-500 truncate">
-                      {{ customer.email }}
-                    </p>
-                  </div>
+                <div class="min-w-0">
+                  <p class="text-sm font-medium text-gray-900 truncate">
+                    {{ customer.name }}
+                  </p>
+                  <p class="text-xs text-gray-500 truncate">
+                    {{ customer.email }}
+                  </p>
                 </div>
               </td>
 
               <!-- External ID -->
               <td class="px-4 py-3.5">
-                <span class="text-sm text-gray-600 font-mono">{{ customer.id }}</span>
+                <span class="text-sm text-gray-600">{{ customer.id }}</span>
               </td>
 
               <!-- Country -->
@@ -226,12 +219,11 @@ function openWeightsDrawer(customer: Customer) {
               </td>
 
               <!-- Weights Action -->
-              <td class="px-4 py-3.5 text-right" @click.stop>
+              <td class="px-4 py-3.5 text-left" @click.stop>
                 <button
-                  class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition-colors"
+                  class="text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
                   @click="openWeightsDrawer(customer)"
                 >
-                  <Icon icon="lucide:bar-chart-3" class="w-3.5 h-3.5" />
                   View
                 </button>
               </td>

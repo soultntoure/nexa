@@ -23,6 +23,7 @@ interface DashboardStats {
     customer_id: string
   }[]
   avg_decision_time_seconds: number
+  daily_decision_trend: { date: string; approved: number; escalated: number; blocked: number }[]
 }
 
 const defaultStats: DashboardStats = {
@@ -55,6 +56,15 @@ const defaultStats: DashboardStats = {
     { id: 'TXN-008', action: 'escalated', amount: 1650.00, currency: 'USD', timestamp: '2026-02-08T09:30:00Z', customer_id: 'Yuki Tanaka (ACC-5540)' },
   ],
   avg_decision_time_seconds: 0.3,
+  daily_decision_trend: [
+    { date: '2026-02-09', approved: 85, escalated: 12, blocked: 8 },
+    { date: '2026-02-10', approved: 92, escalated: 15, blocked: 10 },
+    { date: '2026-02-11', approved: 78, escalated: 10, blocked: 6 },
+    { date: '2026-02-12', approved: 105, escalated: 18, blocked: 12 },
+    { date: '2026-02-13', approved: 98, escalated: 14, blocked: 9 },
+    { date: '2026-02-14', approved: 110, escalated: 20, blocked: 15 },
+    { date: '2026-02-15', approved: 88, escalated: 11, blocked: 7 },
+  ],
 }
 
 const stats = ref<DashboardStats>(defaultStats)
@@ -71,6 +81,32 @@ if (import.meta.client) {
 }
 
 const status = computed(() => loadingApi.value ? 'pending' : 'success')
+
+// Trend range picker
+const trendRanges = [
+  { label: '7D', days: 7 },
+  { label: '14D', days: 14 },
+  { label: '30D', days: 30 },
+] as const
+
+type TrendPoint = { date: string; approved: number; escalated: number; blocked: number }
+const trendDays = ref(7)
+const trendData = ref<TrendPoint[]>(defaultStats.daily_decision_trend)
+
+function fetchTrend(days: number) {
+  trendDays.value = days
+  if (!import.meta.client) return
+  $fetch<TrendPoint[]>(`/api/dashboard/decision-trend?days=${days}`)
+    .then((data) => { if (data?.length) trendData.value = data })
+    .catch(() => {})
+}
+
+// On initial load, use the trend from stats; when stats arrive, sync it
+if (import.meta.client) {
+  watch(() => stats.value.daily_decision_trend, (v) => {
+    if (trendDays.value === 7 && v?.length) trendData.value = v
+  }, { immediate: true })
+}
 
 const riskIndicatorLabels: Record<string, string> = {
   amount_anomaly: 'Amount Anomaly',
@@ -114,7 +150,7 @@ function indicatorMaxCount() {
 </script>
 
 <template>
-  <div class="flex h-full flex-col">
+  <div>
     <!-- Header -->
     <div class="mb-3 flex items-center justify-between">
       <div>
@@ -140,7 +176,6 @@ function indicatorMaxCount() {
             <p class="text-sm font-medium text-gray-700">Auto-Approved Rate</p>
             <span class="text-3xl font-bold text-gray-900">{{ stats.auto_approved_rate }}%</span>
             <p class="flex items-center gap-1 text-xs" :class="stats.auto_approved_trend >= 0 ? 'text-green-600' : 'text-red-600'">
-              <Icon :icon="stats.auto_approved_trend >= 0 ? 'lucide:trending-up' : 'lucide:trending-down'" class="h-3 w-3" />
               {{ Math.abs(stats.auto_approved_trend) }}% vs yesterday
             </p>
           </div>
@@ -166,9 +201,9 @@ function indicatorMaxCount() {
         </UiCard>
       </div>
 
-      <!-- Middle Row: Risk Distribution + Processing Time -->
+      <!-- Middle Row: Risk Distribution + Daily Trend + Processing Time -->
       <div class="mb-3 grid grid-cols-1 gap-3 lg:grid-cols-3">
-        <UiCard class="lg:col-span-2">
+        <UiCard>
           <UiCardHeader class="p-4 pb-2">
             <UiCardTitle>Risk Score Distribution</UiCardTitle>
           </UiCardHeader>
@@ -211,6 +246,26 @@ function indicatorMaxCount() {
         </UiCard>
 
         <UiCard>
+          <UiCardHeader class="flex items-center justify-between p-4 pb-2">
+            <UiCardTitle>Daily Decision Trend</UiCardTitle>
+            <div class="flex gap-1">
+              <button
+                v-for="r in trendRanges"
+                :key="r.days"
+                class="rounded px-2 py-0.5 text-[10px] font-medium transition-colors"
+                :class="trendDays === r.days ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100'"
+                @click="fetchTrend(r.days)"
+              >
+                {{ r.label }}
+              </button>
+            </div>
+          </UiCardHeader>
+          <UiCardContent class="p-4 pt-0">
+            <UiChartLineChart :data="trendData" />
+          </UiCardContent>
+        </UiCard>
+
+        <UiCard>
           <UiCardHeader class="p-4 pb-2">
             <UiCardTitle>Avg Decision Time</UiCardTitle>
           </UiCardHeader>
@@ -222,7 +277,6 @@ function indicatorMaxCount() {
               </div>
               <p class="mt-1 text-xs text-gray-500">Per transaction</p>
               <UiBadge variant="success" class="mt-3 gap-1.5">
-                <Icon icon="lucide:zap" class="h-3 w-3" />
                 Real-time processing
               </UiBadge>
             </div>

@@ -8,7 +8,7 @@ import logging
 from datetime import datetime, timezone, timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select, func, case, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -137,6 +137,35 @@ async def get_dashboard_stats(
                 "customer_id": f"{c.name} ({c.external_id})",
             })
 
+        # Daily decision trend (last 7 days)
+        seven_days_ago = today_start - timedelta(days=6)
+        trend_rows = (await session.execute(
+            select(
+                func.date(Evaluation.checked_at).label("day"),
+                Evaluation.decision,
+                func.count(Evaluation.id),
+            )
+            .where(Evaluation.checked_at >= seven_days_ago)
+            .group_by(func.date(Evaluation.checked_at), Evaluation.decision)
+            .order_by(func.date(Evaluation.checked_at))
+        )).all()
+
+        # Build per-day buckets
+        daily_trend: list[dict] = []
+        for offset in range(7):
+            day = (seven_days_ago + timedelta(days=offset)).date()
+            daily_trend.append({
+                "date": day.isoformat(),
+                "approved": 0,
+                "escalated": 0,
+                "blocked": 0,
+            })
+        day_index = {d["date"]: d for d in daily_trend}
+        for day_val, decision, cnt in trend_rows:
+            key = str(day_val)
+            if key in day_index and decision in ("approved", "escalated", "blocked"):
+                day_index[key][decision] = cnt
+
         # Avg decision time from evaluations
         avg_elapsed = (await session.execute(
             select(func.avg(Evaluation.elapsed_s))
@@ -158,6 +187,7 @@ async def get_dashboard_stats(
             "top_risk_indicators": top_risk_indicators,
             "recent_activity": recent_activity,
             "avg_decision_time_seconds": round(avg_elapsed, 2) if avg_elapsed else 0.3,
+            "daily_decision_trend": daily_trend,
         }
     except Exception as exc:
         logger.exception("get_dashboard_stats error: %s", exc)
@@ -173,4 +203,43 @@ async def get_dashboard_stats(
             "top_risk_indicators": [],
             "recent_activity": [],
             "avg_decision_time_seconds": 0,
+            "daily_decision_trend": [],
         }
+
+
+@router.get("/decision-trend")
+async def get_decision_trend(
+    session: AsyncSession = Depends(get_session),
+    days: int = Query(default=7, ge=1, le=90),
+) -> list[dict]:
+    """Daily decision counts for the given number of days."""
+    try:
+        now = datetime.now(timezone.utc)
+        start = now.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days - 1)
+
+        rows = (await session.execute(
+            select(
+                func.date(Evaluation.checked_at).label("day"),
+                Evaluation.decision,
+                func.count(Evaluation.id),
+            )
+            .where(Evaluation.checked_at >= start)
+            .group_by(func.date(Evaluation.checked_at), Evaluation.decision)
+            .order_by(func.date(Evaluation.checked_at))
+        )).all()
+
+        trend: list[dict] = []
+        for offset in range(days):
+            day = (start + timedelta(days=offset)).date()
+            trend.append({"date": day.isoformat(), "approved": 0, "escalated": 0, "blocked": 0})
+
+        idx = {d["date"]: d for d in trend}
+        for day_val, decision, cnt in rows:
+            key = str(day_val)
+            if key in idx and decision in ("approved", "escalated", "blocked"):
+                idx[key][decision] = cnt
+
+        return trend
+    except Exception as exc:
+        logger.exception("get_decision_trend error: %s", exc)
+        return []

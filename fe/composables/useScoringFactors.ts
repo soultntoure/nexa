@@ -67,7 +67,7 @@ export const STATUS_BADGE: Record<string, { bg: string; text: string }> = {
 export function multiplierLabel(mult: number): string {
   const pct = Math.round((mult - 1) * 100)
   if (pct === 0) return 'Baseline'
-  return pct > 0 ? `+${pct}%` : `${pct}%`
+  return pct > 0 ? `+${pct}%` : `${Math.abs(pct)}%`
 }
 
 export function multiplierStyle(mult: number): string {

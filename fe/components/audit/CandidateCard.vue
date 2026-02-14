@@ -64,7 +64,7 @@ const supportAccounts = computed(() => {
       </h3>
       <span
         :class="severity.class"
-        class="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide flex-shrink-0"
+        class="rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-wide flex-shrink-0"
       >
         {{ severity.label }}
       </span>
@@ -83,22 +83,22 @@ const supportAccounts = computed(() => {
     <div class="mt-2.5 flex items-center gap-2 flex-wrap">
       <span
         :class="severity.badgeClass"
-        class="rounded-full px-2 py-0.5 text-[10px] font-medium"
+        class="rounded-full px-2 py-0.5 text-xs font-medium"
       >
         {{ Math.round(candidate.confidence * 100) }}% confidence
       </span>
-      <span class="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600">
+      <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
         {{ Math.round(candidate.quality_score * 100) }}% quality
       </span>
       <span
         v-if="candidate.novelty_status === 'new'"
-        class="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-700"
+        class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700"
       >
         New pattern
       </span>
     </div>
 
-    <div v-if="friendlySources" class="mt-2 text-[11px] text-gray-400 truncate">
+    <div v-if="friendlySources" class="mt-2 text-xs text-gray-400 truncate">
       {{ friendlySources }}
     </div>
   </div>
