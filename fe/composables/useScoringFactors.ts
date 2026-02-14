@@ -13,6 +13,8 @@ export interface WeightSnapshot {
   personalization_status: string
   last_updated: string | null
   sample_count: number
+  approval_count: number
+  block_count: number
   blend: {
     baseline: { rule_engine: number; investigators: number }
     customer: { rule_engine: number; investigators: number }

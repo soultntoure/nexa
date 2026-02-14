@@ -99,7 +99,9 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
               <!-- Freshness -->
               <div class="text-xs text-gray-400 flex items-center gap-3 pt-1">
                 <span v-if="snapshot.last_updated">Updated {{ new Date(snapshot.last_updated).toLocaleString() }}</span>
-                <span>{{ snapshot.sample_count }} decision samples</span>
+                <span class="text-green-600">{{ snapshot.approval_count }} approved</span>
+                <span class="text-red-600">{{ snapshot.block_count }} blocked</span>
+                <span>{{ snapshot.sample_count }} total</span>
               </div>
             </template>
           </div>

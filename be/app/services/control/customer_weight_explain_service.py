@@ -124,13 +124,16 @@ def _build_snapshot(
     if profile:
         cust_blend = BlendWeights(**profile.blend_weights)
         multipliers = profile.indicator_weights
-        sample = len(profile.decision_window)
+        window = profile.decision_window
+        sample = len(window)
+        approvals = sum(1 for d in window if d.get("decision") == "approved")
+        blocks = sum(1 for d in window if d.get("decision") == "blocked")
         status = "applied" if sample >= _SAMPLE_THRESHOLD else "limited data"
         last_updated = profile.recalculated_at
     else:
         cust_blend = baseline_blend
         multipliers = {}
-        sample = 0
+        sample = approvals = blocks = 0
         status = "baseline fallback"
         last_updated = None
 
@@ -141,6 +144,8 @@ def _build_snapshot(
         personalization_status=status,
         last_updated=last_updated,
         sample_count=sample,
+        approval_count=approvals,
+        block_count=blocks,
         blend=BlendComparison(baseline=baseline_blend, customer=cust_blend),
         indicators=indicators,
     )
