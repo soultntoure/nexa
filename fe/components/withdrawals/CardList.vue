@@ -143,8 +143,8 @@ function selectStatus(key: TransactionStatus) {
         :key="tx.id"
         class="border-b border-gray-100 px-4 py-3.5 cursor-pointer transition-all"
         :class="selectedId === tx.id
-          ? 'bg-blue-50 border-l-[3px] border-l-blue-500'
-          : 'hover:bg-gray-50 border-l-[3px] border-l-transparent'"
+          ? 'bg-gray-100'
+          : 'hover:bg-gray-50'"
         @click="emit('select', tx)"
       >
         <!-- Customer Name + Risk Score -->

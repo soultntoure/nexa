@@ -116,27 +116,6 @@ function openWeightsDrawer(customer: Customer) {
       </div>
     </div>
 
-    <!-- Filter Tabs -->
-    <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-lg w-fit">
-      <button
-        v-for="tab in filterTabs"
-        :key="tab.key"
-        class="px-4 py-2 text-sm font-medium rounded-md transition-all"
-        :class="selectedFilter === tab.key
-          ? 'bg-white text-gray-900 shadow-sm'
-          : 'text-gray-600 hover:text-gray-800'"
-        @click="selectedFilter = tab.key; currentPage = 1"
-      >
-        {{ tab.label }}
-        <span
-          class="ml-1.5 px-1.5 py-0.5 text-xs rounded-full"
-          :class="selectedFilter === tab.key ? 'bg-gray-200 text-gray-700' : 'bg-gray-200/70 text-gray-500'"
-        >
-          {{ filterCounts[tab.key] }}
-        </span>
-      </button>
-    </div>
-
     <!-- Search -->
     <div class="flex flex-wrap items-center gap-4">
       <div class="relative flex-1 min-w-[280px] max-w-md">

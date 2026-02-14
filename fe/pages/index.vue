@@ -22,6 +22,13 @@ interface DashboardStats {
     timestamp: string
     customer_id: string
   }[]
+  new_customers: {
+    id: string
+    name: string
+    email: string
+    country: string
+    registration_date: string
+  }[]
   avg_decision_time_seconds: number
   daily_decision_trend: { date: string; approved: number; escalated: number; blocked: number }[]
 }
@@ -55,6 +62,13 @@ const defaultStats: DashboardStats = {
     { id: 'TXN-007', action: 'auto-approved', amount: 420.00, currency: 'USD', timestamp: '2026-02-08T09:35:00Z', customer_id: 'Nina Torres (ACC-4455)' },
     { id: 'TXN-008', action: 'escalated', amount: 1650.00, currency: 'USD', timestamp: '2026-02-08T09:30:00Z', customer_id: 'Yuki Tanaka (ACC-5540)' },
   ],
+  new_customers: [
+    { id: 'CUST-101', name: 'Alice Rodriguez', email: 'alice.r@example.com', country: 'US', registration_date: '2026-02-15T09:30:00Z' },
+    { id: 'CUST-102', name: 'David Kim', email: 'david.kim@example.com', country: 'SG', registration_date: '2026-02-15T08:45:00Z' },
+    { id: 'CUST-103', name: 'Maria Santos', email: 'maria.s@example.com', country: 'BR', registration_date: '2026-02-15T07:20:00Z' },
+    { id: 'CUST-104', name: 'James Wilson', email: 'j.wilson@example.com', country: 'GB', registration_date: '2026-02-15T06:15:00Z' },
+    { id: 'CUST-105', name: 'Yuki Tanaka', email: 'yuki.t@example.com', country: 'JP', registration_date: '2026-02-15T05:00:00Z' },
+  ],
   avg_decision_time_seconds: 0.3,
   daily_decision_trend: [
     { date: '2026-02-09', approved: 85, escalated: 12, blocked: 8 },
@@ -69,6 +83,7 @@ const defaultStats: DashboardStats = {
 
 const stats = ref<DashboardStats>(defaultStats)
 const loadingApi = ref(false)
+const newCustomers = ref<any[]>([])
 
 if (import.meta.client) {
   loadingApi.value = true
@@ -78,6 +93,18 @@ if (import.meta.client) {
     })
     .catch(() => {})
     .finally(() => { loadingApi.value = false })
+
+  // Fetch customers and sort by registration date
+  $fetch('/api/customers')
+    .then((data: any) => {
+      if (data) {
+        newCustomers.value = data
+          .filter((c: any) => c.registration_date)
+          .sort((a: any, b: any) => new Date(b.registration_date).getTime() - new Date(a.registration_date).getTime())
+          .slice(0, 5)
+      }
+    })
+    .catch(() => {})
 }
 
 const status = computed(() => loadingApi.value ? 'pending' : 'success')
@@ -112,11 +139,18 @@ const riskIndicatorLabels: Record<string, string> = {
   amount_anomaly: 'Amount Anomaly',
   velocity: 'Velocity',
   payment_method: 'Payment Method',
+  payment_method_risk: 'Payment Method Risk',
   geographic: 'Geographic',
+  geographic_signals: 'Geographic Signals',
+  geographic_risk: 'Geographic Risk',
   device_fingerprint: 'Device Fingerprint',
   trading_behavior: 'Trading Behavior',
   recipient: 'Recipient Risk',
+  recipient_analysis: 'Recipient Analysis',
   card_errors: 'Card Errors',
+  card_error_history: 'Card Error History',
+  no_trade: 'No Trade',
+  rapid_funding: 'Rapid Funding',
 }
 
 const actionColors: Record<string, string> = {
@@ -167,7 +201,6 @@ function indicatorMaxCount() {
           <div class="flex p-4 flex-col">
             <p class="text-sm font-medium text-gray-700">Total Payout Amount</p>
             <span class="text-3xl font-bold text-gray-900">{{ formatCurrency(stats.total_payout_amount) }}</span>
-            <p class="text-xs text-gray-400">{{ stats.total_payouts_today }} payouts today</p>
           </div>
         </UiCard>
 
@@ -175,9 +208,6 @@ function indicatorMaxCount() {
           <div class="flex p-4 flex-col">
             <p class="text-sm font-medium text-gray-700">Auto-Approved Rate</p>
             <span class="text-3xl font-bold text-gray-900">{{ stats.auto_approved_rate }}%</span>
-            <p class="flex items-center gap-1 text-xs" :class="stats.auto_approved_trend >= 0 ? 'text-green-600' : 'text-red-600'">
-              {{ Math.abs(stats.auto_approved_trend) }}% vs yesterday
-            </p>
           </div>
         </UiCard>
 
@@ -185,10 +215,6 @@ function indicatorMaxCount() {
           <div class="flex p-4 flex-col">
             <p class="text-sm font-medium text-gray-700">Pending Review</p>
             <span class="text-3xl font-bold text-gray-900">{{ stats.pending_review_count }}</span>
-            <div>
-              <p v-if="stats.pending_review_count > 10" class="text-xs font-medium text-amber-600">Needs attention</p>
-              <p v-else class="text-xs text-gray-400">In queue</p>
-            </div>
           </div>
         </UiCard>
 
@@ -284,8 +310,8 @@ function indicatorMaxCount() {
         </UiCard>
       </div>
 
-      <!-- Bottom Row: Top Risk Indicators + Recent Activity -->
-      <div class="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-2">
+      <!-- Bottom Row: Top Risk Indicators + Recent Activity + New Customers -->
+      <div class="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-3">
         <UiCard class="flex flex-col overflow-hidden">
           <UiCardHeader class="p-4 pb-2">
             <UiCardTitle>Top Risk Indicators</UiCardTitle>
@@ -301,9 +327,10 @@ function indicatorMaxCount() {
                   {{ riskIndicatorLabels[indicator.name] || indicator.name }}
                 </span>
                 <div class="flex-1">
-                  <ProgressRoot :model-value="(indicator.count / indicatorMaxCount()) * 100" :max="100" class="relative h-1.5 overflow-hidden rounded-full bg-gray-100">
+                  <ProgressRoot :model-value="(indicator.count / indicatorMaxCount()) * 100" :max="100" class="relative h-1.5 overflow-hidden bg-gray-200">
                     <ProgressIndicator
-                      class="h-full rounded-full bg-primary-500 transition-all"
+                      class="h-full transition-all"
+                      style="background: linear-gradient(to right, #dc2626, #ef4444, #fca5a5)"
                       :style="{ width: `${(indicator.count / indicatorMaxCount()) * 100}%` }"
                     />
                   </ProgressRoot>
@@ -315,13 +342,16 @@ function indicatorMaxCount() {
         </UiCard>
 
         <UiCard class="flex flex-col overflow-hidden">
-          <UiCardHeader class="p-4 pb-2">
+          <div class="flex items-center justify-between p-4 pb-2">
             <UiCardTitle>Recent Activity</UiCardTitle>
-          </UiCardHeader>
+            <NuxtLink to="/withdrawals" class="text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors">
+              View All
+            </NuxtLink>
+          </div>
           <UiCardContent class="flex-1 overflow-y-auto p-4 pt-0">
             <div class="space-y-1.5">
               <div
-                v-for="activity in stats.recent_activity?.slice(0, 8)"
+                v-for="activity in stats.recent_activity?.slice(0, 5)"
                 :key="activity.id"
                 class="flex items-center gap-2.5 rounded-lg border border-gray-100 px-2.5 py-1.5"
               >
@@ -347,6 +377,40 @@ function indicatorMaxCount() {
                     class="capitalize"
                   >
                     {{ activity.action }}
+                  </UiBadge>
+                </div>
+              </div>
+            </div>
+          </UiCardContent>
+        </UiCard>
+
+        <UiCard class="flex flex-col overflow-hidden">
+          <div class="flex items-center justify-between p-4 pb-2">
+            <UiCardTitle>New Customers</UiCardTitle>
+            <NuxtLink to="/customers" class="text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors">
+              View All
+            </NuxtLink>
+          </div>
+          <UiCardContent class="flex-1 overflow-y-auto p-4 pt-0">
+            <div class="space-y-1.5">
+              <div
+                v-for="customer in newCustomers"
+                :key="customer.id"
+                class="flex items-center gap-2.5 rounded-lg border border-gray-100 px-2.5 py-1.5"
+              >
+                <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50">
+                  <Icon icon="lucide:user-plus" class="h-3.5 w-3.5 text-blue-600" />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-xs font-medium text-gray-800">
+                    {{ customer.name }} ({{ customer.id }})
+                  </p>
+                  <p class="text-[10px] text-gray-400">{{ formatDate(customer.registration_date) }}</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs font-semibold text-gray-900">{{ customer.country }}</p>
+                  <UiBadge variant="secondary" class="capitalize">
+                    New
                   </UiBadge>
                 </div>
               </div>

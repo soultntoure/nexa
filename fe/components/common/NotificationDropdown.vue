@@ -131,42 +131,45 @@ onUnmounted(() => {
             :class="['cursor-pointer px-4 py-3 transition-colors hover:bg-gray-50', !alert.read && 'bg-blue-50/30']"
             @click="handleAlertClick(alert)"
           >
-            <div class="flex items-start gap-3">
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2">
-                  <span class="rounded px-1.5 py-0.5 text-xs font-semibold uppercase" :class="typeBadge(alert.type)">{{ alert.type }}</span>
-                  <span :class="['text-sm text-gray-800', !alert.read ? 'font-semibold' : 'font-medium']">{{ alert.customer_name }}</span>
-                  <span v-if="!alert.read" class="h-2 w-2 shrink-0 rounded-full bg-blue-500" />
-                </div>
-                <p class="mt-0.5 text-xs text-gray-400">{{ alert.account_id }}</p>
+            <div>
+              <div class="flex items-start gap-3">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base font-bold text-gray-900">{{ formatCurrency(alert.amount, alert.currency) }}</span>
+                    <span v-if="!alert.read" class="h-2 w-2 shrink-0 rounded-full bg-blue-500" />
+                  </div>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span :class="['text-sm text-gray-800', !alert.read ? 'font-semibold' : 'font-medium']">{{ alert.customer_name }}</span>
+                  </div>
 
-                <div class="mt-1.5 flex flex-wrap items-center gap-1">
-                  <span
-                    v-if="alert.risk_level"
-                    class="rounded px-1.5 py-0.5 text-xs font-semibold uppercase"
-                    :class="riskLevelBadge(alert.risk_level)"
-                  >
-                    {{ alert.risk_level }}
-                  </span>
-                  <span
-                    v-for="ind in alert.indicators.slice(0, 2)"
-                    :key="ind.name"
-                    class="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600"
-                  >
-                    {{ INDICATOR_LABELS[ind.name] || ind.name }}: {{ ind.score }}
-                  </span>
+                  <div class="mt-1.5 flex flex-wrap items-center gap-1">
+                    <span
+                      v-if="alert.risk_level"
+                      class="rounded px-1.5 py-0.5 text-xs font-semibold uppercase"
+                      :class="riskLevelBadge(alert.risk_level)"
+                    >
+                      {{ alert.risk_level }}
+                    </span>
+                    <span
+                      v-for="ind in alert.indicators.slice(0, 2)"
+                      :key="ind.name"
+                      class="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600"
+                    >
+                      {{ INDICATOR_LABELS[ind.name] || ind.name }}: {{ ind.score }}
+                    </span>
+                  </div>
+
+                  <p v-if="alert.reason" class="mt-1 text-xs text-gray-500" :title="alert.reason">
+                    {{ alert.reason.length > 60 ? `${alert.reason.slice(0, 60)}...` : alert.reason }}
+                  </p>
                 </div>
 
-                <p v-if="alert.reason" class="mt-1 truncate text-xs text-gray-500" :title="alert.reason">
-                  {{ alert.reason.length > 60 ? `${alert.reason.slice(0, 60)}...` : alert.reason }}
-                </p>
+                <div class="shrink-0 text-right">
+                  <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold" :class="riskColor(alert.risk_score)">{{ alert.risk_score }}</span>
+                </div>
               </div>
 
-              <div class="shrink-0 text-right">
-                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold" :class="riskColor(alert.risk_score)">{{ alert.risk_score }}</span>
-                <p class="mt-1 text-xs text-gray-400">{{ relativeTime(alert.timestamp) }}</p>
-                <p class="text-xs font-medium text-gray-700">{{ formatCurrency(alert.amount, alert.currency) }}</p>
-              </div>
+              <p class="mt-1 text-xs text-gray-400 text-right">{{ relativeTime(alert.timestamp) }}</p>
             </div>
           </li>
           <li v-if="!alerts.length" class="px-4 py-6 text-center text-sm text-gray-400">
