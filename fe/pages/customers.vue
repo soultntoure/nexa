@@ -177,9 +177,6 @@ function openWeightsDrawer(customer: Customer) {
               <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Registered
               </th>
-              <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
               <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Weights
               </th>
@@ -228,27 +225,6 @@ function openWeightsDrawer(customer: Customer) {
                 </span>
               </td>
 
-              <!-- Flagged Status -->
-              <td class="px-4 py-3.5">
-                <div class="flex items-center gap-2">
-                  <span
-                    class="inline-flex px-2.5 py-1 text-xs font-medium rounded-full"
-                    :class="customer.is_flagged
-                      ? 'bg-red-100 text-red-700'
-                      : 'bg-green-100 text-green-700'"
-                  >
-                    {{ customer.is_flagged ? 'Flagged' : 'Clean' }}
-                  </span>
-                  <span
-                    v-if="customer.is_flagged && customer.flag_reason"
-                    class="text-xs text-gray-500 truncate max-w-[200px]"
-                    :title="customer.flag_reason"
-                  >
-                    {{ customer.flag_reason }}
-                  </span>
-                </div>
-              </td>
-
               <!-- Weights Action -->
               <td class="px-4 py-3.5 text-right" @click.stop>
                 <button
@@ -263,7 +239,7 @@ function openWeightsDrawer(customer: Customer) {
 
             <!-- Empty State -->
             <tr v-if="paginatedCustomers.length === 0">
-              <td colspan="6" class="px-4 py-12 text-center">
+              <td colspan="5" class="px-4 py-12 text-center">
                 <Icon icon="lucide:users" class="w-12 h-12 text-gray-300 mx-auto mb-3" />
                 <p class="text-gray-500 text-sm">
                   No customers found matching your filters

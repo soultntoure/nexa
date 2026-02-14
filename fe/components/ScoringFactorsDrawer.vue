@@ -25,13 +25,6 @@ watch(() => props.visible, async (open) => {
   if (open && props.customerId) await fetchSnapshot()
 })
 
-const thresholdExplanation = computed(() => {
-  const s = props.riskScore
-  if (s < 0.3) return `Score ${s.toFixed(2)} is below 0.30 — auto-approved.`
-  if (s < 0.7) return `Score ${s.toFixed(2)} is in gray zone (0.30–0.70) — escalated for review.`
-  return `Score ${s.toFixed(2)} is at or above 0.70 — auto-blocked.`
-})
-
 function handleClose() { emit('close') }
 function handleKeydown(e: KeyboardEvent) { if (e.key === 'Escape') handleClose() }
 onMounted(() => document.addEventListener('keydown', handleKeydown))
@@ -87,12 +80,6 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
             </div>
 
             <template v-else-if="snapshot">
-              <!-- Threshold -->
-              <div class="bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 flex items-start gap-3">
-                <Icon icon="lucide:info" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
-                <p class="text-sm text-blue-800">{{ thresholdExplanation }}</p>
-              </div>
-
               <!-- Decision counts -->
               <div class="grid grid-cols-3 gap-3">
                 <div class="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-center">
