@@ -19,7 +19,6 @@ interface AuditConfig {
 
 const isSaving = ref(false)
 const isLoading = ref(true)
-const historyOpen = ref(false)
 
 const config = ref<AuditConfig>({
   id: null,
@@ -35,7 +34,6 @@ const config = ref<AuditConfig>({
   created_at: null,
 })
 
-const changeReason = ref('')
 const history = ref<AuditConfig[]>([])
 
 const DEFAULTS: Omit<AuditConfig, 'id' | 'updated_by' | 'reason' | 'is_active' | 'created_at'> = {
@@ -80,11 +78,10 @@ async function saveConfig(): Promise<void> {
         min_confidence: config.value.min_confidence,
         output_dir: config.value.output_dir,
         updated_by: 'officer-demo-001',
-        reason: changeReason.value || 'Updated via settings',
+        reason: 'Updated via settings',
       },
     })
     config.value = data
-    changeReason.value = ''
     emit('saved')
     await loadHistory()
   } catch {
@@ -130,7 +127,6 @@ defineExpose({ save: saveConfig, resetDefaults, isSaving })
       <!-- Scanning Window -->
       <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div class="mb-4 flex items-center gap-2">
-          <Icon icon="lucide:calendar-range" class="h-5 w-5 text-blue-600" />
           <h2 class="text-base font-semibold text-gray-900">Scanning Window</h2>
         </div>
         <p class="mb-4 text-sm text-gray-500">
@@ -147,18 +143,18 @@ defineExpose({ save: saveConfig, resetDefaults, isSaving })
                 :max="90"
                 :step="1"
                 class="relative flex h-5 w-full touch-none select-none items-center"
-                @update:model-value="(v: number[]) => config.lookback_days = v[0]"
+                @update:model-value="(v?: number[]) => { if (v) config.lookback_days = v[0]! }"
               >
                 <SliderTrack class="relative h-1.5 grow rounded-full bg-gray-200">
-                  <SliderRange class="absolute h-full rounded-full bg-blue-600" />
+                  <SliderRange class="absolute h-full rounded-full bg-gray-900" />
                 </SliderTrack>
-                <SliderThumb class="block h-4 w-4 rounded-full bg-white shadow-md ring-1 ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <SliderThumb class="block h-4 w-4 rounded-full bg-white shadow-md ring-1 ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900" />
               </SliderRoot>
             </div>
             <span class="w-10 text-sm font-medium text-gray-500">90d</span>
           </div>
           <div class="mt-2 flex items-center justify-center gap-2">
-            <span class="text-2xl font-bold text-blue-700">{{ config.lookback_days }}</span>
+            <span class="text-2xl font-bold text-gray-900">{{ config.lookback_days }}</span>
             <span class="text-sm text-gray-400">days</span>
           </div>
           <p class="mt-1 text-center text-xs text-gray-400">
@@ -170,7 +166,6 @@ defineExpose({ save: saveConfig, resetDefaults, isSaving })
       <!-- Discovery Thresholds -->
       <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div class="mb-4 flex items-center gap-2">
-          <Icon icon="lucide:filter" class="h-5 w-5 text-gray-600" />
           <h2 class="text-base font-semibold text-gray-900">Discovery Thresholds</h2>
         </div>
         <p class="mb-4 text-sm text-gray-500">
@@ -235,9 +230,6 @@ defineExpose({ save: saveConfig, resetDefaults, isSaving })
                   <Icon icon="lucide:plus" class="h-3 w-3" />
                 </NumberFieldIncrement>
               </NumberFieldRoot>
-              <span class="text-sm font-bold" :class="confidenceColor(config.min_confidence)">
-                {{ (config.min_confidence * 100).toFixed(0) }}%
-              </span>
             </div>
             <p class="mt-1 text-xs text-gray-400">Agent confidence threshold to surface a finding</p>
           </div>
@@ -247,7 +239,6 @@ defineExpose({ save: saveConfig, resetDefaults, isSaving })
       <!-- Output Limits -->
       <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div class="mb-4 flex items-center gap-2">
-          <Icon icon="lucide:box" class="h-5 w-5 text-gray-600" />
           <h2 class="text-base font-semibold text-gray-900">Output Limits</h2>
         </div>
 
@@ -283,72 +274,44 @@ defineExpose({ save: saveConfig, resetDefaults, isSaving })
         </div>
       </div>
 
-      <!-- Change Reason -->
+      <!-- Version History -->
       <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div class="mb-4 flex items-center gap-2">
-          <Icon icon="lucide:message-square-text" class="h-5 w-5 text-gray-600" />
-          <h2 class="text-base font-semibold text-gray-900">Change Reason</h2>
+          <h2 class="text-base font-semibold text-gray-900">Config History</h2>
+          <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">{{ history.length }}</span>
         </div>
-        <input
-          v-model="changeReason"
-          type="text"
-          placeholder="Why are you changing this config? (optional)"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
-        />
+
+        <div v-if="history.length > 0" class="overflow-hidden rounded-lg border border-gray-100">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Date</th>
+                <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Lookback</th>
+                <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Candidates</th>
+                <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Confidence</th>
+                <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">By</th>
+                <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Reason</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <tr v-for="(entry, idx) in history" :key="entry.id ?? idx" class="hover:bg-gray-50">
+                <td class="whitespace-nowrap px-3 py-2 text-gray-600">{{ formatDate(entry.created_at) }}</td>
+                <td class="px-3 py-2 text-gray-700 font-medium">{{ entry.lookback_days }}d</td>
+                <td class="px-3 py-2 text-gray-700">{{ entry.max_candidates }}</td>
+                <td class="px-3 py-2">
+                  <span :class="confidenceColor(entry.min_confidence)" class="font-medium">
+                    {{ (entry.min_confidence * 100).toFixed(0) }}%
+                  </span>
+                </td>
+                <td class="px-3 py-2 text-gray-500">{{ entry.updated_by }}</td>
+                <td class="max-w-[200px] truncate px-3 py-2 text-gray-400">{{ entry.reason || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p v-else class="text-sm text-gray-400">No configuration changes recorded yet.</p>
       </div>
-
-      <!-- Version History -->
-      <CollapsibleRoot v-model:open="historyOpen" class="rounded-xl border border-gray-200 bg-white shadow-sm">
-        <CollapsibleTrigger class="flex w-full items-center justify-between p-6">
-          <div class="flex items-center gap-2">
-            <Icon icon="lucide:history" class="h-5 w-5 text-gray-600" />
-            <h2 class="text-base font-semibold text-gray-900">Config History</h2>
-            <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">{{ history.length }}</span>
-          </div>
-          <Icon
-            icon="lucide:chevron-down"
-            class="h-5 w-5 text-gray-400 transition-transform"
-            :class="{ 'rotate-180': historyOpen }"
-          />
-        </CollapsibleTrigger>
-
-        <CollapsibleContent>
-          <div v-if="history.length > 0" class="border-t border-gray-100 px-6 pb-4">
-            <div class="mt-3 overflow-hidden rounded-lg border border-gray-100">
-              <table class="w-full text-left text-sm">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Date</th>
-                    <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Lookback</th>
-                    <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Candidates</th>
-                    <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Confidence</th>
-                    <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">By</th>
-                    <th class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Reason</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                  <tr v-for="(entry, idx) in history" :key="entry.id ?? idx" class="hover:bg-gray-50">
-                    <td class="whitespace-nowrap px-3 py-2 text-gray-600">{{ formatDate(entry.created_at) }}</td>
-                    <td class="px-3 py-2 text-gray-700 font-medium">{{ entry.lookback_days }}d</td>
-                    <td class="px-3 py-2 text-gray-700">{{ entry.max_candidates }}</td>
-                    <td class="px-3 py-2">
-                      <span :class="confidenceColor(entry.min_confidence)" class="font-medium">
-                        {{ (entry.min_confidence * 100).toFixed(0) }}%
-                      </span>
-                    </td>
-                    <td class="px-3 py-2 text-gray-500">{{ entry.updated_by }}</td>
-                    <td class="max-w-[200px] truncate px-3 py-2 text-gray-400">{{ entry.reason || '-' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div v-else class="border-t border-gray-100 px-6 py-4">
-            <p class="text-sm text-gray-400">No configuration changes recorded yet.</p>
-          </div>
-        </CollapsibleContent>
-      </CollapsibleRoot>
     </template>
   </div>
 </template>

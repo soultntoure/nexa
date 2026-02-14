@@ -11,7 +11,6 @@ const tabs = [
 type TabKey = typeof tabs[number]['key']
 
 const activeTab = ref<TabKey>('fraud')
-const showSaved = ref(false)
 
 interface TabChild {
   save: () => Promise<void>
@@ -28,10 +27,7 @@ const activeChild = computed(() =>
 
 const isSaving = computed(() => activeChild.value?.isSaving.value ?? false)
 
-function handleSaved(): void {
-  showSaved.value = true
-  setTimeout(() => { showSaved.value = false }, 2000)
-}
+function handleSaved(): void {}
 
 async function save(): Promise<void> {
   await activeChild.value?.save()
@@ -43,7 +39,7 @@ function resetDefaults(): void {
 </script>
 
 <template>
-  <div class="max-w-4xl space-y-6">
+  <div class="space-y-6">
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
@@ -51,19 +47,6 @@ function resetDefaults(): void {
         <p class="mt-1 text-sm text-gray-500">Configure fraud detection thresholds and system preferences</p>
       </div>
       <div class="flex items-center gap-2">
-        <Transition
-          enter-active-class="transition ease-out duration-200"
-          enter-from-class="opacity-0"
-          enter-to-class="opacity-100"
-          leave-active-class="transition ease-in duration-150"
-          leave-from-class="opacity-100"
-          leave-to-class="opacity-0"
-        >
-          <span v-if="showSaved" class="flex items-center gap-1 text-sm text-green-600">
-            <Icon icon="lucide:check" class="h-4 w-4" />
-            Saved
-          </span>
-        </Transition>
         <button
           class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           @click="resetDefaults"
@@ -84,14 +67,13 @@ function resetDefaults(): void {
     <!-- Tab Navigation -->
     <TabsRoot v-model="activeTab">
       <TabsList class="border-b border-gray-200">
-        <nav class="-mb-px flex gap-6">
+        <nav class="-mb-px flex">
           <TabsTrigger
             v-for="tab in tabs"
             :key="tab.key"
             :value="tab.key"
             class="flex items-center gap-2 border-b-2 border-transparent px-1 pb-3 text-sm font-medium transition-colors text-gray-500 hover:border-gray-300 hover:text-gray-700 data-[state=active]:border-primary-600 data-[state=active]:text-primary-600"
           >
-            <Icon :icon="tab.icon" class="h-4 w-4" />
             {{ tab.label }}
           </TabsTrigger>
         </nav>

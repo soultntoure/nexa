@@ -23,20 +23,6 @@ const indicators = ref([
   { key: 'card_errors', label: 'Card Errors', weight: 1.2 },
 ])
 
-const notifications = ref({
-  escalation_alerts: true,
-  block_alerts: true,
-  daily_digest: true,
-  weekly_report: false,
-  email_notifications: true,
-  slack_notifications: false,
-})
-
-const apiConfig = ref({
-  backend_url: 'http://localhost:8000',
-  timeout: 30,
-  retry_count: 3,
-})
 
 watch(() => thresholds.value.approve, (val) => {
   thresholds.value.escalate_min = val
@@ -114,8 +100,7 @@ defineExpose({ save: saveSettings, resetDefaults, isSaving })
     <!-- Auto-Approve Threshold -->
     <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
       <div class="mb-4 flex items-center gap-2">
-        <Icon icon="lucide:zap" class="h-5 w-5 text-green-600" />
-        <h2 class="text-base font-semibold text-gray-900">Auto-Approve Threshold</h2>
+        <h2 class="text-base font-semibold text-gray-900">Auto Approve Threshold</h2>
       </div>
       <p class="mb-4 text-sm text-gray-500">
         Transactions scoring below this threshold are automatically approved without LLM investigation.
@@ -132,7 +117,7 @@ defineExpose({ save: saveSettings, resetDefaults, isSaving })
               :max="0.50"
               :step="0.05"
               class="relative flex h-5 w-full touch-none select-none items-center"
-              @update:model-value="(v: number[]) => thresholds.approve = v[0]"
+              @update:model-value="(v?: number[]) => { if (v) thresholds.approve = v[0] }"
             >
               <SliderTrack class="relative h-1.5 grow rounded-full bg-gray-200">
                 <SliderRange class="absolute h-full rounded-full bg-green-600" />
@@ -159,7 +144,6 @@ defineExpose({ save: saveSettings, resetDefaults, isSaving })
     <!-- Decision Thresholds -->
     <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
       <div class="mb-4 flex items-center gap-2">
-        <Icon icon="lucide:sliders-horizontal" class="h-5 w-5 text-gray-600" />
         <h2 class="text-base font-semibold text-gray-900">Decision Thresholds</h2>
       </div>
       <p class="mb-4 text-sm text-gray-500">Define risk score ranges for automatic decisions</p>
@@ -167,15 +151,15 @@ defineExpose({ save: saveSettings, resetDefaults, isSaving })
       <div class="mb-6 rounded-lg bg-gray-50 p-4">
         <div class="relative h-6 overflow-hidden rounded-full bg-gray-200">
           <div
-            class="absolute inset-y-0 left-0 bg-green-400"
+            class="absolute inset-y-0 left-0 bg-emerald-600"
             :style="{ width: `${thresholds.approve * 100}%` }"
           />
           <div
-            class="absolute inset-y-0 bg-amber-400"
+            class="absolute inset-y-0 bg-yellow-500"
             :style="{ left: `${thresholds.escalate_min * 100}%`, width: `${(thresholds.escalate_max - thresholds.escalate_min) * 100}%` }"
           />
           <div
-            class="absolute inset-y-0 right-0 bg-red-400"
+            class="absolute inset-y-0 right-0 bg-[#E60B22]"
             :style="{ width: `${(1 - thresholds.block) * 100}%` }"
           />
         </div>
@@ -196,7 +180,6 @@ defineExpose({ save: saveSettings, resetDefaults, isSaving })
               disabled
               class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-400"
             />
-            <span class="text-gray-400">-</span>
             <NumberFieldRoot
               v-model="thresholds.escalate_max"
               :min="0"
@@ -240,7 +223,6 @@ defineExpose({ save: saveSettings, resetDefaults, isSaving })
     <!-- Indicator Weight Tuning -->
     <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
       <div class="mb-4 flex items-center gap-2">
-        <Icon icon="lucide:gauge" class="h-5 w-5 text-gray-600" />
         <h2 class="text-base font-semibold text-gray-900">Indicator Weight Tuning</h2>
       </div>
       <p class="mb-4 text-sm text-gray-500">Adjust the importance of each risk indicator in the composite score</p>
@@ -255,7 +237,7 @@ defineExpose({ save: saveSettings, resetDefaults, isSaving })
               :max="3"
               :step="0.1"
               class="relative flex h-5 w-full touch-none select-none items-center"
-              @update:model-value="(v: number[]) => indicator.weight = v[0]"
+              @update:model-value="(v?: number[]) => { if (v) indicator.weight = v[0]! }"
             >
               <SliderTrack class="relative h-1.5 grow rounded-full bg-gray-200">
                 <SliderRange class="absolute h-full rounded-full bg-primary-600" />
@@ -270,63 +252,5 @@ defineExpose({ save: saveSettings, resetDefaults, isSaving })
       </div>
     </div>
 
-    <!-- Notification Preferences -->
-    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <div class="mb-4 flex items-center gap-2">
-        <Icon icon="lucide:bell" class="h-5 w-5 text-gray-600" />
-        <h2 class="text-base font-semibold text-gray-900">Notification Preferences</h2>
-      </div>
-
-      <div class="space-y-3">
-        <div v-for="(value, key) in notifications" :key="key" class="flex items-center justify-between rounded-lg p-3 hover:bg-gray-50">
-          <div>
-            <p class="text-sm font-medium text-gray-800 capitalize">{{ String(key).replace(/_/g, ' ') }}</p>
-          </div>
-          <SwitchRoot
-            v-model:checked="notifications[key as keyof typeof notifications]"
-            class="relative h-6 w-11 cursor-pointer rounded-full bg-gray-300 data-[state=checked]:bg-primary-600 transition-colors"
-          >
-            <SwitchThumb class="block h-5 w-5 translate-x-0.5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-[22px]" />
-          </SwitchRoot>
-        </div>
-      </div>
-    </div>
-
-    <!-- API Configuration -->
-    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <div class="mb-4 flex items-center gap-2">
-        <Icon icon="lucide:server" class="h-5 w-5 text-gray-600" />
-        <h2 class="text-base font-semibold text-gray-900">API Configuration</h2>
-      </div>
-
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div class="sm:col-span-2">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Backend URL</label>
-          <input
-            v-model="apiConfig.backend_url"
-            type="text"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Timeout (seconds)</label>
-          <NumberFieldRoot
-            v-model="apiConfig.timeout"
-            :min="5"
-            :max="120"
-            :step="1"
-            class="flex items-center gap-1"
-          >
-            <NumberFieldDecrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
-              <Icon icon="lucide:minus" class="h-3 w-3" />
-            </NumberFieldDecrement>
-            <NumberFieldInput class="h-8 w-16 rounded border border-gray-300 bg-white text-center text-sm text-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-            <NumberFieldIncrement class="inline-flex h-8 w-8 items-center justify-center rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
-              <Icon icon="lucide:plus" class="h-3 w-3" />
-            </NumberFieldIncrement>
-          </NumberFieldRoot>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
