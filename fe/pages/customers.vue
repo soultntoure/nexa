@@ -221,7 +221,7 @@ function openWeightsDrawer(customer: Customer) {
               <!-- Weights Action -->
               <td class="px-4 py-3.5 text-left" @click.stop>
                 <button
-                  class="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
+                  class="text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
                   @click="openWeightsDrawer(customer)"
                 >
                   View

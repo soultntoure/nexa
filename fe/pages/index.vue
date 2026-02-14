@@ -176,7 +176,6 @@ function indicatorMaxCount() {
             <p class="text-sm font-medium text-gray-700">Auto-Approved Rate</p>
             <span class="text-3xl font-bold text-gray-900">{{ stats.auto_approved_rate }}%</span>
             <p class="flex items-center gap-1 text-xs" :class="stats.auto_approved_trend >= 0 ? 'text-green-600' : 'text-red-600'">
-              <Icon :icon="stats.auto_approved_trend >= 0 ? 'lucide:trending-up' : 'lucide:trending-down'" class="h-3 w-3" />
               {{ Math.abs(stats.auto_approved_trend) }}% vs yesterday
             </p>
           </div>
@@ -278,7 +277,6 @@ function indicatorMaxCount() {
               </div>
               <p class="mt-1 text-xs text-gray-500">Per transaction</p>
               <UiBadge variant="success" class="mt-3 gap-1.5">
-                <Icon icon="lucide:zap" class="h-3 w-3" />
                 Real-time processing
               </UiBadge>
             </div>

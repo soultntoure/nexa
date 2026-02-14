@@ -30,7 +30,6 @@ const showDateFilter = ref(false)
 
 const statusTabs: { key: TransactionStatus; label: string }[] = [
   { key: 'all', label: 'All' },
-  { key: 'pending', label: 'Pending' },
   { key: 'approved', label: 'Approved' },
   { key: 'escalated', label: 'Escalated' },
   { key: 'blocked', label: 'Blocked' },
@@ -43,10 +42,10 @@ const statusBadgeClasses: Record<string, string> = {
   blocked: 'border-[#EBEBEB] text-gray-600',
 }
 
-const statusIcons: Record<string, { icon: string; color: string }> = {
+const statusIcons: Record<string, { icon: string; color: string; isCustom?: boolean }> = {
   pending: { icon: 'lucide:clock', color: 'text-white bg-gray-400' },
   approved: { icon: 'lucide:check', color: 'text-white bg-green-500' },
-  escalated: { icon: 'lucide:alert-triangle', color: 'text-white bg-yellow-500' },
+  escalated: { icon: '/icons/alert.svg', color: 'text-white bg-yellow-500', isCustom: true },
   blocked: { icon: 'lucide:x', color: 'text-white bg-red-500' },
 }
 
@@ -127,12 +126,6 @@ function selectStatus(key: TransactionStatus) {
         @click="selectStatus(tab.key)"
       >
         {{ tab.label }}
-        <span
-          class="px-1.5 py-0.5 text-xs rounded-full"
-          :class="selectedStatus === tab.key ? 'bg-primary-200 text-primary-800' : 'bg-gray-100 text-gray-500'"
-        >
-          {{ statusCounts[tab.key] }}
-        </span>
       </button>
     </div>
 
@@ -166,7 +159,8 @@ function selectStatus(key: TransactionStatus) {
               :class="statusBadgeClasses[tx.status]"
             >
               <span class="flex h-4 w-4 items-center justify-center rounded-full" :class="statusIcons[tx.status]?.color">
-                <Icon :icon="statusIcons[tx.status]?.icon" class="h-2.5 w-2.5" />
+                <img v-if="statusIcons[tx.status]?.isCustom" :src="statusIcons[tx.status]?.icon" alt="" class="h-2.5 w-2.5 brightness-0 invert" />
+                <Icon v-else :icon="statusIcons[tx.status]?.icon || 'lucide:circle'" class="h-2.5 w-2.5" />
               </span>
               {{ tx.status }}
             </span>
@@ -174,9 +168,8 @@ function selectStatus(key: TransactionStatus) {
         </div>
 
         <!-- Amount + Method -->
-        <div class="flex items-center gap-2 mb-2 ml-0">
+        <div class="flex items-center justify-between mb-2 ml-0">
           <span class="text-sm font-semibold text-gray-900">{{ formatCurrency(tx.amount, tx.currency) }}</span>
-          <span class="text-gray-300">&middot;</span>
           <span class="text-xs text-gray-400">{{ formatDate(tx.created_at, 'MMM dd, HH:mm') }}</span>
         </div>
 

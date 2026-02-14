@@ -8,9 +8,9 @@ const collapsed = ref(false)
 const navItems = [
   { label: 'Dashboard', to: '/', icon: '/icons/dashboard.svg', isCustom: true },
   { label: 'Withdrawals', to: '/withdrawals', icon: '/icons/withdrawal.svg', isCustom: true },
-  { label: 'Customers', to: '/customers', icon: 'lucide:users' },
+  { label: 'Customers', to: '/customers', icon: '/icons/profile.svg', isCustom: true },
   // { label: 'Alerts', to: '/alerts', icon: 'lucide:bell' },
-  { label: 'Audit', to: '/audit', icon: 'lucide:scan-search' },
+  { label: 'Audit', to: '/audit', icon: '/icons/robot.svg', isCustom: true },
   // { label: 'NL Query', to: '/query', icon: 'lucide:message-square' },
   { label: 'Settings', to: '/settings', icon: '/icons/setting.svg', isCustom: true },
 ]

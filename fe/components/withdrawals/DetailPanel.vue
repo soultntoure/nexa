@@ -165,11 +165,6 @@ const ratioBarColor = computed(() => {
     <div class="shrink-0 px-5 pt-5 pb-4 border-b border-gray-200">
       <!-- Customer Info -->
       <div class="flex items-start gap-3 mb-3 pr-8">
-        <div class="w-12 h-12 bg-primary-50 rounded-full flex items-center justify-center shrink-0">
-          <span class="text-primary-700 font-bold text-sm">
-            {{ transaction.customer.name.split(' ').map((n: string) => n[0]).join('') }}
-          </span>
-        </div>
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 mb-0.5">
             <h2 class="text-lg font-bold text-gray-900 truncate">{{ transaction.customer.name }}</h2>
@@ -234,13 +229,13 @@ const ratioBarColor = computed(() => {
         <div class="w-10 h-10 rounded-full bg-green-50 border border-green-200 flex items-center justify-center hover:bg-green-100 transition-colors">
           <Icon icon="lucide:check" class="w-5 h-5 text-green-600" />
         </div>
-        <span class="text-xs font-medium text-green-700">Approve</span>
+        <span class="text-xs font-medium text-gray-600">Approve</span>
       </button>
       <button class="flex flex-col items-center gap-1" @click="emit('flag')">
         <div class="w-10 h-10 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center hover:bg-orange-100 transition-colors">
           <Icon icon="lucide:flag" class="w-5 h-5 text-orange-500" />
         </div>
-        <span class="text-xs font-medium text-orange-600">Flag</span>
+        <span class="text-xs font-medium text-gray-600">Flag</span>
       </button>
       <button
         class="flex flex-col items-center gap-1"
@@ -250,19 +245,19 @@ const ratioBarColor = computed(() => {
         <div class="w-10 h-10 rounded-full bg-red-50 border border-red-200 flex items-center justify-center hover:bg-red-100 transition-colors">
           <Icon icon="lucide:ban" class="w-5 h-5 text-red-500" />
         </div>
-        <span class="text-xs font-medium text-red-600">Block</span>
+        <span class="text-xs font-medium text-gray-600">Block</span>
       </button>
       <button class="flex flex-col items-center gap-1" @click="emit('discuss')">
         <div class="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center hover:bg-indigo-100 transition-colors">
           <Icon icon="lucide:message-square" class="w-5 h-5 text-indigo-500" />
         </div>
-        <span class="text-xs font-medium text-indigo-600">Discuss</span>
+        <span class="text-xs font-medium text-gray-600">Discuss</span>
       </button>
       <button class="flex flex-col items-center gap-1" @click="emit('customer-profile')">
         <div class="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center hover:bg-blue-100 transition-colors">
           <Icon icon="lucide:user" class="w-5 h-5 text-blue-500" />
         </div>
-        <span class="text-xs font-medium text-blue-600">Profile</span>
+        <span class="text-xs font-medium text-gray-600">Profile</span>
       </button>
     </div>
 
@@ -381,8 +376,7 @@ const ratioBarColor = computed(() => {
         <!-- Composite Risk Score -->
         <div class="bg-gray-50 rounded-lg p-4">
           <div class="flex items-center justify-between mb-3">
-            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-              <Icon icon="lucide:activity" class="w-4 h-4" />
+            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               Composite Score
             </h4>
             <div class="flex items-center gap-2">
@@ -432,7 +426,6 @@ const ratioBarColor = computed(() => {
                 <AccordionTrigger class="w-full p-3 cursor-pointer hover:bg-gray-50 transition-colors text-left">
                   <div class="flex items-center justify-between mb-1.5">
                     <div class="flex items-center gap-2">
-                      <Icon :icon="indicator.icon" class="w-4 h-4 text-gray-500" />
                       <span class="text-sm font-medium text-gray-800">{{ getIndicatorLabel(indicator.name) }}</span>
                     </div>
                     <div class="flex items-center gap-2">
@@ -564,14 +557,6 @@ const ratioBarColor = computed(() => {
               <span class="text-gray-500">Evaluation</span>
               <span class="font-mono text-xs text-gray-700">{{ transaction.evaluation_id }}</span>
             </div>
-          </div>
-        </div>
-
-        <!-- Auto-approved Info -->
-        <div v-if="transaction.status === 'approved'" class="bg-blue-50 rounded-lg p-3 border border-blue-200">
-          <div class="flex items-center gap-2 text-blue-700">
-            <Icon icon="lucide:info" class="w-4 h-4 shrink-0" />
-            <span class="text-sm">Auto-approved by AI system. You can override this decision.</span>
           </div>
         </div>
 

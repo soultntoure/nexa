@@ -24,7 +24,6 @@ defineProps<{
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <Icon :icon="INDICATOR_ICONS[row.name] || 'lucide:activity'" class="w-4 h-4 text-gray-400" />
             <span class="text-sm font-medium text-gray-800">{{ INDICATOR_LABELS[row.name] || row.name }}</span>
           </div>
           <div class="flex items-center gap-2">
@@ -38,7 +37,7 @@ defineProps<{
             </span>
           </div>
         </div>
-        <p v-if="row.reason" class="mt-1.5 text-xs text-gray-500 leading-relaxed pl-6">
+        <p v-if="row.reason" class="mt-1.5 text-xs text-gray-500 leading-relaxed">
           {{ row.reason }}
         </p>
       </div>
@@ -54,7 +53,6 @@ defineProps<{
         :key="row.name"
         class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 rounded-md text-xs text-gray-500"
       >
-        <Icon :icon="INDICATOR_ICONS[row.name] || 'lucide:activity'" class="w-3.5 h-3.5" />
         {{ INDICATOR_LABELS[row.name] || row.name }}
         <span class="tabular-nums font-medium text-gray-600">{{ row.baseline_weight.toFixed(2) }}</span>
       </div>
