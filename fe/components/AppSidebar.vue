@@ -7,7 +7,6 @@ const collapsed = ref(false)
 
 const navItems = [
   { label: 'Dashboard', to: '/', icon: 'lucide:layout-grid' },
-  { label: 'Withdrawal', to: '/withdrawal', icon: 'lucide:arrow-up-circle' },
   { label: 'Withdrawals', to: '/withdrawals', icon: 'lucide:list' },
   { label: 'Customers', to: '/customers', icon: 'lucide:users' },
   // { label: 'Alerts', to: '/alerts', icon: 'lucide:bell' },

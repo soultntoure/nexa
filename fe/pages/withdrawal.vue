@@ -1,4 +1,5 @@
 <script setup lang="ts">
+definePageMeta({ layout: 'customer' })
 useHead({ title: 'Nexa' })
 
 const {

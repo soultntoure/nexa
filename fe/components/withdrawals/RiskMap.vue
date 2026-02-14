@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import type { Transaction } from '~/composables/useTransactions'
 
-const props = defineProps<{
-  transactions: Transaction[]
-  selectedId: string | null
-}>()
+const props = withDefaults(defineProps<{
+  transactions?: Transaction[]
+  selectedId?: string | null
+}>(), {
+  transactions: () => [],
+  selectedId: null,
+})
 
 const emit = defineEmits<{
   'select-marker': [tx: Transaction]
