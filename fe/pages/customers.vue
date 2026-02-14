@@ -225,40 +225,6 @@ function openWeightsDrawer(customer: Customer) {
                 </span>
               </td>
 
-<<<<<<< HEAD
-=======
-              <!-- Flagged Status -->
-              <td class="px-4 py-3.5">
-                <div class="flex items-center gap-2">
-                  <span
-                    class="inline-flex px-2.5 py-1 text-xs font-medium rounded-full"
-                    :class="customer.is_flagged
-                      ? 'bg-red-100 text-red-700'
-                      : 'bg-green-100 text-green-700'"
-                  >
-                    {{ customer.is_flagged ? 'Flagged' : 'Clean' }}
-                  </span>
-                  <TooltipProvider v-if="customer.is_flagged && customer.flag_reason">
-                    <TooltipRoot>
-                      <TooltipTrigger as-child>
-                        <span
-                          class="text-xs text-gray-500 truncate max-w-[200px]"
-                        >
-                          {{ customer.flag_reason }}
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipPortal>
-                        <TooltipContent class="z-[1300] rounded bg-gray-900 px-2 py-1 text-xs text-white shadow-lg" :side-offset="5">
-                          {{ customer.flag_reason }}
-                          <TooltipArrow class="fill-gray-900" />
-                        </TooltipContent>
-                      </TooltipPortal>
-                    </TooltipRoot>
-                  </TooltipProvider>
-                </div>
-              </td>
-
->>>>>>> 5aed4b096fac8c53710d693955417aa35aa16fdd
               <!-- Weights Action -->
               <td class="px-4 py-3.5 text-right" @click.stop>
                 <button
