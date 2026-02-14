@@ -21,6 +21,7 @@ from app.data.db.models.customer import Customer
 from app.data.db.models.evaluation import Evaluation
 from app.data.db.models.indicator_result import IndicatorResult
 from app.data.db.models.payment_method import PaymentMethod
+from app.data.db.models.transaction import Transaction
 from app.data.db.models.withdrawal import Withdrawal
 
 logger = logging.getLogger(__name__)
@@ -63,10 +64,11 @@ PM_TYPE_MAP = {
 }
 
 
-def _format_withdrawal(w: Withdrawal, eval_row: Evaluation | None, indicators: list[IndicatorResult]) -> dict:
+def _format_withdrawal(w: Withdrawal, eval_row: Evaluation | None, indicators: list[IndicatorResult], financials: dict | None = None) -> dict:
     """Format a withdrawal + evaluation into the rich shape the FE expects."""
     customer = w.customer
     pm = w.payment_method
+    fin = financials or {}
 
     risk_score = eval_row.composite_score if eval_row else 0.0
     risk_level = "low"
@@ -126,8 +128,8 @@ def _format_withdrawal(w: Withdrawal, eval_row: Evaluation | None, indicators: l
             "country": customer.country if customer else "",
             "registration_date": reg_date.isoformat() if reg_date else "",
             "account_age_days": account_age,
-            "total_deposits": 0,
-            "total_withdrawals": 0,
+            "total_deposits": fin.get("total_deposits", 0),
+            "total_withdrawals": fin.get("total_withdrawals", 0),
             "account_type": "Standard",
         },
         "amount": float(w.amount),
@@ -136,7 +138,7 @@ def _format_withdrawal(w: Withdrawal, eval_row: Evaluation | None, indicators: l
         "recipient": {
             "name": w.recipient_name,
             "account_number": w.recipient_account,
-            "bank": "",
+            "bank": pm.provider if pm else "",
         },
         "ip_address": w.ip_address,
         "device": w.device_fingerprint,
@@ -221,11 +223,44 @@ async def list_transactions(
                 for ind in ind_rows:
                     indicators_map.setdefault(ind.evaluation_id, []).append(ind)
 
+        # Batch query: per-customer financial totals (deposits & withdrawals)
+        financials_map: dict = {}
+        customer_ids = list({w.customer_id for w in rows})
+        if customer_ids:
+            fin_stmt = (
+                select(
+                    Transaction.customer_id,
+                    func.coalesce(
+                        func.sum(Transaction.amount).filter(
+                            Transaction.type == "deposit",
+                            Transaction.status == "success",
+                        ),
+                        0,
+                    ).label("total_deposits"),
+                    func.coalesce(
+                        func.sum(Transaction.amount).filter(
+                            Transaction.type == "withdrawal",
+                            Transaction.status == "success",
+                        ),
+                        0,
+                    ).label("total_withdrawals"),
+                )
+                .where(Transaction.customer_id.in_(customer_ids))
+                .group_by(Transaction.customer_id)
+            )
+            fin_rows = (await session.execute(fin_stmt)).all()
+            for row in fin_rows:
+                financials_map[row.customer_id] = {
+                    "total_deposits": float(row.total_deposits),
+                    "total_withdrawals": float(row.total_withdrawals),
+                }
+
         items = []
         for w in rows:
             ev = evals_map.get(w.id)
             inds = indicators_map.get(ev.id, []) if ev else []
-            items.append(_format_withdrawal(w, ev, inds))
+            fin = financials_map.get(w.customer_id)
+            items.append(_format_withdrawal(w, ev, inds, fin))
 
         return {
             "items": items,
@@ -278,13 +313,46 @@ async def export_transactions_csv(
                 if e.withdrawal_id not in evals_map:
                     evals_map[e.withdrawal_id] = e
 
+        # Batch query: per-customer financial totals
+        financials_map = {}
+        customer_ids = list({w.customer_id for w in rows})
+        if customer_ids:
+            fin_stmt = (
+                select(
+                    Transaction.customer_id,
+                    func.coalesce(
+                        func.sum(Transaction.amount).filter(
+                            Transaction.type == "deposit",
+                            Transaction.status == "success",
+                        ),
+                        0,
+                    ).label("total_deposits"),
+                    func.coalesce(
+                        func.sum(Transaction.amount).filter(
+                            Transaction.type == "withdrawal",
+                            Transaction.status == "success",
+                        ),
+                        0,
+                    ).label("total_withdrawals"),
+                )
+                .where(Transaction.customer_id.in_(customer_ids))
+                .group_by(Transaction.customer_id)
+            )
+            fin_rows = (await session.execute(fin_stmt)).all()
+            for row in fin_rows:
+                financials_map[row.customer_id] = {
+                    "total_deposits": float(row.total_deposits),
+                    "total_withdrawals": float(row.total_withdrawals),
+                }
+
         buf = io.StringIO()
         writer = csv.writer(buf)
-        writer.writerow(["ID", "Customer", "Email", "Amount", "Currency", "Method", "Risk Score", "Status", "Date"])
+        writer.writerow(["ID", "Customer", "Email", "Amount", "Currency", "Method", "Bank", "Total Deposits", "Total Withdrawals", "Risk Score", "Status", "Date"])
         for w in rows:
             ev = evals_map.get(w.id)
             c = w.customer
             pm = w.payment_method
+            fin = financials_map.get(w.customer_id, {})
             writer.writerow([
                 str(w.id)[:8],
                 c.name if c else "",
@@ -292,6 +360,9 @@ async def export_transactions_csv(
                 float(w.amount),
                 w.currency,
                 pm.type if pm else "",
+                pm.provider if pm else "",
+                fin.get("total_deposits", 0),
+                fin.get("total_withdrawals", 0),
                 round(ev.composite_score, 3) if ev else 0,
                 w.status,
                 w.requested_at.isoformat() if w.requested_at else "",
