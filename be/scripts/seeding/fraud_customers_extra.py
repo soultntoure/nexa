@@ -86,7 +86,7 @@ async def _seed_liam(s: AsyncSession) -> None:
             "Refund abuse: 3 chargebacks in 30 days across 3 different cards. "
             "Disputes after profitable BTC trades. Attempting $3500 withdrawal."
         ),
-        requested_at=NOW, created_at=NOW,
+        requested_at=_ago(days=9), created_at=_ago(days=9),
     ))
 
 
@@ -139,7 +139,7 @@ async def _seed_olga(s: AsyncSession) -> None:
             "reporting threshold) over 36 hours. Single $11k withdrawal. "
             "Account only 2 days old. Zero trades."
         ),
-        requested_at=NOW, created_at=NOW,
+        requested_at=_ago(days=15), created_at=_ago(days=15),
     ))
 
 
@@ -188,7 +188,7 @@ async def _seed_dmitri(s: AsyncSession) -> None:
         created_at=_ago(minutes=30),
     ))
     # Historical trading (before dormancy)
-    s.add_all(_gen_deposits(cid, pm, 5, _ago(days=350), _ago(days=200), 500, 2000, ip_old))
+    s.add_all(_gen_deposits(cid, pm, 5, _ago(days=30), _ago(days=7), 500, 2000, ip_old))
     for i in range(10):
         opened = _ago(days=340 - i * 15)
         s.add(Trade(
@@ -208,5 +208,5 @@ async def _seed_dmitri(s: AsyncSession) -> None:
             "(shared with CUST-022 Elena), new IP (Lagos, NGA vs historical "
             "Saint Petersburg, RUS). $8k withdrawal — entire balance."
         ),
-        requested_at=NOW, created_at=NOW,
+        requested_at=_ago(days=19), created_at=_ago(days=19),
     ))

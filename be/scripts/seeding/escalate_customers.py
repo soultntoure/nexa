@@ -47,10 +47,10 @@ async def _seed_david(s: AsyncSession) -> None:
             customer_id=cid, ip_address=ip, location=loc, is_vpn=vpn,
             first_seen_at=dt, last_seen_at=dt, created_at=dt,
         ))
-    s.add_all(_gen_deposits(cid, pm, 10, _ago(days=170), _ago(days=10), 500, 2000, ip_home))
-    s.add_all(_gen_trades(cid, 50, _ago(days=170), _ago(days=1), 100, 1500))
+    s.add_all(_gen_deposits(cid, pm, 10, _ago(days=30), _ago(days=1), 500, 2000, ip_home))
+    s.add_all(_gen_trades(cid, 50, _ago(days=30), _ago(days=1), 100, 1500))
     s.add_all(_gen_past_withdrawals(
-        cid, pm, 4, _ago(days=140), _ago(days=30),
+        cid, pm, 4, _ago(days=28), _ago(days=3),
         300, 1200, ip_home, fp, "David Park", "KR1234567890123456789012", "Seoul, KOR",
     ))
     s.add(Withdrawal(
@@ -59,7 +59,7 @@ async def _seed_david(s: AsyncSession) -> None:
         recipient_account="KR1234567890123456789012",
         ip_address="185.199.110.20", device_fingerprint=fp,
         location="VPN Exit, NLD", status="pending",
-        requested_at=NOW, created_at=NOW,
+        requested_at=_ago(days=4), created_at=_ago(days=4),
     ))
 
 
@@ -88,14 +88,14 @@ async def _seed_maria(s: AsyncSession) -> None:
             customer_id=cid, ip_address=ip, location="São Paulo, BRA",
             first_seen_at=dt, last_seen_at=dt, created_at=dt,
         ))
-    s.add_all(_gen_deposits(cid, pm, 3, _ago(days=18), _ago(days=3), 3000, 8000, ip))
-    s.add_all(_gen_trades(cid, 15, _ago(days=18), _ago(days=1), 500, 3000))
+    s.add_all(_gen_deposits(cid, pm, 3, _ago(days=21), _ago(days=3), 3000, 8000, ip))
+    s.add_all(_gen_trades(cid, 15, _ago(days=21), _ago(days=1), 500, 3000))
     s.add(Withdrawal(
         id=_id("maria.wd.pending"), customer_id=cid, amount=Decimal("5000.00"),
         currency="USD", payment_method_id=pm, recipient_name="Maria Santos",
         recipient_account="BR1500000000000010932840814P2",
         ip_address=ip, device_fingerprint=fp, location="São Paulo, BRA",
-        status="pending", requested_at=NOW, created_at=NOW,
+        status="pending", requested_at=_ago(days=11), created_at=_ago(days=11),
     ))
 
 
@@ -131,10 +131,10 @@ async def _seed_tom(s: AsyncSession) -> None:
             customer_id=cid, ip_address=ip, location="Sydney, AUS",
             first_seen_at=dt, last_seen_at=dt, created_at=dt,
         ))
-    s.add_all(_gen_deposits(cid, pm_old, 12, _ago(days=340), _ago(days=10), 300, 1500, ip, "AUD"))
-    s.add_all(_gen_trades(cid, 45, _ago(days=340), _ago(days=2), 100, 1000))
+    s.add_all(_gen_deposits(cid, pm_old, 12, _ago(days=30), _ago(days=2), 300, 1500, ip, "AUD"))
+    s.add_all(_gen_trades(cid, 45, _ago(days=30), _ago(days=2), 100, 1000))
     s.add_all(_gen_past_withdrawals(
-        cid, pm_old, 6, _ago(days=300), _ago(days=30),
+        cid, pm_old, 6, _ago(days=28), _ago(days=3),
         200, 1000, ip, fp, "Tom Brown", "AU123456789012345678", "Sydney, AUS", "AUD",
     ))
     s.add(Withdrawal(
@@ -142,7 +142,7 @@ async def _seed_tom(s: AsyncSession) -> None:
         currency="AUD", payment_method_id=pm_new, recipient_name="Tom Brown",
         recipient_account="bc1q42lja79elem0anu8q860g3ez26r0ckpv6e0gah",
         ip_address=ip, device_fingerprint=fp, location="Sydney, AUS",
-        status="pending", requested_at=NOW, created_at=NOW,
+        status="pending", requested_at=_ago(days=17), created_at=_ago(days=17),
     ))
 
 
@@ -185,10 +185,10 @@ async def _seed_yuki(s: AsyncSession) -> None:
             customer_id=cid, ip_address=ip_addr, location=loc,
             first_seen_at=dt, last_seen_at=dt, created_at=dt,
         ))
-    s.add_all(_gen_deposits(cid, pm, 8, _ago(days=700), _ago(days=200), 400, 1500, ip))
-    s.add_all(_gen_trades(cid, 40, _ago(days=700), _ago(days=200), 100, 800))
+    s.add_all(_gen_deposits(cid, pm, 8, _ago(days=30), _ago(days=6), 400, 1500, ip))
+    s.add_all(_gen_trades(cid, 40, _ago(days=30), _ago(days=6), 100, 800))
     s.add_all(_gen_past_withdrawals(
-        cid, pm, 4, _ago(days=600), _ago(days=210),
+        cid, pm, 4, _ago(days=28), _ago(days=7),
         200, 800, ip, fp_old, "Yuki Tanaka", "JP1234567890123456", "Osaka, JPN",
     ))
     s.add_all(_gen_trades(cid, 3, _ago(days=4), _ago(days=1), 100, 500))
@@ -197,5 +197,5 @@ async def _seed_yuki(s: AsyncSession) -> None:
         currency="USD", payment_method_id=pm, recipient_name="Yuki Tanaka",
         recipient_account="JP1234567890123456", ip_address=ip,
         device_fingerprint=fp_new, location="Osaka, JPN", status="pending",
-        requested_at=NOW, created_at=NOW,
+        requested_at=_ago(days=23), created_at=_ago(days=23),
     ))

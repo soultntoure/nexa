@@ -21,9 +21,17 @@ const FRAUD_PATTERNS: FraudPattern[] = [
 
 export function useAlerts() {
   const timeRange = ref('')
+  const customSince = ref('')
+  const customUntil = ref('')
 
   const timeQuery = computed(() => {
     if (!timeRange.value) return {}
+    if (timeRange.value === 'custom') {
+      const q: Record<string, string> = {}
+      if (customSince.value) q.since = new Date(customSince.value).toISOString()
+      if (customUntil.value) q.until = new Date(customUntil.value).toISOString()
+      return q
+    }
     const since = new Date(Date.now() - Number(timeRange.value))
     return { since: since.toISOString(), until: new Date().toISOString() }
   })
@@ -187,6 +195,9 @@ export function useAlerts() {
     fraudPatterns,
     admins,
     currentAdmin,
+    timeRange,
+    customSince,
+    customUntil,
     selectedIds,
     selectedAlert,
     showDetail,

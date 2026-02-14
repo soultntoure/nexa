@@ -72,7 +72,7 @@ async def _seed_victor(s: AsyncSession) -> None:
             "Device shared with CUST-012 (Sophie Laurent). "
             "Account only 5 days old."
         ),
-        requested_at=NOW, created_at=NOW,
+        requested_at=_ago(days=1), created_at=_ago(days=1),
     ))
 
 
@@ -147,7 +147,7 @@ async def _seed_sophie(s: AsyncSession) -> None:
             "succeeded. Minimal trading (2 trades, $5 each, 30s duration). "
             "Device shared with CUST-011 (Victor Petrov). Withdrawing 96% of deposit."
         ),
-        requested_at=NOW, created_at=NOW,
+        requested_at=_ago(days=7), created_at=_ago(days=7),
     ))
 
 
@@ -201,7 +201,7 @@ async def _seed_ahmed_and_fatima(s: AsyncSession) -> None:
             "withdrawing to third-party 'Mohamed Nour'. "
             "Withdrawal within 10 min of Fatima's (coordinated timing)."
         ),
-        requested_at=_ago(minutes=8), created_at=_ago(minutes=8),
+        requested_at=_ago(days=3, minutes=8), created_at=_ago(days=3, minutes=8),
     ))
 
     # ── Fatima ──
@@ -247,7 +247,7 @@ async def _seed_ahmed_and_fatima(s: AsyncSession) -> None:
             "withdrawing 99% of deposit to third-party. "
             "Withdrawal within 10 min of Ahmed's (coordinated timing)."
         ),
-        requested_at=_ago(minutes=2), created_at=_ago(minutes=2),
+        requested_at=_ago(days=3, minutes=2), created_at=_ago(days=3, minutes=2),
     ))
 
 
@@ -287,8 +287,8 @@ async def _seed_carlos(s: AsyncSession) -> None:
         customer_id=cid, ip_address=vpn_ip, location="VPN Exit, USA", is_vpn=True,
         first_seen_at=_ago(hours=2), last_seen_at=_ago(minutes=10), created_at=_ago(hours=2),
     ))
-    s.add_all(_gen_deposits(cid, pm, 5, _ago(days=80), _ago(days=10), 500, 2000, "187.190.100.20"))
-    s.add_all(_gen_trades(cid, 20, _ago(days=80), _ago(days=5), 50, 500))
+    s.add_all(_gen_deposits(cid, pm, 5, _ago(days=30), _ago(days=5), 500, 2000, "187.190.100.20"))
+    s.add_all(_gen_trades(cid, 20, _ago(days=30), _ago(days=5), 50, 500))
     for i in range(5):
         s.add(Withdrawal(
             id=_id(f"carlos.wd.{i}"), customer_id=cid, amount=Decimal("400.00"),
@@ -301,8 +301,8 @@ async def _seed_carlos(s: AsyncSession) -> None:
                 "3 different devices, VPN IP. Structuring pattern to stay under "
                 "reporting thresholds."
             ),
-            requested_at=NOW - timedelta(minutes=50 - i * 10),
-            created_at=NOW - timedelta(minutes=50 - i * 10),
+            requested_at=_ago(days=12) - timedelta(minutes=50 - i * 10),
+            created_at=_ago(days=12) - timedelta(minutes=50 - i * 10),
         ))
 
 
@@ -401,5 +401,5 @@ async def _seed_nina(s: AsyncSession) -> None:
             "withdrawal range. Also exhibits rapid_funding_cycle: 3 deposit→withdraw "
             "cycles in 3 days (each within ~4 hours). Likely account takeover."
         ),
-        requested_at=NOW, created_at=NOW,
+        requested_at=_ago(days=8), created_at=_ago(days=8),
     ))

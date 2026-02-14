@@ -68,7 +68,7 @@ async def _seed_priya(s: AsyncSession) -> None:
             "(CUST-013/014). Same recipient 'Mohamed Nour'. Zero trades, "
             "3-day account, $5000 deposited → $4800 withdrawal. Pass-through."
         ),
-        requested_at=NOW, created_at=NOW,
+        requested_at=_ago(days=22), created_at=_ago(days=22),
     ))
 
 
@@ -130,7 +130,7 @@ async def _seed_hassan(s: AsyncSession) -> None:
             "for 10s — minimum to qualify), withdrawing $600 (deposit + bonus). "
             "Instant cash-out pattern."
         ),
-        requested_at=NOW, created_at=NOW,
+        requested_at=_ago(days=16), created_at=_ago(days=16),
     ))
 
 
@@ -189,5 +189,5 @@ async def _seed_elena(s: AsyncSession) -> None:
             "Shares device with Dmitri Kozlov (CUST-019) — ATO cluster. "
             "1-day account, 1 token trade ($5, 20s), withdrawing 97% of deposit."
         ),
-        requested_at=NOW, created_at=NOW,
+        requested_at=_ago(days=27), created_at=_ago(days=27),
     ))
