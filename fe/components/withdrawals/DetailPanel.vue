@@ -386,12 +386,12 @@ const ratioBarColor = computed(() => {
               Composite Score
             </h4>
             <div class="flex items-center gap-2">
-              <button
-                class="px-2.5 py-1 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
+              <!-- <button
+                class="px-2.5 py-1 text-[10px] font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
                 @click="showScoringFactors = true"
               >
                 Scoring factors
-              </button>
+              </button> -->
               <span
                 class="px-2.5 py-1 text-sm font-bold rounded-full"
                 :class="[getRiskLevelBadge(transaction.risk_level).bg, getRiskLevelBadge(transaction.risk_level).text]"

@@ -58,7 +58,7 @@ function handleClose() { emit('close') }
               <p class="text-xs text-gray-500 mt-0.5">{{ customerId }}</p>
             </div>
             <div class="flex items-center gap-2">
-              <span
+              <!-- <span
                 v-if="snapshot"
                 class="px-2.5 py-1 text-xs font-medium rounded-full"
                 :class="[
@@ -67,7 +67,7 @@ function handleClose() { emit('close') }
                 ]"
               >
                 {{ snapshot.personalization_status }}
-              </span>
+              </span> -->
               <button class="p-1.5 hover:bg-gray-100 rounded-lg" @click="handleClose">
                 <Icon icon="lucide:x" class="w-5 h-5 text-gray-400" />
               </button>
