@@ -6,6 +6,9 @@ import uuid
 from sqlalchemy import desc, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from datetime import datetime, timezone
+
+from app.data.db.models.admin import Admin
 from app.data.db.models.alert import Alert
 from app.data.db.models.customer import Customer
 from app.data.db.models.payment_method import PaymentMethod
@@ -49,6 +52,7 @@ async def execute_card_lockdown_by_customer(
     session: AsyncSession,
     external_id: str,
     risk_score: float,
+    admin_id: str | None = None,
 ) -> dict:
     """
     High-level entry point — resolves customer, finds their latest
@@ -68,7 +72,7 @@ async def execute_card_lockdown_by_customer(
 
     return await _execute_lockdown(
         session, customer.id, payment_method,
-        withdrawal.id, risk_score,
+        withdrawal.id, risk_score, admin_id=admin_id,
     )
 
 
@@ -118,6 +122,7 @@ async def _execute_lockdown(
     source_method: PaymentMethod,
     withdrawal_id: uuid.UUID,
     risk_score: float,
+    admin_id: str | None = None,
 ) -> dict:
     """Run the full lockdown: find linked cards, flag, blacklist, alert."""
     try:
@@ -141,14 +146,21 @@ async def _execute_lockdown(
 
         affected_accounts = await _flag_customers(session, customer_ids)
         bl_count = await _blacklist_methods(session, methods_to_blacklist)
-        await _create_alerts(session, customer_ids, withdrawal_id, risk_score)
+        await _create_alerts(
+            session, customer_ids, withdrawal_id, risk_score,
+            admin_id=admin_id,
+        )
         await session.commit()
 
+        admin_name = await _resolve_admin_name(session, admin_id)
         logger.info(
-            "[CardLockdown] Flagged %d customers, blacklisted %d methods",
-            len(customer_ids), bl_count,
+            "[CardLockdown] Flagged %d customers, blacklisted %d methods (by %s)",
+            len(customer_ids), bl_count, admin_name or "unknown",
         )
-        return _build_result(affected_accounts, bl_count)
+        result = _build_result(affected_accounts, bl_count)
+        if admin_name:
+            result["locked_by"] = admin_name
+        return result
 
     except Exception as e:
         await session.rollback()
@@ -196,6 +208,7 @@ async def _create_alerts(
     customer_ids: list[uuid.UUID],
     withdrawal_id: uuid.UUID,
     risk_score: float,
+    admin_id: str | None = None,
 ) -> None:
     """Create card_lockdown alerts for each affected customer (skip duplicates)."""
     existing = (await session.execute(
@@ -206,6 +219,8 @@ async def _create_alerts(
     )).scalars().all()
     already_alerted = set(existing)
 
+    admin_uuid = await _resolve_admin_uuid(session, admin_id)
+
     for cid in customer_ids:
         if cid in already_alerted:
             continue
@@ -215,6 +230,8 @@ async def _create_alerts(
             alert_type="card_lockdown",
             risk_score=risk_score,
             top_indicators=["card_errors", "shared_payment_method"],
+            locked_by_admin_id=admin_uuid,
+            locked_at=datetime.now(timezone.utc) if admin_uuid else None,
         ))
 
 
@@ -263,3 +280,35 @@ async def _fetch_external_accounts(
     ]
     accounts.sort(key=lambda a: a["customer_id"])
     return accounts
+
+
+async def _resolve_admin_uuid(
+    session: AsyncSession, admin_id: str | None,
+) -> uuid.UUID | None:
+    """Convert admin_id string to UUID if valid, else None."""
+    if not admin_id:
+        return None
+    try:
+        admin_uuid = uuid.UUID(admin_id)
+        result = await session.execute(
+            select(Admin.id).where(Admin.id == admin_uuid)
+        )
+        return result.scalar_one_or_none()
+    except (ValueError, Exception):
+        return None
+
+
+async def _resolve_admin_name(
+    session: AsyncSession, admin_id: str | None,
+) -> str | None:
+    """Look up admin name by ID string."""
+    if not admin_id:
+        return None
+    try:
+        admin_uuid = uuid.UUID(admin_id)
+        result = await session.execute(
+            select(Admin.name).where(Admin.id == admin_uuid)
+        )
+        return result.scalar_one_or_none()
+    except (ValueError, Exception):
+        return None

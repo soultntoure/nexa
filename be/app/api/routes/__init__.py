@@ -29,7 +29,7 @@ from fastapi import APIRouter
 
 from app.api.routes.fraud import investigate, payout, withdrawal_submit
 from app.api.routes.prefraud import prefraud, patterns, background_audits
-from app.api.routes.control import alerts, customer_weights
+from app.api.routes.control import admins, alerts, customer_weights
 from app.api.routes.analytics import dashboard, query, transactions
 from app.api.routes.customer import customers
 from app.api.routes.settings import settings
@@ -38,6 +38,7 @@ from app.api.routes.system import health
 api_router = APIRouter(prefix="/api")
 
 api_router.include_router(payout.router)
+api_router.include_router(admins.router)
 api_router.include_router(alerts.router)
 api_router.include_router(dashboard.router)
 api_router.include_router(query.router)

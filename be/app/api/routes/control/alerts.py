@@ -30,11 +30,13 @@ router = APIRouter(prefix="/alerts", tags=["alerts"])
 class BulkActionRequest(BaseModel):
     alert_ids: list[str]
     action: str
+    admin_id: str | None = None
 
 
 class CardLockdownRequest(BaseModel):
     customer_id: str
     risk_score: float = 0.85
+    admin_id: str | None = None
 
 
 @router.get("")
@@ -56,7 +58,10 @@ async def bulk_action(
 ) -> dict:
     """Process bulk actions on alerts — actually updates the DB."""
     try:
-        return await execute_bulk_action(session, request.alert_ids, request.action)
+        return await execute_bulk_action(
+            session, request.alert_ids, request.action,
+            admin_id=request.admin_id,
+        )
     except Exception as exc:
         logger.exception("bulk_action error: %s", exc)
         await session.rollback()
@@ -115,6 +120,7 @@ async def card_lockdown(
     try:
         return await execute_card_lockdown_by_customer(
             session, request.customer_id, request.risk_score,
+            admin_id=request.admin_id,
         )
     except Exception as exc:
         logger.exception("card_lockdown error: %s", exc)
