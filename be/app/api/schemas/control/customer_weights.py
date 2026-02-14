@@ -33,6 +33,8 @@ class WeightSnapshotResponse(BaseModel):
     personalization_status: str = "baseline fallback"
     last_updated: datetime | None = None
     sample_count: int = 0
+    approval_count: int = 0
+    block_count: int = 0
     blend: BlendComparison
     indicators: list[IndicatorWeightRow]
 

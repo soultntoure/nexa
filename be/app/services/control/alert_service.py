@@ -46,7 +46,11 @@ async def create_fraud_alert(
         await session.commit()
 
 
-async def list_alerts(session: AsyncSession) -> dict:
+async def list_alerts(
+    session: AsyncSession,
+    since: datetime | None = None,
+    until: datetime | None = None,
+) -> dict:
     """Fetch recent alerts with customer/withdrawal data + fraud patterns."""
     stmt = (
         select(Alert)
@@ -58,6 +62,10 @@ async def list_alerts(session: AsyncSession) -> dict:
         .order_by(desc(Alert.created_at))
         .limit(50)
     )
+    if since:
+        stmt = stmt.where(Alert.created_at >= since)
+    if until:
+        stmt = stmt.where(Alert.created_at <= until)
     rows = (await session.execute(stmt)).scalars().unique().all()
 
     alerts = []
