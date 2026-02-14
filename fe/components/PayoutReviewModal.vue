@@ -12,10 +12,12 @@ const emit = defineEmits<{
   close: []
   approve: [data: { id: string; justification: string }]
   block: [data: { id: string; justification: string }]
+  discuss: [data: { id: string }]
 }>()
 
 const justification = ref('')
 const expandedIndicators = ref<Set<string>>(new Set())
+const showScoringFactors = ref(false)
 
 function getScoreBarClass(score: number): string {
   if (score >= 0.7) return 'bg-red-500'
@@ -30,13 +32,14 @@ function getScoreTextClass(score: number): string {
 }
 
 function getRiskLevelBadge(level: string) {
-  const map: Record<string, { bg: string; text: string; label: string }> = {
+  const map = {
     low: { bg: 'bg-green-100', text: 'text-green-700', label: 'Low Risk' },
     medium: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Medium Risk' },
     high: { bg: 'bg-orange-100', text: 'text-orange-700', label: 'High Risk' },
     critical: { bg: 'bg-red-100', text: 'text-red-700', label: 'Critical Risk' },
-  }
-  return map[level] || map.low
+  } as const
+  const normalized = level.toLowerCase() as keyof typeof map
+  return map[normalized] ?? map.low
 }
 
 function getIndicatorLabel(name: string): string {
@@ -71,6 +74,11 @@ function handleBlock() {
   if (!props.transaction || !justification.value.trim()) return
   emit('block', { id: props.transaction.id, justification: justification.value })
   justification.value = ''
+}
+
+function handleDiscuss() {
+  if (!props.transaction) return
+  emit('discuss', { id: props.transaction.id })
 }
 
 function handleClose() {
@@ -122,9 +130,9 @@ const paymentMethodIcon = computed(() => {
             <div class="flex items-center gap-3">
               <span
                 class="px-3 py-1 text-xs font-medium rounded-full"
-                :class="[getRiskLevelBadge(transaction.risk_level).bg, getRiskLevelBadge(transaction.risk_level).text]"
+                :class="[getRiskLevelBadge(transaction?.risk_level ?? 'low').bg, getRiskLevelBadge(transaction?.risk_level ?? 'low').text]"
               >
-                {{ getRiskLevelBadge(transaction.risk_level).label }}
+                {{ getRiskLevelBadge(transaction?.risk_level ?? 'low').label }}
               </span>
               <button class="p-1.5 hover:bg-gray-100 rounded-lg transition-colors" @click="handleClose">
                 <Icon icon="lucide:x" class="w-5 h-5 text-gray-400" />
@@ -212,12 +220,21 @@ const paymentMethodIcon = computed(() => {
                   <Icon icon="lucide:activity" class="w-4 h-4" />
                   Composite Risk Score
                 </h4>
-                <span
-                  class="px-3 py-1 text-sm font-bold rounded-full"
-                  :class="[getRiskLevelBadge(transaction.risk_level).bg, getRiskLevelBadge(transaction.risk_level).text]"
-                >
-                  {{ transaction.risk_score.toFixed(2) }}
-                </span>
+                <div class="flex items-center gap-2">
+                  <button
+                    class="px-3 py-1 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
+                    @click="showScoringFactors = true"
+                  >
+                    <Icon icon="lucide:sliders-horizontal" class="w-3.5 h-3.5 inline mr-1" />
+                    See scoring factors
+                  </button>
+                  <span
+                    class="px-3 py-1 text-sm font-bold rounded-full"
+                    :class="[getRiskLevelBadge(transaction?.risk_level ?? 'low').bg, getRiskLevelBadge(transaction?.risk_level ?? 'low').text]"
+                  >
+                    {{ transaction.risk_score.toFixed(2) }}
+                  </span>
+                </div>
               </div>
               <div class="w-full bg-gray-200 rounded-full h-3">
                 <div
@@ -319,26 +336,40 @@ const paymentMethodIcon = computed(() => {
               </div>
             </div>
 
-            <!-- Triage Constellation Analysis -->
+            <!-- Triage Verdict -->
             <div v-if="transaction.triage" class="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
-              <h4 class="text-sm font-semibold text-indigo-800 mb-3 flex items-center gap-2">
-                <Icon icon="lucide:brain" class="w-4 h-4" />
-                Triage Constellation Analysis
-                <span class="px-2 py-0.5 bg-indigo-200 text-indigo-700 rounded-full text-xs font-medium">
-                  {{ transaction.triage.elapsed_s.toFixed(1) }}s
-                </span>
-              </h4>
-              <p class="text-sm text-indigo-900 leading-relaxed mb-3">{{ transaction.triage.constellation_analysis }}</p>
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="text-sm font-semibold text-indigo-800 flex items-center gap-2">
+                  <Icon icon="lucide:brain" class="w-4 h-4" />
+                  AI Verdict
+                  <span class="px-2 py-0.5 bg-indigo-200 text-indigo-700 rounded-full text-xs font-medium">
+                    {{ transaction.triage.elapsed_s.toFixed(1) }}s
+                  </span>
+                </h4>
+                <div v-if="transaction.triage.decision" class="flex items-center gap-2">
+                  <span
+                    class="px-2.5 py-1 rounded-full text-xs font-bold uppercase"
+                    :class="transaction.triage.decision === 'blocked' ? 'bg-red-100 text-red-700' : transaction.triage.decision === 'escalated' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'"
+                  >
+                    {{ transaction.triage.decision }}
+                  </span>
+                  <span v-if="transaction.triage.confidence" class="text-xs text-indigo-600">
+                    {{ (transaction.triage.confidence * 100).toFixed(0) }}% confidence
+                  </span>
+                </div>
+              </div>
+              <p v-if="transaction.triage.decision_reasoning" class="text-sm text-indigo-900 leading-relaxed mb-2">
+                {{ transaction.triage.decision_reasoning }}
+              </p>
+              <p class="text-sm text-indigo-700 leading-relaxed mb-3">{{ transaction.triage.constellation_analysis }}</p>
               <div v-if="transaction.triage.assignments.length" class="flex flex-wrap gap-2">
                 <span
                   v-for="a in transaction.triage.assignments"
                   :key="a.investigator"
-                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
-                  :class="a.priority === 'high' ? 'bg-red-100 text-red-700' : a.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700"
                 >
                   <Icon icon="lucide:search" class="w-3 h-3" />
                   {{ a.investigator.replace('_', ' ') }}
-                  <span class="opacity-70">({{ a.priority }})</span>
                 </span>
               </div>
             </div>
@@ -420,6 +451,12 @@ const paymentMethodIcon = computed(() => {
             </button>
             <div class="flex items-center gap-3">
               <button
+                class="px-5 py-2 text-sm font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
+                @click="handleDiscuss"
+              >
+                Discuss
+              </button>
+              <button
                 class="px-5 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 :disabled="!justification.trim()"
                 @click="handleBlock"
@@ -442,4 +479,12 @@ const paymentMethodIcon = computed(() => {
       </div>
     </Transition>
   </Teleport>
+
+  <ScoringFactorsDrawer
+    :visible="showScoringFactors"
+    :customer-id="transaction?.customer?.external_id ?? ''"
+    :risk-score="transaction?.risk_score ?? 0"
+    :decision="transaction?.status ?? ''"
+    @close="showScoringFactors = false"
+  />
 </template>

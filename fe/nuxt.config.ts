@@ -16,4 +16,15 @@ export default defineNuxtConfig({
   tailwindcss: {
     configPath: 'tailwind.config.ts',
   },
+
+  nitro: {
+    routeRules: {
+      '/api/query/chat': {
+        headers: { 'X-Accel-Buffering': 'no' },
+      },
+      '/api/background-audits/**/stream': {
+        headers: { 'X-Accel-Buffering': 'no' },
+      },
+    },
+  },
 })

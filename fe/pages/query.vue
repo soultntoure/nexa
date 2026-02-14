@@ -1,49 +1,89 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
-import { marked } from 'marked'
-
-marked.setOptions({ breaks: true, gfm: true })
+import type { WithdrawalDiscussionContext } from '~/composables/useWithdrawalDiscussion'
+import type { ChartSpec } from '~/utils/chartTransformer'
+import type { QueryMessage } from '~/components/query/QueryMessageBubble.vue'
 
 useHead({ title: 'NL Query - Nexa' })
-
-interface SqlQuery {
-  sql: string
-  result: string
-}
-
-interface QueryMessage {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: Date
-  sqlQueries: SqlQuery[]
-  showSql: boolean
-  data?: {
-    summary?: string
-    table?: { headers: string[]; rows: string[][] }
-    actions?: { label: string; link: string }[]
-  }
-}
 
 const input = ref('')
 const isLoading = ref(false)
 const isStreaming = ref(false)
 const messagesContainer = ref<HTMLElement>()
-const inputEl = ref<HTMLInputElement>()
+const inputBar = ref<InstanceType<typeof import('~/components/query/QueryInputBar.vue').default>>()
 const messages = ref<QueryMessage[]>([])
 const queryHistory = ref<string[]>([])
 const showHistory = ref(false)
 const sessionId = ref(generateId())
+const visualize = true
+const route = useRoute()
+const { discussionContext, clearDiscussionContext, buildDiscussionPrompt } = useWithdrawalDiscussion()
+const typewriter = useTypewriter()
 
-const exampleQueries = [
-  'Show me accounts that deposited but traded minimally',
-  'Which customers have multiple payment methods from different countries?',
-  'Find velocity abuse patterns in the last 7 days',
-  "What's our auto-approval rate this week?",
-]
+const DISCUSSION_QUERY_KEYS = [
+  'focus', 'id', 'withdrawal_id', 'customer_external_id', 'customer_name',
+  'customer_email', 'amount', 'currency', 'risk_score', 'risk_level',
+  'status', 'payment_method', 'recipient_name', 'recipient_account',
+  'ip_address', 'device', 'created_at',
+] as const
+
+const routeDiscussionContext = computed<WithdrawalDiscussionContext | null>(() => {
+  const withdrawalId = toQueryString(route.query.withdrawal_id)
+  if (!withdrawalId) return null
+  return {
+    id: toQueryString(route.query.id) || withdrawalId,
+    withdrawal_id: withdrawalId,
+    customer_external_id: toQueryString(route.query.customer_external_id),
+    customer_name: toQueryString(route.query.customer_name),
+    customer_email: toQueryString(route.query.customer_email),
+    amount: toQueryNumber(route.query.amount),
+    currency: toQueryString(route.query.currency) || 'USD',
+    risk_score: toQueryNumber(route.query.risk_score),
+    risk_level: toQueryString(route.query.risk_level) || 'medium',
+    status: toQueryString(route.query.status) || 'pending',
+    payment_method: toQueryString(route.query.payment_method),
+    recipient_name: toQueryString(route.query.recipient_name),
+    recipient_account: toQueryString(route.query.recipient_account),
+    ip_address: toQueryString(route.query.ip_address),
+    device: toQueryString(route.query.device),
+    created_at: toQueryString(route.query.created_at) || new Date().toISOString(),
+  }
+})
+
+const activeContext = computed(() => discussionContext.value ?? routeDiscussionContext.value)
+const contextLabel = computed(() => {
+  const ctx = activeContext.value
+  if (!ctx) return ''
+  return ctx.customer_name || ctx.customer_external_id || 'Withdrawal'
+})
+const hasTableData = computed(() => messages.value.some(m => m.role === 'assistant' && m.data?.table))
+
+// Wire typewriter displayed text to the active assistant message
+const activeAssistantId = ref<string | null>(null)
+const hasReceivedTokens = ref(false)
+
+function getDisplayedContent(msg: QueryMessage): string {
+  if (msg.role !== 'assistant') return msg.content
+  if (msg.id === activeAssistantId.value) return typewriter.displayed.value
+  return msg.content
+}
+
+function isActiveBubble(msg: QueryMessage): boolean {
+  return msg.id === activeAssistantId.value && isStreaming.value
+}
 
 function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2)
+}
+
+function toQueryString(value: string | null | (string | null)[] | undefined): string {
+  if (Array.isArray(value)) return String(value[0] ?? '')
+  return String(value ?? '')
+}
+
+function toQueryNumber(value: string | null | (string | null)[] | undefined): number {
+  const parsed = Number(toQueryString(value))
+  return Number.isFinite(parsed) ? parsed : 0
 }
 
 function scrollToBottom() {
@@ -54,113 +94,122 @@ function scrollToBottom() {
   })
 }
 
+// Keep scrolling as typewriter drains characters
+watch(() => typewriter.displayed.value, scrollToBottom)
+
 async function sendQuery(queryText?: string) {
   const q = queryText || input.value.trim()
   if (!q || isLoading.value) return
+  const ctx = activeContext.value
+  const llmQuestion = ctx ? buildContextualQuestion(q, ctx) : q
 
   input.value = ''
 
-  const userMsg: QueryMessage = {
-    id: generateId(),
-    role: 'user',
-    content: q,
-    timestamp: new Date(),
-    sqlQueries: [],
-    showSql: false,
-  }
-  messages.value.push(userMsg)
+  messages.value.push({
+    id: generateId(), role: 'user', content: q,
+    timestamp: new Date(), sqlQueries: [], showSql: false, showChart: false,
+  })
 
-  if (!queryHistory.value.includes(q)) {
-    queryHistory.value.unshift(q)
-    if (queryHistory.value.length > 20) queryHistory.value.pop()
-  }
+  queryHistory.value.unshift(q)
+  if (queryHistory.value.length > 20) queryHistory.value.pop()
 
   scrollToBottom()
   isLoading.value = true
   isStreaming.value = true
 
-  // Create a placeholder assistant message for streaming tokens into
   const assistantMsg: QueryMessage = {
-    id: generateId(),
-    role: 'assistant',
-    content: '',
-    timestamp: new Date(),
-    sqlQueries: [],
-    showSql: false,
+    id: generateId(), role: 'assistant', content: '',
+    timestamp: new Date(), sqlQueries: [], showSql: false, showChart: false,
   }
   messages.value.push(assistantMsg)
+  activeAssistantId.value = assistantMsg.id
+  typewriter.reset()
 
   try {
     const response = await fetch('/api/query/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question: q, session_id: sessionId.value }),
+      body: JSON.stringify({ question: llmQuestion, session_id: sessionId.value, visualize }),
     })
-
     if (!response.ok || !response.body) throw new Error('Stream failed')
 
     const reader = response.body.getReader()
     const decoder = new TextDecoder()
     let buffer = ''
+    hasReceivedTokens.value = false
 
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
-
       buffer += decoder.decode(value, { stream: true })
       const lines = buffer.split('\n')
       buffer = lines.pop() || ''
-
       for (const line of lines) {
         if (!line.startsWith('data: ')) continue
         try {
           const event = JSON.parse(line.slice(6))
           handleSSEEvent(event, assistantMsg)
-        } catch { /* skip malformed lines */ }
+        } catch { /* skip malformed */ }
       }
     }
-
-    // Process remaining buffer
     if (buffer.startsWith('data: ')) {
-      try {
-        const event = JSON.parse(buffer.slice(6))
-        handleSSEEvent(event, assistantMsg)
-      } catch { /* skip */ }
+      try { handleSSEEvent(JSON.parse(buffer.slice(6)), assistantMsg) } catch { /* skip */ }
     }
+
+    // Flush remaining typewriter queue and sync content
+    typewriter.flush()
+    assistantMsg.content = typewriter.displayed.value
 
     if (!assistantMsg.content) {
       assistantMsg.content = 'No response received. Please try again.'
     }
   } catch {
-    assistantMsg.content = 'Connection failed. Please check the server and try again.'
+    typewriter.flush()
+    assistantMsg.content = typewriter.displayed.value || 'Connection failed. Please check the server and try again.'
   } finally {
     isLoading.value = false
     isStreaming.value = false
+    activeAssistantId.value = null
     scrollToBottom()
-    nextTick(() => inputEl.value?.focus())
+    nextTick(() => inputBar.value?.focus())
   }
+}
+
+function normalizeChartSpec(raw: unknown): ChartSpec | null {
+  if (!raw || typeof raw !== 'object') return null
+  const r = raw as Record<string, unknown>
+  if (!r.chart_type || !r.x_key || !Array.isArray(r.series) || !Array.isArray(r.rows)) return null
+  if (!r.rows.length) return null
+  return r as unknown as ChartSpec
 }
 
 function handleSSEEvent(event: { type: string; [key: string]: unknown }, msg: QueryMessage) {
   switch (event.type) {
     case 'token':
-      msg.content += event.content as string
-      scrollToBottom()
+      hasReceivedTokens.value = true
+      typewriter.push(event.content as string)
       break
     case 'tool_start':
       msg.sqlQueries.push({ sql: event.preview as string, result: '' })
       break
-    case 'tool_end':
-      if (msg.sqlQueries.length > 0) {
-        msg.sqlQueries[msg.sqlQueries.length - 1].result = event.result as string
+    case 'tool_end': {
+      const latest = msg.sqlQueries.at(-1)
+      if (latest) latest.result = event.result as string
+      break
+    }
+    case 'chart': {
+      const spec = normalizeChartSpec(event.chart)
+      if (spec) { msg.chart = spec; scrollToBottom() }
+      break
+    }
+    case 'answer':
+      // Only push full answer as fallback when NO tokens were streamed
+      if (!hasReceivedTokens.value && event.content) {
+        typewriter.push(event.content as string)
       }
       break
-    case 'answer':
-      // Only use full answer if no tokens were streamed (fallback)
-      if (!msg.content && event.content) msg.content = event.content as string
-      scrollToBottom()
-      break
     case 'error':
+      typewriter.flush()
       msg.content = `Error: ${event.message}`
       scrollToBottom()
       break
@@ -168,65 +217,56 @@ function handleSSEEvent(event: { type: string; [key: string]: unknown }, msg: Qu
 }
 
 function exportResults() {
-  const assistantMessages = messages.value.filter(m => m.role === 'assistant' && m.data?.table)
-  if (assistantMessages.length === 0) return
-
-  const lastTable = assistantMessages[assistantMessages.length - 1].data!.table!
-  const csv = [lastTable.headers.join(','), ...lastTable.rows.map(r => r.join(','))].join('\n')
-
+  const last = messages.value.filter(m => m.role === 'assistant' && m.data?.table).at(-1)
+  const table = last?.data?.table
+  if (!table) return
+  const csv = [table.headers.join(','), ...table.rows.map(r => r.join(','))].join('\n')
   const blob = new Blob([csv], { type: 'text/csv' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
-  a.href = url
-  a.download = 'query-results.csv'
-  a.click()
+  a.href = url; a.download = 'query-results.csv'; a.click()
   URL.revokeObjectURL(url)
 }
 
 function clearChat() {
   messages.value = []
   sessionId.value = generateId()
+  typewriter.reset()
 }
 
-function formatTime(date: Date) {
-  return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+async function dismissContext() {
+  clearDiscussionContext()
+  const nextQuery: Record<string, string | string[]> = { ...(route.query as Record<string, string | string[]>) }
+  for (const key of DISCUSSION_QUERY_KEYS) delete nextQuery[key]
+  await navigateTo({ path: '/query', query: nextQuery }, { replace: true })
 }
 
+function buildContextualQuestion(question: string, context: WithdrawalDiscussionContext): string {
+  return [question, '', '---', 'Hidden withdrawal context (do not repeat verbatim unless asked):', buildDiscussionPrompt(context)].join('\n')
+}
 </script>
 
 <template>
   <div class="flex h-[calc(100vh-5rem)] flex-col">
     <!-- Header -->
-    <div class="mb-4 flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">Natural Language Query</h1>
-        <p class="mt-1 text-sm text-gray-500">Ask questions about your payment data using AI</p>
-      </div>
-      <div class="flex items-center gap-2">
-        <button
-          class="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-          @click="showHistory = !showHistory"
-        >
-          <Icon icon="lucide:history" class="h-4 w-4" />
-          History
+    <QueryHeader
+      :has-table-data="hasTableData"
+      :has-messages="messages.length > 0"
+      :show-history="showHistory"
+      @toggle-history="showHistory = !showHistory"
+      @export-results="exportResults"
+      @clear-chat="clearChat"
+    />
+
+    <!-- Context chip — minimal pill -->
+    <div v-if="activeContext" class="mb-3 flex items-center gap-2">
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+        <Icon icon="lucide:user" class="h-3 w-3" />
+        {{ contextLabel }}
+        <button class="ml-1 rounded-full p-0.5 hover:bg-blue-200/60" @click="dismissContext">
+          <Icon icon="lucide:x" class="h-3 w-3" />
         </button>
-        <button
-          v-if="messages.some(m => m.data?.table)"
-          class="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-          @click="exportResults"
-        >
-          <Icon icon="lucide:download" class="h-4 w-4" />
-          Export
-        </button>
-        <button
-          v-if="messages.length > 0"
-          class="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-          @click="clearChat"
-        >
-          <Icon icon="lucide:trash-2" class="h-4 w-4" />
-          Clear
-        </button>
-      </div>
+      </span>
     </div>
 
     <div class="flex flex-1 gap-4 overflow-hidden">
@@ -259,162 +299,23 @@ function formatTime(date: Date) {
 
       <!-- Chat Area -->
       <div class="flex flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white">
-        <!-- Messages -->
         <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
-          <!-- Empty state -->
-          <div v-if="messages.length === 0" class="flex h-full flex-col items-center justify-center">
-            <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-50">
-              <Icon icon="lucide:message-square" class="h-8 w-8 text-primary-500" />
-            </div>
-            <h2 class="text-lg font-semibold text-gray-800">Ask anything about your data</h2>
-            <p class="mt-1 text-sm text-gray-500">Use natural language to query transactions, detect fraud, and analyze patterns</p>
+          <QueryEmptyState v-if="messages.length === 0" @select="sendQuery" />
 
-            <div class="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <button
-                v-for="example in exampleQueries"
-                :key="example"
-                class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-left text-sm text-gray-600 transition-all hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700"
-                @click="sendQuery(example)"
-              >
-                <Icon icon="lucide:sparkles" class="mb-1 h-4 w-4 text-primary-400" />
-                <span class="block">{{ example }}</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Message bubbles -->
           <template v-else>
-            <div
+            <QueryMessageBubble
               v-for="msg in messages"
               :key="msg.id"
-              :class="['flex', msg.role === 'user' ? 'justify-end' : 'justify-start']"
-            >
-              <div :class="['max-w-[80%]', msg.role === 'user' ? '' : 'w-full max-w-2xl']">
-                <!-- User message -->
-                <div v-if="msg.role === 'user'" class="rounded-2xl rounded-br-md bg-primary-600 px-4 py-3 text-sm text-white">
-                  {{ msg.content }}
-                  <p class="mt-1 text-[10px] text-primary-200">{{ formatTime(msg.timestamp) }}</p>
-                </div>
+              :msg="msg"
+              :displayed-content="getDisplayedContent(msg)"
+              :is-active="isActiveBubble(msg)"
+              :is-animating="isActiveBubble(msg) && typewriter.isAnimating.value"
+            />
 
-                <!-- Assistant message -->
-                <div v-else-if="msg.content" class="space-y-3">
-                  <div class="flex items-start gap-2">
-                    <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                      <Icon icon="lucide:bot" class="h-4 w-4 text-gray-600" />
-                    </div>
-                    <div class="rounded-2xl rounded-tl-md border border-gray-200 bg-white px-4 py-3 text-sm text-gray-800 shadow-sm">
-                      <div class="prose prose-sm prose-gray max-w-none" v-html="marked.parse(msg.content || '')" />
-                      <span v-if="isStreaming && msg === messages[messages.length - 1]" class="inline-block w-2 h-4 ml-0.5 bg-primary-500 animate-pulse rounded-sm" />
-                      <p class="mt-1 text-[10px] text-gray-400">{{ formatTime(msg.timestamp) }}</p>
-                    </div>
-                  </div>
-
-                  <!-- SQL Queries (collapsible) -->
-                  <div v-if="msg.sqlQueries.length > 0" class="ml-9">
-                    <button
-                      class="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
-                      @click="msg.showSql = !msg.showSql"
-                    >
-                      <Icon :icon="msg.showSql ? 'lucide:chevron-down' : 'lucide:chevron-right'" class="h-3 w-3" />
-                      <Icon icon="lucide:database" class="h-3 w-3" />
-                      {{ msg.sqlQueries.length }} SQL {{ msg.sqlQueries.length === 1 ? 'query' : 'queries' }} executed
-                    </button>
-                    <div v-if="msg.showSql" class="mt-2 space-y-2">
-                      <div
-                        v-for="(sq, si) in msg.sqlQueries"
-                        :key="si"
-                        class="rounded-lg border border-gray-200 bg-gray-900 text-gray-100 text-xs overflow-hidden"
-                      >
-                        <div class="flex items-center justify-between border-b border-gray-700 bg-gray-800 px-3 py-1.5">
-                          <span class="font-mono text-[10px] text-gray-400">Query {{ si + 1 }}</span>
-                          <span class="rounded bg-emerald-900 px-1.5 py-0.5 text-[10px] text-emerald-300">SQL</span>
-                        </div>
-                        <pre class="p-3 overflow-x-auto font-mono leading-relaxed"><code>{{ sq.sql }}</code></pre>
-                        <div v-if="sq.result" class="border-t border-gray-700 bg-gray-800/50 p-3">
-                          <span class="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Result</span>
-                          <pre class="mt-1 overflow-x-auto font-mono text-gray-300 leading-relaxed">{{ sq.result }}</pre>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Data table -->
-                  <div v-if="msg.data?.table" class="ml-9 overflow-x-auto rounded-lg border border-gray-200">
-                    <table class="w-full text-sm">
-                      <thead>
-                        <tr class="border-b border-gray-200 bg-gray-50">
-                          <th
-                            v-for="h in msg.data.table.headers"
-                            :key="h"
-                            class="px-3 py-2 text-left text-xs font-semibold text-gray-500"
-                          >
-                            {{ h }}
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-gray-100">
-                        <tr v-for="(row, ri) in msg.data.table.rows" :key="ri" class="hover:bg-gray-50">
-                          <td v-for="(cell, ci) in row" :key="ci" class="px-3 py-2 text-gray-700">
-                            {{ cell }}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <!-- Action links -->
-                  <div v-if="msg.data?.actions?.length" class="ml-9 flex flex-wrap gap-2">
-                    <NuxtLink
-                      v-for="action in msg.data.actions"
-                      :key="action.label"
-                      :to="action.link"
-                      class="flex items-center gap-1 rounded-lg border border-primary-200 bg-primary-50 px-3 py-1.5 text-xs font-medium text-primary-700 hover:bg-primary-100"
-                    >
-                      <Icon icon="lucide:external-link" class="h-3 w-3" />
-                      {{ action.label }}
-                    </NuxtLink>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Typing indicator (only before first token arrives) -->
-            <div v-if="isLoading && messages[messages.length - 1]?.role === 'assistant' && !messages[messages.length - 1]?.content" class="flex items-start gap-2">
-              <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                <Icon icon="lucide:bot" class="h-4 w-4 text-gray-600" />
-              </div>
-              <div class="rounded-2xl rounded-tl-md border border-gray-200 bg-white px-4 py-3 shadow-sm">
-                <div class="flex items-center gap-1.5 text-xs text-gray-500">
-                  <span class="h-2 w-2 animate-bounce rounded-full bg-gray-400" style="animation-delay: 0ms" />
-                  <span class="h-2 w-2 animate-bounce rounded-full bg-gray-400" style="animation-delay: 150ms" />
-                  <span class="h-2 w-2 animate-bounce rounded-full bg-gray-400" style="animation-delay: 300ms" />
-                  <span class="ml-1">Analyzing...</span>
-                </div>
-              </div>
-            </div>
           </template>
         </div>
 
-        <!-- Input bar -->
-        <div class="border-t border-gray-200 p-4">
-          <form class="flex items-center gap-3" @submit.prevent="sendQuery()">
-            <input
-              ref="inputEl"
-              v-model="input"
-              type="text"
-              placeholder="Ask about fraud patterns, account behavior, or transactions..."
-              class="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
-              :disabled="isLoading"
-            />
-            <button
-              type="submit"
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-600 text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
-              :disabled="!input.trim() || isLoading"
-            >
-              <Icon icon="lucide:send" class="h-5 w-5" />
-            </button>
-          </form>
-        </div>
+        <QueryInputBar ref="inputBar" v-model="input" :disabled="isLoading" @submit="sendQuery()" />
       </div>
     </div>
   </div>

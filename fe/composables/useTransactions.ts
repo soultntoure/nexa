@@ -11,7 +11,9 @@ export interface RiskIndicator {
 export interface Transaction {
   id: string
   withdrawal_id: string
+  evaluation_id: string | null
   customer: {
+    external_id: string
     name: string
     email: string
     country: string
@@ -37,6 +39,10 @@ export interface Transaction {
   indicators: RiskIndicator[]
   triage?: {
     constellation_analysis: string
+    decision: string
+    decision_reasoning: string
+    confidence: number
+    risk_score: number
     assignments: { investigator: string; priority: string }[]
     elapsed_s: number
   }
