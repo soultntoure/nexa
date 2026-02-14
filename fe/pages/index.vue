@@ -150,7 +150,7 @@ function indicatorMaxCount() {
 </script>
 
 <template>
-  <div class="flex h-full flex-col">
+  <div>
     <!-- Header -->
     <div class="mb-3 flex items-center justify-between">
       <div>
