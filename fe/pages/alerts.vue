@@ -78,14 +78,9 @@ function handleViewCustomer() {
       <div class="xl:col-span-2">
         <AlertsAlertList
           :alerts="alerts"
-          :selected-ids="selectedIds"
-          :card-check-cache="cardCheckCache"
           :risk-color="riskColor"
           :type-badge="typeBadge"
           :relative-time="relativeTime"
-          @select="toggleSelect"
-          @select-all="toggleAll"
-          @open-detail="openDetail"
         />
       </div>
 

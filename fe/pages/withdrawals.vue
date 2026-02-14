@@ -19,9 +19,29 @@ const {
 } = useTransactions()
 const { setDiscussionFromTransaction } = useWithdrawalDiscussion()
 
+const route = useRoute()
 const selectedTransaction = ref<Transaction | null>(null)
 const showFlagModal = ref(false)
 const showCustomerSummary = ref(false)
+
+// Pre-populate filters from query params (e.g. from notification click)
+const fromNotification = Boolean(route.query.search)
+if (route.query.search) {
+  searchQuery.value = String(route.query.search)
+}
+if (route.query.status) {
+  selectedStatus.value = String(route.query.status) as typeof selectedStatus.value
+}
+
+// Auto-select first matching transaction when arriving from notification
+if (fromNotification) {
+  const stop = watch(filteredTransactions, (txs) => {
+    if (txs.length > 0 && !selectedTransaction.value) {
+      selectedTransaction.value = txs[0]
+      stop()
+    }
+  }, { immediate: true })
+}
 
 function selectTransaction(tx: Transaction) {
   selectedTransaction.value = tx
