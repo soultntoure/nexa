@@ -256,12 +256,12 @@ function indicatorMaxCount() {
                 {{ riskIndicatorLabels[indicator.name] || indicator.name }}
               </span>
               <div class="flex-1">
-                <div class="h-2 rounded-full bg-gray-100">
-                  <div
-                    class="h-2 rounded-full bg-primary-500 transition-all"
+                <ProgressRoot :model-value="(indicator.count / indicatorMaxCount()) * 100" :max="100" class="relative h-2 overflow-hidden rounded-full bg-gray-100">
+                  <ProgressIndicator
+                    class="h-full rounded-full bg-primary-500 transition-all"
                     :style="{ width: `${(indicator.count / indicatorMaxCount()) * 100}%` }"
                   />
-                </div>
+                </ProgressRoot>
               </div>
               <span class="w-8 text-right text-sm font-semibold text-gray-700">{{ indicator.count }}</span>
             </div>

@@ -52,22 +52,28 @@ function handleConfirm() {
 </script>
 
 <template>
-  <Teleport to="body">
-    <Transition
-      enter-active-class="transition ease-out duration-200"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      leave-active-class="transition ease-in duration-150"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-    >
-      <div
-        v-if="visible"
-        class="fixed inset-0 z-[1100] flex items-center justify-center p-4"
+  <DialogRoot :open="visible" @update:open="(v) => { if (!v) emit('close') }">
+    <DialogPortal>
+      <Transition
+        enter-active-class="duration-200 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="duration-150 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
       >
-        <div class="absolute inset-0 bg-black/50" @click="emit('close')" />
-
-        <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-md">
+        <DialogOverlay v-if="visible" force-mount class="fixed inset-0 z-[1100] bg-black/50" />
+      </Transition>
+      <Transition
+        enter-active-class="duration-200 ease-out"
+        enter-from-class="opacity-0 scale-95"
+        enter-to-class="opacity-100 scale-100"
+        leave-active-class="duration-150 ease-in"
+        leave-from-class="opacity-100 scale-100"
+        leave-to-class="opacity-0 scale-95"
+      >
+        <DialogContent v-if="visible" force-mount class="fixed left-1/2 top-1/2 z-[1100] -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl w-full max-w-md">
+          <DialogTitle class="sr-only">Block Customer Confirmation</DialogTitle>
           <!-- Header -->
           <div class="flex items-center justify-between p-5 border-b border-gray-200">
             <div class="flex items-center gap-2">
@@ -174,8 +180,8 @@ function handleConfirm() {
               {{ hasConnected && lockConnected ? `Block + Lock ${linkedAccounts.length} Account${linkedAccounts.length > 1 ? 's' : ''}` : 'Block Withdrawal' }}
             </button>
           </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+        </DialogContent>
+      </Transition>
+    </DialogPortal>
+  </DialogRoot>
 </template>

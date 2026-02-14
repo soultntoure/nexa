@@ -5,16 +5,11 @@ import { INDICATOR_LABELS } from '~/utils/alertTypes'
 import { formatCurrency } from '~/utils/formatters'
 
 const isOpen = ref(false)
-const dropdownRef = ref<HTMLElement | null>(null)
 const alerts = ref<Alert[]>([])
 
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
 const unreadCount = computed(() => alerts.value.filter(a => !a.read).length)
-
-function toggle() {
-  isOpen.value = !isOpen.value
-}
 
 async function handleAlertClick(alert: Alert) {
   if (!alert.read) {
@@ -47,12 +42,6 @@ async function markAllRead() {
     })
   } catch {
     // optimistic update already applied
-  }
-}
-
-function handleClickOutside(e: MouseEvent) {
-  if (dropdownRef.value && !dropdownRef.value.contains(e.target as Node)) {
-    isOpen.value = false
   }
 }
 
@@ -95,43 +84,35 @@ function riskLevelBadge(level: string | undefined): string {
 }
 
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
   fetchAlerts()
   pollTimer = setInterval(fetchAlerts, 5000)
 })
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
   if (pollTimer) clearInterval(pollTimer)
 })
 </script>
 
 <template>
-  <div ref="dropdownRef" class="relative">
-    <button
-      class="relative rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
-      @click="toggle"
-    >
-      <Icon icon="lucide:bell" class="h-5 w-5" />
-      <span
-        v-if="unreadCount > 0"
-        class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary-500 text-[10px] font-bold text-white"
+  <PopoverRoot v-model:open="isOpen">
+    <PopoverTrigger as-child>
+      <button
+        class="relative rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
       >
-        {{ unreadCount > 9 ? '9+' : unreadCount }}
-      </span>
-    </button>
-
-    <Transition
-      enter-active-class="transition ease-out duration-100"
-      enter-from-class="transform opacity-0 scale-95"
-      enter-to-class="transform opacity-100 scale-100"
-      leave-active-class="transition ease-in duration-75"
-      leave-from-class="transform opacity-100 scale-100"
-      leave-to-class="transform opacity-0 scale-95"
-    >
-      <div
-        v-if="isOpen"
-        class="absolute right-0 mt-2 w-96 rounded-xl border border-gray-200 bg-white shadow-lg"
+        <Icon icon="lucide:bell" class="h-5 w-5" />
+        <span
+          v-if="unreadCount > 0"
+          class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary-500 text-[10px] font-bold text-white"
+        >
+          {{ unreadCount > 9 ? '9+' : unreadCount }}
+        </span>
+      </button>
+    </PopoverTrigger>
+    <PopoverPortal>
+      <PopoverContent
+        class="z-[1200] w-96 rounded-xl border border-gray-200 bg-white shadow-lg"
+        :side-offset="4"
+        align="end"
       >
         <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3">
           <h3 class="text-sm font-semibold text-gray-900">Active Alerts</h3>
@@ -192,7 +173,7 @@ onUnmounted(() => {
             No active alerts
           </li>
         </ul>
-      </div>
-    </Transition>
-  </div>
+      </PopoverContent>
+    </PopoverPortal>
+  </PopoverRoot>
 </template>

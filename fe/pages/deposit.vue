@@ -137,20 +137,19 @@ async function handleSubmit() {
       <!-- Payment Methods (Left 2/3) -->
       <div class="lg:col-span-2 space-y-4">
         <!-- Filter Tabs -->
-        <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-lg w-fit">
-          <button
-            v-for="tab in filterTabs"
-            :key="tab.key"
-            class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md transition-all"
-            :class="selectedFilter === tab.key
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-600 hover:text-gray-800'"
-            @click="selectedFilter = tab.key"
-          >
-            <Icon :icon="tab.icon" class="w-4 h-4" />
-            {{ tab.label }}
-          </button>
-        </div>
+        <TabsRoot v-model="selectedFilter">
+          <TabsList class="flex items-center gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+            <TabsTrigger
+              v-for="tab in filterTabs"
+              :key="tab.key"
+              :value="tab.key"
+              class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md transition-all text-gray-600 hover:text-gray-800 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
+            >
+              <Icon :icon="tab.icon" class="w-4 h-4" />
+              {{ tab.label }}
+            </TabsTrigger>
+          </TabsList>
+        </TabsRoot>
 
         <!-- Method Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -196,14 +195,31 @@ async function handleSubmit() {
           <!-- Account Selection -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1.5">Trading Account</label>
-            <select
-              v-model="selectedAccount"
-              class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            >
-              <option v-for="account in accounts" :key="account.id" :value="account.id">
-                {{ account.label }} ({{ formatCurrency(account.balance) }})
-              </option>
-            </select>
+            <SelectRoot v-model="selectedAccount">
+              <SelectTrigger class="w-full flex items-center justify-between px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white">
+                <SelectValue placeholder="Select account..." />
+                <SelectIcon>
+                  <Icon icon="lucide:chevron-down" class="h-4 w-4 text-gray-400" />
+                </SelectIcon>
+              </SelectTrigger>
+              <SelectPortal>
+                <SelectContent class="z-[1200] max-h-60 overflow-auto rounded-lg bg-white border border-gray-200 shadow-lg" position="popper" :side-offset="4">
+                  <SelectViewport>
+                    <SelectItem
+                      v-for="account in accounts"
+                      :key="account.id"
+                      :value="account.id"
+                      class="relative cursor-pointer select-none px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 data-[highlighted]:bg-gray-50 outline-none"
+                    >
+                      <SelectItemText>{{ account.label }} ({{ formatCurrency(account.balance) }})</SelectItemText>
+                      <SelectItemIndicator class="absolute right-2 top-1/2 -translate-y-1/2">
+                        <Icon icon="lucide:check" class="h-4 w-4 text-primary-600" />
+                      </SelectItemIndicator>
+                    </SelectItem>
+                  </SelectViewport>
+                </SelectContent>
+              </SelectPortal>
+            </SelectRoot>
           </div>
 
           <!-- Amount Input -->

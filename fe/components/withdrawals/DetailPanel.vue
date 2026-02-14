@@ -24,7 +24,7 @@ const emit = defineEmits<{
 
 const activeTab = ref<'overview' | 'risk' | 'about'>('overview')
 const justification = ref('')
-const expandedIndicators = ref<Set<string>>(new Set())
+const expandedIndicators = ref<string[]>([])
 const showScoringFactors = ref(false)
 const blockMode = ref(false)
 const loadingLinked = ref(false)
@@ -34,7 +34,7 @@ const lockConnected = ref(true)
 watch(() => props.transaction.id, () => {
   activeTab.value = 'overview'
   justification.value = ''
-  expandedIndicators.value.clear()
+  expandedIndicators.value = []
   blockMode.value = false
   linkedAccounts.value = []
 })
@@ -81,14 +81,6 @@ function getIndicatorLabel(name: string): string {
     card_errors: 'Card Error History',
   }
   return labels[name] || name
-}
-
-function toggleIndicator(name: string) {
-  if (expandedIndicators.value.has(name)) {
-    expandedIndicators.value.delete(name)
-  } else {
-    expandedIndicators.value.add(name)
-  }
 }
 
 const statusBadgeClasses: Record<string, string> = {
@@ -214,23 +206,22 @@ const ratioBarColor = computed(() => {
       </div>
 
       <!-- Tabs -->
-      <div class="flex items-center gap-0 border-b border-gray-200 -mb-4 -mx-5 px-5">
-        <button
-          v-for="tab in ([
-            { key: 'overview', label: 'Overview' },
-            { key: 'risk', label: 'Risk Analysis' },
-            { key: 'about', label: 'About' },
-          ] as const)"
-          :key="tab.key"
-          class="px-4 py-2.5 text-sm font-medium border-b-2 transition-colors"
-          :class="activeTab === tab.key
-            ? 'border-primary-500 text-primary-600'
-            : 'border-transparent text-gray-500 hover:text-gray-700'"
-          @click="activeTab = tab.key"
-        >
-          {{ tab.label }}
-        </button>
-      </div>
+      <TabsRoot v-model="activeTab" class="-mb-4 -mx-5 px-5">
+        <TabsList class="flex items-center gap-0 border-b border-gray-200">
+          <TabsTrigger
+            v-for="tab in ([
+              { key: 'overview', label: 'Overview' },
+              { key: 'risk', label: 'Risk Analysis' },
+              { key: 'about', label: 'About' },
+            ] as const)"
+            :key="tab.key"
+            :value="tab.key"
+            class="px-4 py-2.5 text-sm font-medium border-b-2 transition-colors border-transparent text-gray-500 hover:text-gray-700 data-[state=active]:border-primary-500 data-[state=active]:text-primary-600"
+          >
+            {{ tab.label }}
+          </TabsTrigger>
+        </TabsList>
+      </TabsRoot>
     </div>
 
     <!-- Action Buttons (Google Maps style) -->
@@ -430,57 +421,53 @@ const ratioBarColor = computed(() => {
             <Icon icon="lucide:shield-alert" class="w-4 h-4" />
             Risk Indicators ({{ transaction.indicators.length }})
           </h4>
-          <div class="space-y-2">
-            <div
+          <AccordionRoot v-model="expandedIndicators" type="multiple" class="space-y-2">
+            <AccordionItem
               v-for="indicator in transaction.indicators"
               :key="indicator.name"
+              :value="indicator.name"
               class="border border-gray-200 rounded-lg overflow-hidden"
             >
-              <div
-                class="p-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                @click="toggleIndicator(indicator.name)"
-              >
-                <div class="flex items-center justify-between mb-1.5">
-                  <div class="flex items-center gap-2">
-                    <Icon :icon="indicator.icon" class="w-4 h-4 text-gray-500" />
-                    <span class="text-sm font-medium text-gray-800">{{ getIndicatorLabel(indicator.name) }}</span>
+              <AccordionHeader>
+                <AccordionTrigger class="w-full p-3 cursor-pointer hover:bg-gray-50 transition-colors text-left">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <div class="flex items-center gap-2">
+                      <Icon :icon="indicator.icon" class="w-4 h-4 text-gray-500" />
+                      <span class="text-sm font-medium text-gray-800">{{ getIndicatorLabel(indicator.name) }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-bold" :class="getScoreTextClass(indicator.score)">
+                        {{ indicator.score.toFixed(2) }}
+                      </span>
+                      <Icon
+                        icon="lucide:chevron-down"
+                        class="w-4 h-4 text-gray-400 transition-transform data-[state=open]:rotate-180"
+                      />
+                    </div>
                   </div>
-                  <div class="flex items-center gap-2">
-                    <span class="text-sm font-bold" :class="getScoreTextClass(indicator.score)">
-                      {{ indicator.score.toFixed(2) }}
-                    </span>
-                    <Icon
-                      icon="lucide:chevron-down"
-                      class="w-4 h-4 text-gray-400 transition-transform"
-                      :class="expandedIndicators.has(indicator.name) ? 'rotate-180' : ''"
+                  <ProgressRoot :model-value="indicator.score * 100" :max="100" class="w-full bg-gray-200 rounded-full h-1 overflow-hidden">
+                    <ProgressIndicator
+                      class="h-1 rounded-full transition-all"
+                      :class="getScoreBarClass(indicator.score)"
+                      :style="{ width: `${indicator.score * 100}%` }"
                     />
+                  </ProgressRoot>
+                  <div class="flex items-center gap-3 mt-1.5 text-[10px] text-gray-500">
+                    <span class="bg-gray-100 px-1.5 py-0.5 rounded-full">W: {{ indicator.weight.toFixed(2) }}</span>
+                    <span>{{ (indicator.confidence * 100).toFixed(0) }}% conf</span>
                   </div>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-1">
-                  <div
-                    class="h-1 rounded-full transition-all"
-                    :class="getScoreBarClass(indicator.score)"
-                    :style="{ width: `${indicator.score * 100}%` }"
-                  />
-                </div>
-                <div class="flex items-center gap-3 mt-1.5 text-[10px] text-gray-500">
-                  <span class="bg-gray-100 px-1.5 py-0.5 rounded-full">W: {{ indicator.weight.toFixed(2) }}</span>
-                  <span>{{ (indicator.confidence * 100).toFixed(0) }}% conf</span>
-                </div>
-              </div>
+                </AccordionTrigger>
+              </AccordionHeader>
 
               <!-- Expanded Detail -->
-              <div
-                v-if="expandedIndicators.has(indicator.name)"
-                class="border-t border-gray-100 bg-gray-50 p-3"
-              >
+              <AccordionContent class="border-t border-gray-100 bg-gray-50 p-3">
                 <p class="text-xs font-medium text-gray-600 mb-1">Reasoning</p>
                 <p class="text-sm text-gray-700 mb-2">{{ indicator.reasoning }}</p>
                 <p class="text-xs font-medium text-gray-600 mb-1">Evidence</p>
                 <pre class="text-[10px] bg-gray-900 text-green-400 rounded-lg p-2.5 overflow-x-auto">{{ JSON.stringify(indicator.evidence, null, 2) }}</pre>
-              </div>
-            </div>
-          </div>
+              </AccordionContent>
+            </AccordionItem>
+          </AccordionRoot>
         </div>
 
         <!-- AI Verdict -->

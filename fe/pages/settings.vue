@@ -82,22 +82,21 @@ function resetDefaults(): void {
     </div>
 
     <!-- Tab Navigation -->
-    <div class="border-b border-gray-200">
-      <nav class="-mb-px flex gap-6">
-        <button
-          v-for="tab in tabs"
-          :key="tab.key"
-          class="flex items-center gap-2 border-b-2 px-1 pb-3 text-sm font-medium transition-colors"
-          :class="activeTab === tab.key
-            ? 'border-primary-600 text-primary-600'
-            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'"
-          @click="activeTab = tab.key"
-        >
-          <Icon :icon="tab.icon" class="h-4 w-4" />
-          {{ tab.label }}
-        </button>
-      </nav>
-    </div>
+    <TabsRoot v-model="activeTab">
+      <TabsList class="border-b border-gray-200">
+        <nav class="-mb-px flex gap-6">
+          <TabsTrigger
+            v-for="tab in tabs"
+            :key="tab.key"
+            :value="tab.key"
+            class="flex items-center gap-2 border-b-2 border-transparent px-1 pb-3 text-sm font-medium transition-colors text-gray-500 hover:border-gray-300 hover:text-gray-700 data-[state=active]:border-primary-600 data-[state=active]:text-primary-600"
+          >
+            <Icon :icon="tab.icon" class="h-4 w-4" />
+            {{ tab.label }}
+          </TabsTrigger>
+        </nav>
+      </TabsList>
+    </TabsRoot>
 
     <!-- Tab Content -->
     <SettingsFraudDetection v-if="activeTab === 'fraud'" ref="fraudRef" @saved="handleSaved" />

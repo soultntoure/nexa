@@ -69,8 +69,6 @@ function getRunPatternCount(run: RunListItem): number {
   return Number.isFinite(value) ? value : 0
 }
 
-const showHowItWorks = ref(false)
-
 usePolling(fetchPastRuns, 5000)
 </script>
 
@@ -103,39 +101,52 @@ usePolling(fetchPastRuns, 5000)
           <Icon icon="lucide:refresh-cw" class="h-4 w-4" />
           New Audit
         </button>
-        <div v-if="pastRuns.length > 0 && viewState === 'idle'" class="relative">
-          <select
-            v-model="selectedPastRunId"
-            class="appearance-none rounded-lg border border-gray-300 bg-white pl-3 pr-8 py-2 text-sm text-gray-700"
-            @change="selectedPastRunId && handleLoadPastRun(selectedPastRunId)"
-          >
-            <option :value="null">Past Runs</option>
-            <option v-for="run in pastRuns" :key="run.run_id" :value="run.run_id">
-              {{ formatRunDate(run.started_at) }} - {{ getRunPatternCount(run) }} patterns
-            </option>
-          </select>
-          <Icon icon="lucide:chevron-down" class="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <div v-if="pastRuns.length > 0 && viewState === 'idle'">
+          <SelectRoot v-model="selectedPastRunId" @update:model-value="(val: string | null) => val && handleLoadPastRun(val)">
+            <SelectTrigger class="flex items-center justify-between rounded-lg border border-gray-300 bg-white pl-3 pr-3 py-2 text-sm text-gray-700">
+              <SelectValue placeholder="Past Runs" />
+              <SelectIcon>
+                <Icon icon="lucide:chevron-down" class="h-4 w-4 text-gray-400" />
+              </SelectIcon>
+            </SelectTrigger>
+            <SelectPortal>
+              <SelectContent class="z-[1200] max-h-60 overflow-auto rounded-lg bg-white border border-gray-200 shadow-lg" position="popper" :side-offset="4">
+                <SelectViewport>
+                  <SelectItem
+                    v-for="run in pastRuns"
+                    :key="run.run_id"
+                    :value="run.run_id"
+                    class="relative cursor-pointer select-none px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 data-[highlighted]:bg-gray-50 outline-none"
+                  >
+                    <SelectItemText>{{ formatRunDate(run.started_at) }} - {{ getRunPatternCount(run) }} patterns</SelectItemText>
+                    <SelectItemIndicator class="absolute right-2 top-1/2 -translate-y-1/2">
+                      <Icon icon="lucide:check" class="h-4 w-4 text-primary-600" />
+                    </SelectItemIndicator>
+                  </SelectItem>
+                </SelectViewport>
+              </SelectContent>
+            </SelectPortal>
+          </SelectRoot>
         </div>
       </div>
     </div>
 
     <!-- How it works -->
-    <div class="mb-4 rounded-xl border border-blue-200 bg-blue-50/60">
-      <button
+    <CollapsibleRoot class="mb-4 rounded-xl border border-blue-200 bg-blue-50/60">
+      <CollapsibleTrigger
         class="flex w-full items-center justify-between px-4 py-3 text-left"
-        @click="showHowItWorks = !showHowItWorks"
       >
         <div class="flex items-center gap-2">
           <Icon icon="lucide:info" class="h-4 w-4 text-blue-600" />
           <span class="text-sm font-medium text-blue-800">How does this work?</span>
         </div>
         <Icon
-          :icon="showHowItWorks ? 'lucide:chevron-up' : 'lucide:chevron-down'"
-          class="h-4 w-4 text-blue-500"
+          icon="lucide:chevron-down"
+          class="h-4 w-4 text-blue-500 transition-transform duration-200 [[data-state=open]_&]:rotate-180"
         />
-      </button>
+      </CollapsibleTrigger>
 
-      <div v-if="showHowItWorks" class="border-t border-blue-200 px-4 pb-4 pt-3">
+      <CollapsibleContent class="border-t border-blue-200 px-4 pb-4 pt-3">
         <p class="text-sm text-gray-700 leading-relaxed mb-3">
           The audit scans recent withdrawal activity for hidden fraud patterns that individual transactions might not reveal — things like coordinated withdrawal rings, shared device networks, or identity fraud clusters.
         </p>
@@ -169,8 +180,8 @@ usePolling(fetchPastRuns, 5000)
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </CollapsibleContent>
+    </CollapsibleRoot>
 
     <!-- Idle -->
     <div v-if="viewState === 'idle'" class="flex flex-1 items-center justify-center rounded-xl border border-gray-200 bg-white">
