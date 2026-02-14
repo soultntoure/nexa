@@ -130,12 +130,12 @@ function handleConfirm() {
                     <Icon icon="lucide:user" class="w-4 h-4 text-gray-400" />
                     <div>
                       <p class="text-sm font-medium text-gray-800">{{ account.customer_name }}</p>
-                      <p class="text-[11px] text-gray-500 font-mono">{{ account.customer_id }}</p>
+                      <p class="text-xs text-gray-500 font-mono">{{ account.customer_id }}</p>
                     </div>
                   </div>
                   <span
                     v-if="account.is_locked"
-                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-red-100 text-red-700"
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700"
                   >
                     <Icon icon="lucide:lock" class="w-3 h-3" />
                     Locked

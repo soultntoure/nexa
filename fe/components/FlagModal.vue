@@ -19,11 +19,6 @@ const flagReasons = [
   { value: 'suspicious_activity', label: 'Suspicious Activity Pattern' },
   { value: 'identity_mismatch', label: 'Identity Mismatch' },
   { value: 'unusual_amount', label: 'Unusual Transaction Amount' },
-  { value: 'geographic_anomaly', label: 'Geographic Anomaly' },
-  { value: 'device_concern', label: 'Device / Browser Concern' },
-  { value: 'multiple_accounts', label: 'Suspected Multiple Accounts' },
-  { value: 'regulatory', label: 'Regulatory / Compliance Concern' },
-  { value: 'other', label: 'Other (specify below)' },
 ]
 
 const canSubmit = computed(() => {

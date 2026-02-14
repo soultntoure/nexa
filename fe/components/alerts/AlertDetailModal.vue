@@ -91,10 +91,10 @@ function decisionBadge(decision: string | undefined): string {
               <p class="text-xs font-semibold uppercase tracking-wider text-blue-700">Reason</p>
               <p class="mt-1.5 text-sm text-blue-900">{{ alert.reason }}</p>
               <div class="mt-2.5 flex items-center gap-2">
-                <span v-if="alert.risk_level" class="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase" :class="riskLevelBadge(alert.risk_level)">
+                <span v-if="alert.risk_level" class="rounded px-1.5 py-0.5 text-xs font-bold uppercase" :class="riskLevelBadge(alert.risk_level)">
                   {{ alert.risk_level }}
                 </span>
-                <span v-if="alert.decision" class="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase" :class="decisionBadge(alert.decision)">
+                <span v-if="alert.decision" class="rounded px-1.5 py-0.5 text-xs font-bold uppercase" :class="decisionBadge(alert.decision)">
                   {{ alert.decision }}
                 </span>
               </div>
@@ -127,7 +127,7 @@ function decisionBadge(decision: string | undefined): string {
                 >
                   <span class="font-medium">{{ account.customer_name }}</span>
                   <span class="flex items-center gap-1.5">
-                    <span v-if="account.is_locked" class="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700">
+                    <span v-if="account.is_locked" class="rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-700">
                       <Icon icon="lucide:lock" class="mr-0.5 inline h-2.5 w-2.5" />Locked
                     </span>
                     <span :class="account.is_locked ? 'text-gray-400' : 'text-orange-700'">{{ account.customer_id }}</span>
@@ -163,7 +163,7 @@ function decisionBadge(decision: string | undefined): string {
                     </ProgressRoot>
                     <span class="w-8 text-right text-xs font-semibold" :class="ind.score >= 80 ? 'text-red-600' : ind.score >= 50 ? 'text-amber-600' : 'text-green-600'">{{ ind.score }}</span>
                   </div>
-                  <p v-if="ind.reasoning" class="mt-1 pl-[7.5rem] text-[11px] leading-tight text-gray-500">{{ ind.reasoning }}</p>
+                  <p v-if="ind.reasoning" class="mt-1 pl-[7.5rem] text-xs leading-tight text-gray-500">{{ ind.reasoning }}</p>
                 </div>
               </div>
             </div>

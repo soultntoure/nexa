@@ -37,10 +37,17 @@ const statusTabs: { key: TransactionStatus; label: string }[] = [
 ]
 
 const statusBadgeClasses: Record<string, string> = {
-  pending: 'bg-gray-100 text-gray-700',
-  approved: 'bg-green-100 text-green-700',
-  escalated: 'bg-yellow-100 text-yellow-700',
-  blocked: 'bg-red-100 text-red-700',
+  pending: 'border-[#EBEBEB] text-gray-600',
+  approved: 'border-[#EBEBEB] text-gray-600',
+  escalated: 'border-[#EBEBEB] text-gray-600',
+  blocked: 'border-[#EBEBEB] text-gray-600',
+}
+
+const statusIcons: Record<string, { icon: string; color: string }> = {
+  pending: { icon: 'lucide:clock', color: 'text-white bg-gray-400' },
+  approved: { icon: 'lucide:check', color: 'text-white bg-green-500' },
+  escalated: { icon: 'lucide:alert-triangle', color: 'text-white bg-yellow-500' },
+  blocked: { icon: 'lucide:x', color: 'text-white bg-red-500' },
 }
 
 const paymentMethodIcons: Record<string, string> = {
@@ -121,7 +128,7 @@ function selectStatus(key: TransactionStatus) {
       >
         {{ tab.label }}
         <span
-          class="px-1.5 py-0.5 text-[10px] rounded-full"
+          class="px-1.5 py-0.5 text-xs rounded-full"
           :class="selectedStatus === tab.key ? 'bg-primary-200 text-primary-800' : 'bg-gray-100 text-gray-500'"
         >
           {{ statusCounts[tab.key] }}
@@ -149,39 +156,32 @@ function selectStatus(key: TransactionStatus) {
       >
         <!-- Customer Name + Risk Score -->
         <div class="flex items-start justify-between mb-1.5">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-8 h-8 bg-primary-50 rounded-full flex items-center justify-center shrink-0">
-              <span class="text-primary-700 font-semibold text-[10px]">
-                {{ tx.customer.name.split(' ').map((n: string) => n[0]).join('') }}
-              </span>
-            </div>
-            <div class="min-w-0">
-              <p class="text-sm font-medium text-gray-900 truncate">{{ tx.customer.name }}</p>
-              <p class="text-xs text-gray-500 truncate">{{ tx.customer.email }}</p>
-            </div>
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-gray-900 truncate">{{ tx.customer.name }}</p>
+            <p class="text-xs text-gray-500 truncate">{{ tx.customer.email }}</p>
           </div>
           <div class="flex items-center gap-2 shrink-0 ml-2">
-            <Icon :icon="paymentMethodIcons[tx.payment_method] || 'lucide:credit-card'" class="w-3.5 h-3.5 text-gray-400" />
             <span
-              class="inline-flex px-2 py-0.5 text-[10px] font-medium rounded-full capitalize"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md border capitalize"
               :class="statusBadgeClasses[tx.status]"
             >
+              <span class="flex h-4 w-4 items-center justify-center rounded-full" :class="statusIcons[tx.status]?.color">
+                <Icon :icon="statusIcons[tx.status]?.icon" class="h-2.5 w-2.5" />
+              </span>
               {{ tx.status }}
             </span>
           </div>
         </div>
 
         <!-- Amount + Method -->
-        <div class="flex items-center gap-2 mb-2 ml-[42px]">
+        <div class="flex items-center gap-2 mb-2 ml-0">
           <span class="text-sm font-semibold text-gray-900">{{ formatCurrency(tx.amount, tx.currency) }}</span>
-          <span class="text-gray-300">&middot;</span>
-          <span class="text-xs text-gray-500 capitalize">{{ tx.payment_method }}</span>
           <span class="text-gray-300">&middot;</span>
           <span class="text-xs text-gray-400">{{ formatDate(tx.created_at, 'MMM dd, HH:mm') }}</span>
         </div>
 
         <!-- Risk Score Bar -->
-        <div class="flex items-center gap-2 ml-[42px]">
+        <div class="flex items-center gap-2 ml-0">
           <div class="flex-1 bg-gray-200 rounded-full h-1">
             <div
               class="h-1 rounded-full transition-all"

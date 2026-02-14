@@ -25,7 +25,7 @@ const groups = [
 
     <template v-for="g in groups" :key="g.key">
       <div v-if="(g.key === 'boosted' ? boosted : g.key === 'dampened' ? dampened : emerging).length">
-        <p class="text-[11px] font-medium mb-1" :class="`text-${g.color}-500`">{{ g.label }}</p>
+        <p class="text-xs font-medium mb-1" :class="`text-${g.color}-500`">{{ g.label }}</p>
         <div
           v-for="s in (g.key === 'boosted' ? boosted : g.key === 'dampened' ? dampened : emerging)"
           :key="s.name"

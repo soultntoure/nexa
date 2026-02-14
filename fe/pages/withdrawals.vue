@@ -202,19 +202,19 @@ function handleDiscuss(): void {
 
       <!-- Map Legend (bottom-left, above map) -->
       <div class="absolute bottom-6 left-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg shadow-md px-3 py-2.5 border border-gray-200" :class="selectedTransaction ? 'left-[436px]' : 'left-4'" style="transition: left 0.3s ease">
-        <p class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Risk Level</p>
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Risk Level</p>
         <div class="flex items-center gap-3">
           <div class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded-full bg-green-500 border border-green-600" />
-            <span class="text-[11px] text-gray-600">Low</span>
+            <span class="text-xs text-gray-600">Low</span>
           </div>
           <div class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded-full bg-yellow-500 border border-yellow-600" />
-            <span class="text-[11px] text-gray-600">Medium</span>
+            <span class="text-xs text-gray-600">Medium</span>
           </div>
           <div class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded-full bg-red-500 border border-red-600" />
-            <span class="text-[11px] text-gray-600">High</span>
+            <span class="text-xs text-gray-600">High</span>
           </div>
         </div>
       </div>

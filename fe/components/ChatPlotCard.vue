@@ -26,7 +26,7 @@ const chartComponent = computed(() => {
   <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
     <div class="mb-3 flex items-center justify-between">
       <h4 class="text-sm font-semibold text-gray-800">{{ chart.title }}</h4>
-      <span class="rounded-full bg-primary-50 px-2 py-0.5 text-[10px] font-medium text-primary-600 uppercase">
+      <span class="rounded-full bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-600 uppercase">
         {{ chart.chart_type }}
       </span>
     </div>

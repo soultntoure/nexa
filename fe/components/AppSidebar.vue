@@ -6,13 +6,13 @@ const isOpen = ref(false)
 const collapsed = ref(false)
 
 const navItems = [
-  { label: 'Dashboard', to: '/', icon: 'lucide:layout-grid' },
-  { label: 'Withdrawals', to: '/withdrawals', icon: 'lucide:list' },
+  { label: 'Dashboard', to: '/', icon: '/icons/dashboard.svg', isCustom: true },
+  { label: 'Withdrawals', to: '/withdrawals', icon: '/icons/withdrawal.svg', isCustom: true },
   { label: 'Customers', to: '/customers', icon: 'lucide:users' },
   // { label: 'Alerts', to: '/alerts', icon: 'lucide:bell' },
   { label: 'Audit', to: '/audit', icon: 'lucide:scan-search' },
   // { label: 'NL Query', to: '/query', icon: 'lucide:message-square' },
-  { label: 'Settings', to: '/settings', icon: 'lucide:settings' },
+  { label: 'Settings', to: '/settings', icon: '/icons/setting.svg', isCustom: true },
 ]
 
 function isActive(to: string) {
@@ -60,7 +60,7 @@ function toggleCollapse() {
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 space-y-1 py-4" :class="collapsed ? 'px-2' : 'px-3'">
+    <nav class="flex-1 space-y-1 py-4" :class="collapsed ? 'px-2' : 'px-4'">
       <TooltipProvider v-if="collapsed">
         <TooltipRoot v-for="item in navItems" :key="item.to">
           <TooltipTrigger as-child>
@@ -75,7 +75,8 @@ function toggleCollapse() {
               ]"
               @click="closeMobile"
             >
-              <Icon :icon="item.icon" class="h-5 w-5 shrink-0" />
+              <img v-if="item.isCustom" :src="item.icon" alt="" class="h-5 w-5 shrink-0" />
+              <Icon v-else :icon="item.icon" class="h-5 w-5 shrink-0" />
             </NuxtLink>
           </TooltipTrigger>
           <TooltipPortal>
@@ -92,16 +93,40 @@ function toggleCollapse() {
           :key="item.to"
           :to="item.to"
           :class="[
-            'group relative flex items-center rounded-lg py-2.5 text-sm font-medium transition-colors',
-            'gap-3 px-3',
+            'group relative flex items-center justify-between rounded-lg py-2.5 px-3 text-sm font-medium transition-all',
             isActive(item.to)
-              ? 'bg-primary-50 text-primary-600'
-              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+              ? 'bg-gray-100 text-gray-900'
+              : 'text-gray-500 hover:text-gray-700',
           ]"
           @click="closeMobile"
         >
-          <Icon :icon="item.icon" class="h-5 w-5 shrink-0" />
-          <span>{{ item.label }}</span>
+          <div class="flex items-center gap-3">
+            <img
+              v-if="item.isCustom"
+              :src="item.icon"
+              alt=""
+              :class="[
+                'h-5 w-5 shrink-0',
+                isActive(item.to) ? '' : 'opacity-60'
+              ]"
+              :style="isActive(item.to) ? 'filter: brightness(0) saturate(100%) invert(16%) sepia(99%) saturate(6995%) hue-rotate(345deg) brightness(102%) contrast(109%)' : ''"
+            />
+            <Icon
+              v-else
+              :icon="item.icon"
+              :class="[
+                'h-5 w-5 shrink-0',
+                isActive(item.to) ? '' : 'text-gray-400'
+              ]"
+              :style="isActive(item.to) ? 'color: #FF003D' : ''"
+            />
+            <span>{{ item.label }}</span>
+          </div>
+          <Icon
+            v-if="isActive(item.to)"
+            icon="lucide:chevron-right"
+            class="h-5 w-5 text-gray-400"
+          />
         </NuxtLink>
       </template>
     </nav>

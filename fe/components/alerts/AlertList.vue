@@ -60,7 +60,7 @@ const visibleAlerts = computed(() => props.alerts.slice(0, 8))
       >
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2">
-            <span class="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase" :class="typeBadge(alert.type)">{{ alert.type }}</span>
+            <span class="rounded px-1.5 py-0.5 text-xs font-semibold uppercase" :class="typeBadge(alert.type)">{{ alert.type }}</span>
             <span :class="['text-sm text-gray-800', !alert.read ? 'font-semibold' : 'font-medium']">{{ alert.customer_name }}</span>
             <span v-if="!alert.read" class="h-2 w-2 shrink-0 rounded-full bg-blue-500" />
           </div>
@@ -69,7 +69,7 @@ const visibleAlerts = computed(() => props.alerts.slice(0, 8))
           <div class="mt-1.5 flex flex-wrap items-center gap-1">
             <span
               v-if="alert.risk_level"
-              class="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+              class="rounded px-1.5 py-0.5 text-xs font-semibold uppercase"
               :class="riskLevelBadge(alert.risk_level)"
             >
               {{ alert.risk_level }}
@@ -77,20 +77,20 @@ const visibleAlerts = computed(() => props.alerts.slice(0, 8))
             <span
               v-for="ind in alert.indicators.slice(0, 2)"
               :key="ind.name"
-              class="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-600"
+              class="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600"
             >
               {{ INDICATOR_LABELS[ind.name] || ind.name }}: {{ ind.score }}
             </span>
           </div>
 
-          <p v-if="alert.reason" class="mt-1 truncate text-[11px] text-gray-500" :title="alert.reason">
+          <p v-if="alert.reason" class="mt-1 truncate text-xs text-gray-500" :title="alert.reason">
             {{ alert.reason.length > 60 ? `${alert.reason.slice(0, 60)}...` : alert.reason }}
           </p>
         </div>
 
         <div class="shrink-0 text-right">
           <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold" :class="riskColor(alert.risk_score)">{{ alert.risk_score }}</span>
-          <p class="mt-1 text-[11px] text-gray-400">{{ relativeTime(alert.timestamp) }}</p>
+          <p class="mt-1 text-xs text-gray-400">{{ relativeTime(alert.timestamp) }}</p>
           <p class="text-xs font-medium text-gray-700">{{ formatCurrency(alert.amount, alert.currency) }}</p>
         </div>
       </div>

@@ -211,7 +211,7 @@ function handleClear() {
               </div>
               <div>
                 <h3 class="text-sm font-semibold text-white">Nexa AI</h3>
-                <p class="text-[10px] text-primary-100">Ask anything about your data</p>
+                <p class="text-xs text-primary-100">Ask anything about your data</p>
               </div>
             </div>
             <div class="flex items-center gap-1">
@@ -254,7 +254,7 @@ function handleClear() {
 
           <!-- Context chip -->
           <div v-if="widgetContext" class="flex items-center gap-2 border-b border-gray-100 px-4 py-2 bg-blue-50/50">
-            <span class="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[11px] font-medium text-blue-700">
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
               <Icon icon="lucide:user" class="h-3 w-3" />
               {{ contextLabel }}
               <button class="ml-0.5 rounded-full p-0.5 hover:bg-blue-200/60" @click="dismissContext">

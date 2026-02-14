@@ -170,7 +170,7 @@ function indicatorMaxCount() {
       <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <!-- Risk Distribution -->
         <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm lg:col-span-2">
-          <h2 class="mb-4 text-sm font-semibold text-gray-700">Risk Score Distribution</h2>
+          <h2 class="mb-4 text-base font-semibold text-gray-900">Risk Score Distribution</h2>
           <div class="flex items-center gap-8">
             <!-- Donut chart (CSS-based) -->
             <div class="relative h-40 w-40 shrink-0">
@@ -226,7 +226,7 @@ function indicatorMaxCount() {
 
         <!-- Processing Time -->
         <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 class="mb-4 text-sm font-semibold text-gray-700">Avg Decision Time</h2>
+          <h2 class="mb-4 text-base font-semibold text-gray-900">Avg Decision Time</h2>
           <div class="flex flex-col items-center justify-center py-4">
             <div class="flex items-baseline gap-1">
               <span class="text-5xl font-bold text-gray-900">{{ stats.avg_decision_time_seconds.toFixed(1) }}</span>
@@ -245,7 +245,7 @@ function indicatorMaxCount() {
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <!-- Top Risk Indicators -->
         <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 class="mb-4 text-sm font-semibold text-gray-700">Top Risk Indicators</h2>
+          <h2 class="mb-4 text-base font-semibold text-gray-900">Top Risk Indicators</h2>
           <div class="space-y-3">
             <div
               v-for="indicator in stats.top_risk_indicators"
@@ -263,14 +263,14 @@ function indicatorMaxCount() {
                   />
                 </ProgressRoot>
               </div>
-              <span class="w-8 text-right text-sm font-semibold text-gray-700">{{ indicator.count }}</span>
+              <span class="w-8 text-right text-base font-semibold text-gray-900">{{ indicator.count }}</span>
             </div>
           </div>
         </div>
 
         <!-- Recent Activity Feed -->
         <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 class="mb-4 text-sm font-semibold text-gray-700">Recent Activity</h2>
+          <h2 class="mb-4 text-base font-semibold text-gray-900">Recent Activity</h2>
           <div class="space-y-3">
             <div
               v-for="activity in stats.recent_activity?.slice(0, 8)"
@@ -295,7 +295,7 @@ function indicatorMaxCount() {
               <div class="text-right">
                 <p class="text-sm font-semibold text-gray-900">{{ formatCurrency(activity.amount, activity.currency) }}</p>
                 <span
-                  class="inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold capitalize"
+                  class="inline-block rounded px-1.5 py-0.5 text-xs font-semibold capitalize"
                   :class="actionColors[activity.action] || 'text-gray-600 bg-gray-50'"
                 >
                   {{ activity.action }}

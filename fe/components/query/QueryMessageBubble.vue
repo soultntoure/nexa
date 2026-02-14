@@ -42,7 +42,7 @@ function formatTime(date: Date) {
       <!-- User message -->
       <div v-if="msg.role === 'user'" class="rounded-2xl rounded-br-md bg-primary-600 px-4 py-3 text-sm text-white">
         {{ msg.content }}
-        <p class="mt-1 text-[10px] text-primary-200">{{ formatTime(msg.timestamp) }}</p>
+        <p class="mt-1 text-xs text-primary-200">{{ formatTime(msg.timestamp) }}</p>
       </div>
 
       <!-- Assistant message -->
@@ -69,7 +69,7 @@ function formatTime(date: Date) {
                 v-if="isActive && isAnimating"
                 class="inline-block w-2 h-4 ml-0.5 bg-primary-500 animate-pulse rounded-sm"
               />
-              <p class="mt-1 text-[10px] text-gray-400">{{ formatTime(msg.timestamp) }}</p>
+              <p class="mt-1 text-xs text-gray-400">{{ formatTime(msg.timestamp) }}</p>
             </template>
           </div>
         </div>
@@ -91,12 +91,12 @@ function formatTime(date: Date) {
               class="rounded-lg border border-gray-200 bg-gray-900 text-gray-100 text-xs overflow-hidden"
             >
               <div class="flex items-center justify-between border-b border-gray-700 bg-gray-800 px-3 py-1.5">
-                <span class="font-mono text-[10px] text-gray-400">Query {{ si + 1 }}</span>
-                <span class="rounded bg-emerald-900 px-1.5 py-0.5 text-[10px] text-emerald-300">SQL</span>
+                <span class="font-mono text-xs text-gray-400">Query {{ si + 1 }}</span>
+                <span class="rounded bg-emerald-900 px-1.5 py-0.5 text-xs text-emerald-300">SQL</span>
               </div>
               <pre class="p-3 overflow-x-auto font-mono leading-relaxed"><code>{{ sq.sql }}</code></pre>
               <div v-if="sq.result" class="border-t border-gray-700 bg-gray-800/50 p-3">
-                <span class="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Result</span>
+                <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">Result</span>
                 <pre class="mt-1 overflow-x-auto font-mono text-gray-300 leading-relaxed">{{ sq.result }}</pre>
               </div>
             </div>

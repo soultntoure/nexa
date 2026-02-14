@@ -115,16 +115,7 @@ function handleClose() { emit('close') }
 
           <!-- Footer -->
           <div class="p-4 border-t border-gray-200 shrink-0 flex items-center justify-between bg-white">
-            <button
-              v-if="isPersonalized"
-              class="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
-              :disabled="resetting"
-              @click="resetToBaseline"
-            >
-              <Icon icon="lucide:rotate-ccw" class="w-4 h-4 inline mr-1" />
-              Reset to baseline
-            </button>
-            <span v-else />
+            <span />
             <button
               class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               @click="handleClose"

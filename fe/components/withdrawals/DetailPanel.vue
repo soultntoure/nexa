@@ -234,13 +234,13 @@ const ratioBarColor = computed(() => {
         <div class="w-10 h-10 rounded-full bg-green-50 border border-green-200 flex items-center justify-center hover:bg-green-100 transition-colors">
           <Icon icon="lucide:check" class="w-5 h-5 text-green-600" />
         </div>
-        <span class="text-[11px] font-medium text-green-700">Approve</span>
+        <span class="text-xs font-medium text-green-700">Approve</span>
       </button>
       <button class="flex flex-col items-center gap-1" @click="emit('flag')">
         <div class="w-10 h-10 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center hover:bg-orange-100 transition-colors">
           <Icon icon="lucide:flag" class="w-5 h-5 text-orange-500" />
         </div>
-        <span class="text-[11px] font-medium text-orange-600">Flag</span>
+        <span class="text-xs font-medium text-orange-600">Flag</span>
       </button>
       <button
         class="flex flex-col items-center gap-1"
@@ -250,19 +250,19 @@ const ratioBarColor = computed(() => {
         <div class="w-10 h-10 rounded-full bg-red-50 border border-red-200 flex items-center justify-center hover:bg-red-100 transition-colors">
           <Icon icon="lucide:ban" class="w-5 h-5 text-red-500" />
         </div>
-        <span class="text-[11px] font-medium text-red-600">Block</span>
+        <span class="text-xs font-medium text-red-600">Block</span>
       </button>
       <button class="flex flex-col items-center gap-1" @click="emit('discuss')">
         <div class="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center hover:bg-indigo-100 transition-colors">
           <Icon icon="lucide:message-square" class="w-5 h-5 text-indigo-500" />
         </div>
-        <span class="text-[11px] font-medium text-indigo-600">Discuss</span>
+        <span class="text-xs font-medium text-indigo-600">Discuss</span>
       </button>
       <button class="flex flex-col items-center gap-1" @click="emit('customer-profile')">
         <div class="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center hover:bg-blue-100 transition-colors">
           <Icon icon="lucide:user" class="w-5 h-5 text-blue-500" />
         </div>
-        <span class="text-[11px] font-medium text-blue-600">Profile</span>
+        <span class="text-xs font-medium text-blue-600">Profile</span>
       </button>
     </div>
 
@@ -346,14 +346,14 @@ const ratioBarColor = computed(() => {
             <div class="p-2.5 bg-green-50 rounded-lg border border-green-100">
               <div class="flex items-center gap-1.5 mb-1">
                 <Icon icon="lucide:arrow-down-circle" class="w-3.5 h-3.5 text-green-600" />
-                <p class="text-[10px] text-green-700 uppercase">Deposits</p>
+                <p class="text-xs text-green-700 uppercase">Deposits</p>
               </div>
               <p class="text-sm font-bold text-green-800">{{ formatCurrency(transaction.customer.total_deposits) }}</p>
             </div>
             <div class="p-2.5 bg-red-50 rounded-lg border border-red-100">
               <div class="flex items-center gap-1.5 mb-1">
                 <Icon icon="lucide:arrow-up-circle" class="w-3.5 h-3.5 text-red-600" />
-                <p class="text-[10px] text-red-700 uppercase">Withdrawals</p>
+                <p class="text-xs text-red-700 uppercase">Withdrawals</p>
               </div>
               <p class="text-sm font-bold text-red-800">{{ formatCurrency(transaction.customer.total_withdrawals) }}</p>
             </div>
@@ -387,7 +387,7 @@ const ratioBarColor = computed(() => {
             </h4>
             <div class="flex items-center gap-2">
               <button
-                class="px-2.5 py-1 text-[10px] font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
+                class="px-2.5 py-1 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
                 @click="showScoringFactors = true"
               >
                 Scoring factors
@@ -407,7 +407,7 @@ const ratioBarColor = computed(() => {
               :style="{ width: `${transaction.risk_score * 100}%` }"
             />
           </div>
-          <div class="flex justify-between mt-1 text-[10px] text-gray-400">
+          <div class="flex justify-between mt-1 text-xs text-gray-400">
             <span>0.0 Safe</span>
             <span>0.3</span>
             <span>0.7</span>
@@ -452,7 +452,7 @@ const ratioBarColor = computed(() => {
                       :style="{ width: `${indicator.score * 100}%` }"
                     />
                   </ProgressRoot>
-                  <div class="flex items-center gap-3 mt-1.5 text-[10px] text-gray-500">
+                  <div class="flex items-center gap-3 mt-1.5 text-xs text-gray-500">
                     <span class="bg-gray-100 px-1.5 py-0.5 rounded-full">W: {{ indicator.weight.toFixed(2) }}</span>
                     <span>{{ (indicator.confidence * 100).toFixed(0) }}% conf</span>
                   </div>
@@ -464,7 +464,7 @@ const ratioBarColor = computed(() => {
                 <p class="text-xs font-medium text-gray-600 mb-1">Reasoning</p>
                 <p class="text-sm text-gray-700 mb-2">{{ indicator.reasoning }}</p>
                 <p class="text-xs font-medium text-gray-600 mb-1">Evidence</p>
-                <pre class="text-[10px] bg-gray-900 text-green-400 rounded-lg p-2.5 overflow-x-auto">{{ JSON.stringify(indicator.evidence, null, 2) }}</pre>
+                <pre class="text-xs bg-gray-900 text-green-400 rounded-lg p-2.5 overflow-x-auto">{{ JSON.stringify(indicator.evidence, null, 2) }}</pre>
               </AccordionContent>
             </AccordionItem>
           </AccordionRoot>
@@ -476,18 +476,18 @@ const ratioBarColor = computed(() => {
             <h4 class="text-xs font-semibold text-indigo-800 uppercase tracking-wider flex items-center gap-1.5">
               <Icon icon="lucide:brain" class="w-4 h-4" />
               AI Verdict
-              <span class="px-1.5 py-0.5 bg-indigo-200 text-indigo-700 rounded-full text-[10px] font-medium">
+              <span class="px-1.5 py-0.5 bg-indigo-200 text-indigo-700 rounded-full text-xs font-medium">
                 {{ transaction.triage.elapsed_s.toFixed(1) }}s
               </span>
             </h4>
             <div v-if="transaction.triage.decision" class="flex items-center gap-2">
               <span
-                class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
+                class="px-2 py-0.5 rounded-full text-xs font-bold uppercase"
                 :class="transaction.triage.decision === 'blocked' ? 'bg-red-100 text-red-700' : transaction.triage.decision === 'escalated' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'"
               >
                 {{ transaction.triage.decision }}
               </span>
-              <span v-if="transaction.triage.confidence" class="text-[10px] text-indigo-600">
+              <span v-if="transaction.triage.confidence" class="text-xs text-indigo-600">
                 {{ (transaction.triage.confidence * 100).toFixed(0) }}%
               </span>
             </div>
@@ -500,7 +500,7 @@ const ratioBarColor = computed(() => {
             <span
               v-for="a in transaction.triage.assignments"
               :key="a.investigator"
-              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-100 text-indigo-700"
+              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700"
             >
               <Icon icon="lucide:search" class="w-3 h-3" />
               {{ a.investigator.replace('_', ' ') }}
@@ -524,7 +524,7 @@ const ratioBarColor = computed(() => {
               <div class="flex items-center justify-between mb-1.5">
                 <span class="text-sm font-semibold text-gray-800">{{ inv.display_name }}</span>
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] text-gray-400">{{ inv.elapsed_s.toFixed(1) }}s</span>
+                  <span class="text-xs text-gray-400">{{ inv.elapsed_s.toFixed(1) }}s</span>
                   <span class="text-sm font-bold" :class="getScoreTextClass(inv.score)">
                     {{ inv.score.toFixed(2) }}
                   </span>
@@ -623,12 +623,12 @@ const ratioBarColor = computed(() => {
                     <Icon icon="lucide:user" class="w-3.5 h-3.5 text-gray-400" />
                     <div>
                       <p class="text-xs font-medium text-gray-800">{{ account.customer_name }}</p>
-                      <p class="text-[10px] text-gray-500 font-mono">{{ account.customer_id }}</p>
+                      <p class="text-xs text-gray-500 font-mono">{{ account.customer_id }}</p>
                     </div>
                   </div>
                   <span
                     v-if="account.is_locked"
-                    class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-red-100 text-red-700"
+                    class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700"
                   >
                     <Icon icon="lucide:lock" class="w-2.5 h-2.5" />
                     Locked
@@ -644,7 +644,7 @@ const ratioBarColor = computed(() => {
                 />
                 <div>
                   <p class="text-xs font-medium text-gray-800">Lock all connected accounts</p>
-                  <p class="text-[10px] text-gray-500">Block withdrawals on all {{ linkedAccounts.length }} linked account{{ linkedAccounts.length > 1 ? 's' : '' }}.</p>
+                  <p class="text-xs text-gray-500">Block withdrawals on all {{ linkedAccounts.length }} linked account{{ linkedAccounts.length > 1 ? 's' : '' }}.</p>
                 </div>
               </label>
             </template>
