@@ -2,7 +2,7 @@
 import { Icon } from '@iconify/vue'
 import type { CandidateResult } from '~/utils/auditTypes'
 
-useHead({ title: 'Audit - Nexa' })
+useHead({ title: 'Nexa' })
 
 interface RunListItem {
   run_id: string

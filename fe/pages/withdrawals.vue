@@ -2,7 +2,7 @@
 import { Icon } from '@iconify/vue'
 import type { Transaction } from '~/composables/useTransactions'
 
-useHead({ title: 'Withdrawals - Nexa' })
+useHead({ title: 'Nexa' })
 
 const {
   transactions: allTransactions,

@@ -2,7 +2,7 @@
 import { Icon } from '@iconify/vue'
 import { formatCurrency, formatDate } from '~/utils/formatters'
 
-useHead({ title: 'Dashboard - Nexa' })
+useHead({ title: 'Nexa' })
 
 interface DashboardStats {
   total_payouts_today: number

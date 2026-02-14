@@ -4,7 +4,7 @@ import type { WithdrawalDiscussionContext } from '~/composables/useWithdrawalDis
 import type { ChartSpec } from '~/utils/chartTransformer'
 import type { QueryMessage } from '~/components/query/QueryMessageBubble.vue'
 
-useHead({ title: 'NL Query - Nexa' })
+useHead({ title: 'Nexa' })
 
 const input = ref('')
 const isLoading = ref(false)

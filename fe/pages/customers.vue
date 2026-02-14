@@ -2,7 +2,7 @@
 import { Icon } from '@iconify/vue'
 import { formatDate } from '~/utils/formatters'
 
-useHead({ title: 'Customers - Nexa' })
+useHead({ title: 'Nexa' })
 
 interface Customer {
   id: string

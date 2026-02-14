@@ -7,6 +7,15 @@ export default defineNuxtConfig({
     apiBase: process.env.API_BASE || 'http://localhost:8080',
   },
 
+  app: {
+    head: {
+      title: 'Nexa',
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/nexa.svg' },
+      ],
+    },
+  },
+
   devtools: { enabled: true },
 
   typescript: {

@@ -2,7 +2,7 @@
 import { Icon } from '@iconify/vue'
 import { formatCurrency } from '~/utils/formatters'
 
-useHead({ title: 'Deposit - Nexa' })
+useHead({ title: 'Nexa' })
 
 interface PaymentMethod {
   id: string

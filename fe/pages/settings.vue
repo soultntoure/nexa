@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
 
-useHead({ title: 'Settings - Nexa' })
+useHead({ title: 'Nexa' })
 
 const tabs = [
   { key: 'fraud', label: 'Fraud Detection', icon: 'lucide:shield' },

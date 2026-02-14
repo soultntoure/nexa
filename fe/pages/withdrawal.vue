@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useHead({ title: 'Withdrawal - Nexa' })
+useHead({ title: 'Nexa' })
 
 const {
   accounts,

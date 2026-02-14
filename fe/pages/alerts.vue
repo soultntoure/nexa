@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PATTERN_ICONS } from '~/utils/alertTypes'
 
-useHead({ title: 'Alerts - Nexa' })
+useHead({ title: 'Nexa' })
 
 const {
   alerts,
