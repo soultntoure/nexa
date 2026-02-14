@@ -152,7 +152,7 @@ async function handleDiscuss(): Promise<void> {
       >
         <div
           v-if="selectedTransaction"
-          class="absolute inset-y-0 left-0 w-[420px] z-10 shadow-2xl translate-x-0 opacity-100"
+          class="absolute inset-y-0 left-0 w-[420px] z-[1000] shadow-2xl translate-x-0 opacity-100"
         >
           <WithdrawalsDetailPanel
             :key="selectedTransaction.id"
@@ -168,7 +168,7 @@ async function handleDiscuss(): Promise<void> {
       </Transition>
 
       <!-- Map Legend (bottom-left, above map) -->
-      <div class="absolute bottom-6 left-4 z-10 bg-white/95 backdrop-blur-sm rounded-lg shadow-md px-3 py-2.5 border border-gray-200" :class="selectedTransaction ? 'left-[436px]' : 'left-4'" style="transition: left 0.3s ease">
+      <div class="absolute bottom-6 left-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg shadow-md px-3 py-2.5 border border-gray-200" :class="selectedTransaction ? 'left-[436px]' : 'left-4'" style="transition: left 0.3s ease">
         <p class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Risk Level</p>
         <div class="flex items-center gap-3">
           <div class="flex items-center gap-1.5">
