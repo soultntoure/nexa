@@ -55,7 +55,7 @@ function decisionBadge(decision: string | undefined): string {
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
-      <div v-if="visible && alert" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="emit('close')">
+      <div v-if="visible && alert" class="fixed inset-0 z-[1100] flex items-center justify-center bg-black/50 p-4" @click.self="emit('close')">
         <div class="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-xl">
           <div class="flex items-center justify-between border-b border-gray-100 px-6 py-5">
             <h3 class="text-lg font-bold text-gray-900">Alert Details</h3>

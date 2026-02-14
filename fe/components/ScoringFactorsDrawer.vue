@@ -48,7 +48,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
       leave-from-class="translate-x-0"
       leave-to-class="translate-x-full"
     >
-      <div v-if="visible" class="fixed inset-0 z-50 flex justify-end">
+      <div v-if="visible" class="fixed inset-0 z-[1100] flex justify-end">
         <div class="absolute inset-0" @click="handleClose" />
 
         <div class="relative w-full max-w-lg bg-white shadow-2xl flex flex-col overflow-hidden">
