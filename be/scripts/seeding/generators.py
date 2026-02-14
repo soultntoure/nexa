@@ -60,7 +60,9 @@ def _gen_deposits(
     txns = []
     span = max((end - start).total_seconds(), 1)
     for i in range(n):
-        ts = start + timedelta(seconds=span * i / n)
+        ts = start + timedelta(
+            seconds=span * i / n + random.uniform(0, span / n * 0.6)
+        )
         amount = Decimal(str(round(random.uniform(amount_lo, amount_hi), 2)))
         txns.append(
             Transaction(
@@ -98,7 +100,9 @@ def _gen_past_withdrawals(
     wds = []
     span = max((end - start).total_seconds(), 1)
     for i in range(n):
-        ts = start + timedelta(seconds=span * i / n)
+        ts = start + timedelta(
+            seconds=span * i / n + random.uniform(0, span / n * 0.6)
+        )
         amount = Decimal(str(round(random.uniform(amount_lo, amount_hi), 2)))
         wds.append(
             Withdrawal(

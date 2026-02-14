@@ -35,6 +35,7 @@ class WeightSnapshotResponse(BaseModel):
     sample_count: int = 0
     approval_count: int = 0
     block_count: int = 0
+    escalated_count: int = 0
     blend: BlendComparison
     indicators: list[IndicatorWeightRow]
 

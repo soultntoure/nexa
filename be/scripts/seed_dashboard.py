@@ -235,10 +235,10 @@ async def seed_dashboard_data(session: AsyncSession) -> int:
     eval_count = 0
 
     # ── Phase 1: Historical withdrawals (already processed) ──
-    # Spread over the past 7 days, ~8 per day = ~56 total
-    for day_offset in range(7):
+    # Spread over the past 30 days, ~3 per day = ~90 total
+    for day_offset in range(30):
         day_base = NOW - timedelta(days=day_offset + 1)
-        txns_per_day = random.randint(6, 10)
+        txns_per_day = random.randint(2, 5)
 
         for i in range(txns_per_day):
             ts = day_base + timedelta(

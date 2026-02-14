@@ -34,7 +34,7 @@ def create_sql_toolkit(
     db = SQLDatabase.from_uri(
         db_uri,
         include_tables=FRAUD_DB_TABLES,
-        sample_rows_in_table_info=3,
+        sample_rows_in_table_info=0,
     )
     return SQLDatabaseToolkit(db=db, llm=llm)
 

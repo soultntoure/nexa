@@ -8,6 +8,9 @@ const {
   fraudPatterns,
   admins,
   currentAdmin,
+  timeRange,
+  customSince,
+  customUntil,
   selectedIds,
   selectedAlert,
   showDetail,
@@ -71,6 +74,10 @@ function handleViewCustomer() {
     </div>
 
     <AlertsSummaryBar :escalation-count="escalationCount" :block-count="blockCount" :unread-count="unreadCount" />
+
+    <div class="my-4">
+      <AlertsTimeRangeFilter v-model="timeRange" v-model:since="customSince" v-model:until="customUntil" />
+    </div>
 
     <AlertsBulkActions :selected-count="selectedIds.size" :loading="bulkLoading" @action="bulkAction" />
 
