@@ -7,10 +7,16 @@ const props = defineProps<{
   transaction: Transaction
 }>()
 
+interface LinkedAccount {
+  customer_id: string
+  customer_name: string
+  is_locked?: boolean
+}
+
 const emit = defineEmits<{
   close: []
   approve: [justification: string]
-  block: [justification: string]
+  block: [justification: string, lockConnected: boolean]
   flag: []
   discuss: []
   'customer-profile': []
@@ -20,11 +26,17 @@ const activeTab = ref<'overview' | 'risk' | 'about'>('overview')
 const justification = ref('')
 const expandedIndicators = ref<Set<string>>(new Set())
 const showScoringFactors = ref(false)
+const blockMode = ref(false)
+const loadingLinked = ref(false)
+const linkedAccounts = ref<LinkedAccount[]>([])
+const lockConnected = ref(true)
 
 watch(() => props.transaction.id, () => {
   activeTab.value = 'overview'
   justification.value = ''
   expandedIndicators.value.clear()
+  blockMode.value = false
+  linkedAccounts.value = []
 })
 
 const paymentMethodIcons: Record<string, string> = {
@@ -87,15 +99,44 @@ const statusBadgeClasses: Record<string, string> = {
 }
 
 function handleApprove() {
-  if (!justification.value.trim()) return
+  if (!justification.value.trim()) {
+    activeTab.value = 'about'
+    blockMode.value = false
+    return
+  }
   emit('approve', justification.value)
   justification.value = ''
 }
 
-function handleBlock() {
+const hasConnected = computed(() => linkedAccounts.value.length > 0)
+
+async function handleBlock() {
+  activeTab.value = 'about'
+  blockMode.value = true
+  loadingLinked.value = true
+  linkedAccounts.value = []
+  lockConnected.value = true
+  try {
+    const result = await $fetch<{ shared: boolean; linked_count: number; linked_accounts?: LinkedAccount[] }>(
+      `/api/alerts/card-check/${props.transaction.customer.external_id}`,
+    )
+    linkedAccounts.value = (result.linked_accounts ?? []).filter(a => a.customer_id !== props.transaction.customer.external_id)
+  } catch {
+    linkedAccounts.value = []
+  } finally {
+    loadingLinked.value = false
+  }
+}
+
+function confirmBlock() {
   if (!justification.value.trim()) return
-  emit('block', justification.value)
+  emit('block', justification.value.trim(), hasConnected.value && lockConnected.value)
   justification.value = ''
+  blockMode.value = false
+}
+
+function cancelBlock() {
+  blockMode.value = false
 }
 
 const withdrawalRatio = computed(() => {
@@ -213,7 +254,7 @@ const ratioBarColor = computed(() => {
       <button
         class="flex flex-col items-center gap-1"
         @click="handleBlock"
-        :title="justification.trim() ? 'Block withdrawal' : 'Write justification first'"
+        title="Block withdrawal"
       >
         <div class="w-10 h-10 rounded-full bg-red-50 border border-red-200 flex items-center justify-center hover:bg-red-100 transition-colors">
           <Icon icon="lucide:ban" class="w-5 h-5 text-red-500" />
@@ -550,20 +591,106 @@ const ratioBarColor = computed(() => {
         <!-- Decision Area -->
         <div class="bg-gray-50 rounded-lg p-4">
           <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-            {{ transaction.status === 'approved' ? 'Override Decision' : 'Make Decision' }}
+            {{ blockMode ? 'Block Withdrawal' : transaction.status === 'approved' ? 'Override Decision' : 'Make Decision' }}
           </h4>
+
+          <!-- Justification textarea -->
           <textarea
             v-model="justification"
             rows="3"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
-            :placeholder="transaction.status === 'approved'
-              ? 'Provide reason for revoking approval (required)...'
-              : 'Provide your reasoning (required)...'"
+            class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 resize-none"
+            :class="blockMode
+              ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+              : 'border-gray-300 focus:ring-primary-500 focus:border-primary-500'"
+            :placeholder="blockMode
+              ? 'Provide your reasoning for blocking this withdrawal (required)...'
+              : transaction.status === 'approved'
+                ? 'Provide reason for revoking approval (required)...'
+                : 'Provide your reasoning (required)...'"
           />
-          <div class="flex items-center gap-2 mt-3">
+
+          <!-- Block mode: connected accounts inline -->
+          <div v-if="blockMode" class="mt-3 space-y-3">
+            <!-- Loading state -->
+            <div v-if="loadingLinked" class="flex items-center justify-center py-3">
+              <Icon icon="lucide:loader-2" class="w-4 h-4 text-gray-400 animate-spin" />
+              <span class="ml-2 text-sm text-gray-500">Checking connected accounts...</span>
+            </div>
+
+            <!-- Connected accounts found -->
+            <template v-else-if="hasConnected">
+              <div class="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2.5">
+                <Icon icon="lucide:alert-triangle" class="w-4 h-4 text-amber-600 shrink-0" />
+                <p class="text-xs text-amber-800">
+                  <strong>{{ linkedAccounts.length }}</strong> connected account{{ linkedAccounts.length > 1 ? 's' : '' }} detected sharing payment methods.
+                </p>
+              </div>
+
+              <div class="rounded-lg border border-gray-200 divide-y divide-gray-100">
+                <div
+                  v-for="account in linkedAccounts"
+                  :key="account.customer_id"
+                  class="flex items-center justify-between px-3 py-2"
+                >
+                  <div class="flex items-center gap-2">
+                    <Icon icon="lucide:user" class="w-3.5 h-3.5 text-gray-400" />
+                    <div>
+                      <p class="text-xs font-medium text-gray-800">{{ account.customer_name }}</p>
+                      <p class="text-[10px] text-gray-500 font-mono">{{ account.customer_id }}</p>
+                    </div>
+                  </div>
+                  <span
+                    v-if="account.is_locked"
+                    class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-red-100 text-red-700"
+                  >
+                    <Icon icon="lucide:lock" class="w-2.5 h-2.5" />
+                    Locked
+                  </span>
+                </div>
+              </div>
+
+              <label class="flex items-start gap-2.5 cursor-pointer rounded-lg border border-gray-200 p-2.5 hover:bg-gray-50 transition-colors">
+                <input
+                  v-model="lockConnected"
+                  type="checkbox"
+                  class="mt-0.5 rounded text-red-600 focus:ring-red-500"
+                />
+                <div>
+                  <p class="text-xs font-medium text-gray-800">Lock all connected accounts</p>
+                  <p class="text-[10px] text-gray-500">Block withdrawals on all {{ linkedAccounts.length }} linked account{{ linkedAccounts.length > 1 ? 's' : '' }}.</p>
+                </div>
+              </label>
+            </template>
+
+            <!-- No connected accounts -->
+            <div v-else class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2.5">
+              <Icon icon="lucide:check-circle" class="w-4 h-4 text-green-500 shrink-0" />
+              <p class="text-xs text-gray-600">No connected accounts found. Only this withdrawal will be blocked.</p>
+            </div>
+
+            <!-- Block mode buttons -->
+            <div class="flex items-center gap-2">
+              <button
+                class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                @click="cancelBlock"
+              >
+                Cancel
+              </button>
+              <button
+                class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                :disabled="!justification.trim() || loadingLinked"
+                @click="confirmBlock"
+              >
+                <Icon icon="lucide:ban" class="w-4 h-4" />
+                {{ hasConnected && lockConnected ? `Block + Lock ${linkedAccounts.length}` : 'Block' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Normal mode buttons -->
+          <div v-else class="flex items-center gap-2 mt-3">
             <button
-              class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              :disabled="!justification.trim()"
+              class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
               @click="handleBlock"
             >
               <Icon icon="lucide:ban" class="w-4 h-4" />

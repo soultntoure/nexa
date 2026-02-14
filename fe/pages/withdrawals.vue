@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Icon } from '@iconify/vue'
 import type { Transaction } from '~/composables/useTransactions'
 
 useHead({ title: 'Withdrawals - Nexa' })
@@ -75,10 +74,27 @@ async function handleApprove(justification: string): Promise<void> {
   updateTransactionStatus(selectedTransaction.value.id, 'approved')
 }
 
-async function handleBlock(justification: string): Promise<void> {
+async function handleBlock(justification: string, lockConnected: boolean): Promise<void> {
   if (!selectedTransaction.value) return
-  await submitDecisionToBE(selectedTransaction.value, 'blocked', justification)
-  updateTransactionStatus(selectedTransaction.value.id, 'blocked')
+  const tx = selectedTransaction.value
+  await submitDecisionToBE(tx, 'blocked', justification)
+  updateTransactionStatus(tx.id, 'blocked')
+
+  if (lockConnected) {
+    try {
+      await $fetch('/api/alerts/card-lockdown', {
+        method: 'POST',
+        body: {
+          customer_id: tx.customer.external_id,
+          risk_score: tx.risk_score,
+          admin_id: 'officer-demo-001',
+        },
+      })
+    } catch {
+      // lockdown call failed — block still proceeded
+    }
+  }
+
   selectedTransaction.value = null
 }
 
