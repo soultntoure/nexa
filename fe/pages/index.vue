@@ -114,201 +114,196 @@ function indicatorMaxCount() {
 </script>
 
 <template>
-  <div>
+  <div class="flex h-full flex-col">
     <!-- Header -->
-    <div class="mb-6 flex items-center justify-between">
+    <div class="mb-3 flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p class="mt-1 text-sm text-gray-500">AI-Powered Payments Approval & Fraud Intelligence</p>
+        <h1 class="text-xl font-bold text-gray-900">Dashboard</h1>
+        <p class="text-xs text-gray-500">AI-Powered Payments Approval & Fraud Intelligence</p>
       </div>
       <CommonNotificationDropdown />
     </div>
 
     <template v-if="stats">
       <!-- Stats Cards -->
-      <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <!-- Total Payouts Today -->
-        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <p class="text-sm font-medium text-gray-500">Total Payouts Today</p>
-          <p class="text-2xl font-bold text-gray-900">{{ stats.total_payouts_today }}</p>
-          <p class="text-xs text-gray-400">{{ formatCurrency(stats.total_payout_amount) }}</p>
-        </div>
-
-        <!-- Auto-Approved Rate -->
-        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <p class="text-sm font-medium text-gray-500">Auto-Approved Rate</p>
-          <p class="text-2xl font-bold text-gray-900">{{ stats.auto_approved_rate }}%</p>
-          <p class="flex items-center gap-1 text-xs" :class="stats.auto_approved_trend >= 0 ? 'text-green-600' : 'text-red-600'">
-            <Icon :icon="stats.auto_approved_trend >= 0 ? 'lucide:trending-up' : 'lucide:trending-down'" class="h-3 w-3" />
-            {{ Math.abs(stats.auto_approved_trend) }}% vs yesterday
-          </p>
-        </div>
-
-        <!-- Pending Review -->
-        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <p class="text-sm font-medium text-gray-500">Pending Review</p>
-          <p class="text-2xl font-bold text-gray-900">{{ stats.pending_review_count }}</p>
-          <p v-if="stats.pending_review_count > 10" class="text-xs font-medium text-amber-600">
-            Needs attention
-          </p>
-          <p v-else class="text-xs text-gray-400">In queue</p>
-        </div>
-
-        <!-- Active Alerts -->
-        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <p class="text-sm font-medium text-gray-500">Active Alerts</p>
-          <p class="text-2xl font-bold text-gray-900">{{ stats.active_alerts }}</p>
-          <div class="flex items-center gap-2 text-xs">
-            <span class="text-red-600">{{ stats.alert_severity.high }}H</span>
-            <span class="text-amber-600">{{ stats.alert_severity.medium }}M</span>
-            <span class="text-gray-400">{{ stats.alert_severity.low }}L</span>
+      <div class="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <UiCard>
+          <div class="flex p-4 flex-col">
+            <p class="text-sm font-medium text-gray-700">Total Payout Amount</p>
+            <span class="text-3xl font-bold text-gray-900">{{ formatCurrency(stats.total_payout_amount) }}</span>
+            <p class="text-xs text-gray-400">{{ stats.total_payouts_today }} payouts today</p>
           </div>
-        </div>
+        </UiCard>
+
+        <UiCard>
+          <div class="flex p-4 flex-col">
+            <p class="text-sm font-medium text-gray-700">Auto-Approved Rate</p>
+            <span class="text-3xl font-bold text-gray-900">{{ stats.auto_approved_rate }}%</span>
+            <p class="flex items-center gap-1 text-xs" :class="stats.auto_approved_trend >= 0 ? 'text-green-600' : 'text-red-600'">
+              <Icon :icon="stats.auto_approved_trend >= 0 ? 'lucide:trending-up' : 'lucide:trending-down'" class="h-3 w-3" />
+              {{ Math.abs(stats.auto_approved_trend) }}% vs yesterday
+            </p>
+          </div>
+        </UiCard>
+
+        <UiCard>
+          <div class="flex p-4 flex-col">
+            <p class="text-sm font-medium text-gray-700">Pending Review</p>
+            <span class="text-3xl font-bold text-gray-900">{{ stats.pending_review_count }}</span>
+            <div>
+              <p v-if="stats.pending_review_count > 10" class="text-xs font-medium text-amber-600">Needs attention</p>
+              <p v-else class="text-xs text-gray-400">In queue</p>
+            </div>
+          </div>
+        </UiCard>
+
+        <UiCard>
+          <div class="flex p-4 flex-col">
+            <p class="text-sm font-medium text-gray-700">Active Alerts</p>
+            <span class="text-3xl font-bold text-gray-900">{{ stats.active_alerts }}</span>
+
+          </div>
+        </UiCard>
       </div>
 
       <!-- Middle Row: Risk Distribution + Processing Time -->
-      <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <!-- Risk Distribution -->
-        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm lg:col-span-2">
-          <h2 class="mb-4 text-sm font-semibold text-gray-700">Risk Score Distribution</h2>
-          <div class="flex items-center gap-8">
-            <!-- Donut chart (CSS-based) -->
-            <div class="relative h-40 w-40 shrink-0">
-              <svg viewBox="0 0 36 36" class="h-full w-full -rotate-90">
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e5e7eb" stroke-width="3" />
-                <circle
-                  cx="18" cy="18" r="15.9" fill="none"
-                  stroke="#22c55e" stroke-width="3"
-                  :stroke-dasharray="`${riskPct(stats.risk_distribution.approved)} ${100 - Number(riskPct(stats.risk_distribution.approved))}`"
-                  stroke-dashoffset="0"
-                />
-                <circle
-                  cx="18" cy="18" r="15.9" fill="none"
-                  stroke="#f59e0b" stroke-width="3"
-                  :stroke-dasharray="`${riskPct(stats.risk_distribution.escalated)} ${100 - Number(riskPct(stats.risk_distribution.escalated))}`"
-                  :stroke-dashoffset="`-${riskPct(stats.risk_distribution.approved)}`"
-                />
-                <circle
-                  cx="18" cy="18" r="15.9" fill="none"
-                  stroke="#ef4444" stroke-width="3"
-                  :stroke-dasharray="`${riskPct(stats.risk_distribution.blocked)} ${100 - Number(riskPct(stats.risk_distribution.blocked))}`"
-                  :stroke-dashoffset="`-${Number(riskPct(stats.risk_distribution.approved)) + Number(riskPct(stats.risk_distribution.escalated))}`"
-                />
-              </svg>
-              <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <span class="text-2xl font-bold text-gray-900">{{ riskDistTotal }}</span>
-                <span class="text-xs text-gray-400">Total</span>
+      <div class="mb-3 grid grid-cols-1 gap-3 lg:grid-cols-3">
+        <UiCard class="lg:col-span-2">
+          <UiCardHeader class="p-4 pb-2">
+            <UiCardTitle>Risk Score Distribution</UiCardTitle>
+          </UiCardHeader>
+          <UiCardContent class="p-4 pt-0">
+            <div class="flex items-center gap-6">
+              <UiChartDonutChart
+                :data="[
+                  { name: 'Approved', value: stats.risk_distribution.approved },
+                  { name: 'Escalated', value: stats.risk_distribution.escalated },
+                  { name: 'Blocked', value: stats.risk_distribution.blocked },
+                ]"
+                :colors="['#22c55e', '#f59e0b', '#ef4444']"
+                :width="130"
+                :height="130"
+                :label="String(riskDistTotal)"
+                sublabel="Total"
+              />
+              <div class="space-y-2">
+                <div class="flex items-center gap-2">
+                  <span class="h-2.5 w-2.5 rounded-full bg-green-500" />
+                  <span class="text-xs text-gray-600">Approved</span>
+                  <span class="ml-auto text-xs font-semibold text-gray-900">{{ stats.risk_distribution.approved }}</span>
+                  <span class="text-[10px] text-gray-400">({{ riskPct(stats.risk_distribution.approved) }}%)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                  <span class="text-xs text-gray-600">Escalated</span>
+                  <span class="ml-auto text-xs font-semibold text-gray-900">{{ stats.risk_distribution.escalated }}</span>
+                  <span class="text-[10px] text-gray-400">({{ riskPct(stats.risk_distribution.escalated) }}%)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="h-2.5 w-2.5 rounded-full bg-red-500" />
+                  <span class="text-xs text-gray-600">Blocked</span>
+                  <span class="ml-auto text-xs font-semibold text-gray-900">{{ stats.risk_distribution.blocked }}</span>
+                  <span class="text-[10px] text-gray-400">({{ riskPct(stats.risk_distribution.blocked) }}%)</span>
+                </div>
               </div>
             </div>
-            <!-- Legend -->
-            <div class="space-y-3">
-              <div class="flex items-center gap-2">
-                <span class="h-3 w-3 rounded-full bg-green-500" />
-                <span class="text-sm text-gray-600">Approved</span>
-                <span class="ml-auto text-sm font-semibold text-gray-900">{{ stats.risk_distribution.approved }}</span>
-                <span class="text-xs text-gray-400">({{ riskPct(stats.risk_distribution.approved) }}%)</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="h-3 w-3 rounded-full bg-amber-500" />
-                <span class="text-sm text-gray-600">Escalated</span>
-                <span class="ml-auto text-sm font-semibold text-gray-900">{{ stats.risk_distribution.escalated }}</span>
-                <span class="text-xs text-gray-400">({{ riskPct(stats.risk_distribution.escalated) }}%)</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="h-3 w-3 rounded-full bg-red-500" />
-                <span class="text-sm text-gray-600">Blocked</span>
-                <span class="ml-auto text-sm font-semibold text-gray-900">{{ stats.risk_distribution.blocked }}</span>
-                <span class="text-xs text-gray-400">({{ riskPct(stats.risk_distribution.blocked) }}%)</span>
-              </div>
-            </div>
-          </div>
-        </div>
+          </UiCardContent>
+        </UiCard>
 
-        <!-- Processing Time -->
-        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 class="mb-4 text-sm font-semibold text-gray-700">Avg Decision Time</h2>
-          <div class="flex flex-col items-center justify-center py-4">
-            <div class="flex items-baseline gap-1">
-              <span class="text-5xl font-bold text-gray-900">{{ stats.avg_decision_time_seconds.toFixed(1) }}</span>
-              <span class="text-lg text-gray-400">s</span>
+        <UiCard>
+          <UiCardHeader class="p-4 pb-2">
+            <UiCardTitle>Avg Decision Time</UiCardTitle>
+          </UiCardHeader>
+          <UiCardContent class="p-4 pt-0">
+            <div class="flex flex-col items-center justify-center py-2">
+              <div class="flex items-baseline gap-1">
+                <span class="text-4xl font-bold text-gray-900">{{ stats.avg_decision_time_seconds.toFixed(1) }}</span>
+                <span class="text-base text-gray-400">s</span>
+              </div>
+              <p class="mt-1 text-xs text-gray-500">Per transaction</p>
+              <UiBadge variant="success" class="mt-3 gap-1.5">
+                <Icon icon="lucide:zap" class="h-3 w-3" />
+                Real-time processing
+              </UiBadge>
             </div>
-            <p class="mt-2 text-sm text-gray-500">Per transaction</p>
-            <div class="mt-4 flex items-center gap-2 rounded-full bg-green-50 px-3 py-1">
-              <Icon icon="lucide:zap" class="h-4 w-4 text-green-600" />
-              <span class="text-xs font-medium text-green-700">Real-time processing</span>
-            </div>
-          </div>
-        </div>
+          </UiCardContent>
+        </UiCard>
       </div>
 
       <!-- Bottom Row: Top Risk Indicators + Recent Activity -->
-      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <!-- Top Risk Indicators -->
-        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 class="mb-4 text-sm font-semibold text-gray-700">Top Risk Indicators</h2>
-          <div class="space-y-3">
-            <div
-              v-for="indicator in stats.top_risk_indicators"
-              :key="indicator.name"
-              class="flex items-center gap-3"
-            >
-              <span class="w-32 truncate text-sm text-gray-600">
-                {{ riskIndicatorLabels[indicator.name] || indicator.name }}
-              </span>
-              <div class="flex-1">
-                <ProgressRoot :model-value="(indicator.count / indicatorMaxCount()) * 100" :max="100" class="relative h-2 overflow-hidden rounded-full bg-gray-100">
-                  <ProgressIndicator
-                    class="h-full rounded-full bg-primary-500 transition-all"
-                    :style="{ width: `${(indicator.count / indicatorMaxCount()) * 100}%` }"
-                  />
-                </ProgressRoot>
-              </div>
-              <span class="w-8 text-right text-sm font-semibold text-gray-700">{{ indicator.count }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recent Activity Feed -->
-        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 class="mb-4 text-sm font-semibold text-gray-700">Recent Activity</h2>
-          <div class="space-y-3">
-            <div
-              v-for="activity in stats.recent_activity?.slice(0, 8)"
-              :key="activity.id"
-              class="flex items-center gap-3 rounded-lg border border-gray-100 px-3 py-2"
-            >
+      <div class="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-2">
+        <UiCard class="flex flex-col overflow-hidden">
+          <UiCardHeader class="p-4 pb-2">
+            <UiCardTitle>Top Risk Indicators</UiCardTitle>
+          </UiCardHeader>
+          <UiCardContent class="flex-1 overflow-y-auto p-4 pt-0">
+            <div class="space-y-2">
               <div
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
-                :class="actionColors[activity.action] || 'text-gray-600 bg-gray-50'"
+                v-for="indicator in stats.top_risk_indicators"
+                :key="indicator.name"
+                class="flex items-center gap-3"
               >
-                <Icon
-                  :icon="actionIcons[activity.action] || 'lucide:circle'"
-                  class="h-4 w-4"
-                />
+                <span class="w-28 truncate text-xs text-gray-600">
+                  {{ riskIndicatorLabels[indicator.name] || indicator.name }}
+                </span>
+                <div class="flex-1">
+                  <ProgressRoot :model-value="(indicator.count / indicatorMaxCount()) * 100" :max="100" class="relative h-1.5 overflow-hidden rounded-full bg-gray-100">
+                    <ProgressIndicator
+                      class="h-full rounded-full bg-primary-500 transition-all"
+                      :style="{ width: `${(indicator.count / indicatorMaxCount()) * 100}%` }"
+                    />
+                  </ProgressRoot>
+                </div>
+                <span class="w-7 text-right text-xs font-semibold text-gray-700">{{ indicator.count }}</span>
               </div>
-              <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-medium text-gray-800">
-                  {{ activity.customer_id }}
-                </p>
-                <p class="text-xs text-gray-400">{{ formatDate(activity.timestamp) }}</p>
-              </div>
-              <div class="text-right">
-                <p class="text-sm font-semibold text-gray-900">{{ formatCurrency(activity.amount, activity.currency) }}</p>
-                <span
-                  class="inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold capitalize"
+            </div>
+          </UiCardContent>
+        </UiCard>
+
+        <UiCard class="flex flex-col overflow-hidden">
+          <UiCardHeader class="p-4 pb-2">
+            <UiCardTitle>Recent Activity</UiCardTitle>
+          </UiCardHeader>
+          <UiCardContent class="flex-1 overflow-y-auto p-4 pt-0">
+            <div class="space-y-1.5">
+              <div
+                v-for="activity in stats.recent_activity?.slice(0, 8)"
+                :key="activity.id"
+                class="flex items-center gap-2.5 rounded-lg border border-gray-100 px-2.5 py-1.5"
+              >
+                <div
+                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
                   :class="actionColors[activity.action] || 'text-gray-600 bg-gray-50'"
                 >
-                  {{ activity.action }}
-                </span>
+                  <Icon
+                    :icon="actionIcons[activity.action] || 'lucide:circle'"
+                    class="h-3.5 w-3.5"
+                  />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-xs font-medium text-gray-800">
+                    {{ activity.customer_id }}
+                  </p>
+                  <p class="text-[10px] text-gray-400">{{ formatDate(activity.timestamp) }}</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs font-semibold text-gray-900">{{ formatCurrency(activity.amount, activity.currency) }}</p>
+                  <UiBadge
+                    :variant="activity.action === 'blocked' ? 'destructive' : activity.action === 'escalated' ? 'warning' : 'success'"
+                    class="capitalize"
+                  >
+                    {{ activity.action }}
+                  </UiBadge>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </UiCardContent>
+        </UiCard>
       </div>
     </template>
 
     <!-- Demo mode indicator -->
-    <div v-if="status === 'error'" class="mt-4 flex items-center justify-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2 text-xs text-amber-700">
+    <div v-if="status === 'error'" class="mt-2 flex items-center justify-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2 text-xs text-amber-700">
       <Icon icon="lucide:info" class="h-4 w-4" />
       Demo mode - showing sample data. Connect backend API for live data.
     </div>
