@@ -2,6 +2,7 @@
 SQLAlchemy models — import all models here for Alembic discovery.
 
 Re-exports:
+- Admin
 - Customer, Transaction, PaymentMethod, Trade
 - Withdrawal, WithdrawalDecision, IndicatorResult
 - Alert, Device, IPHistory
@@ -9,6 +10,7 @@ Re-exports:
 - CustomerRiskPosture, CustomerWeightProfile
 """
 
+from app.data.db.models.admin import Admin
 from app.data.db.models.alert import Alert
 from app.data.db.models.audit_candidate import AuditCandidate
 from app.data.db.models.audit_config import AuditConfig
@@ -34,6 +36,7 @@ from app.data.db.models.withdrawal import Withdrawal
 from app.data.db.models.withdrawal_decision import WithdrawalDecision
 
 __all__ = [
+    "Admin",
     "Alert",
     "AuditCandidate",
     "AuditCandidateEvidence",

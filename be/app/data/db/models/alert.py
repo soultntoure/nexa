@@ -5,10 +5,12 @@ Columns:
 - id: UUID (PK)
 - withdrawal_id: UUID (FK -> withdrawals)
 - customer_id: UUID (FK -> customers)
-- alert_type: str (escalation/block)
+- alert_type: str (escalation/block/card_lockdown)
 - risk_score: float
 - top_indicators: JSON (list of indicator names)
 - is_read: bool (default False)
+- locked_by_admin_id: UUID (FK -> admins, nullable)
+- locked_at: datetime (nullable)
 - created_at: datetime
 
 Index: (created_at DESC), (is_read)
@@ -21,7 +23,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Index, String
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.data.db.base import Base
@@ -55,6 +57,12 @@ class Alert(Base):
     is_read: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False
     )
+    locked_by_admin_id: Mapped[uuid.UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey("admins.id"), nullable=True
+    )
+    locked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=_utcnow
     )
@@ -64,3 +72,4 @@ class Alert(Base):
         back_populates="alerts"
     )
     customer: Mapped[Customer] = relationship(back_populates="alerts")
+    locked_by_admin: Mapped[Admin | None] = relationship()

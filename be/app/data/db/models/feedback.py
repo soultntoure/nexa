@@ -19,6 +19,7 @@ import uuid
 from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, Text
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.data.db.base import Base
@@ -42,6 +43,9 @@ class Feedback(Base):
         ForeignKey("withdrawals.id"), nullable=False
     )
     admin_id: Mapped[str] = mapped_column(String(50), nullable=False)
+    action_by_admin_id: Mapped[uuid.UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey("admins.id"), nullable=True
+    )
     is_correct: Mapped[bool] = mapped_column(Boolean, nullable=False)
     reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -51,4 +55,7 @@ class Feedback(Base):
     # ── Relationships ──
     withdrawal: Mapped[Withdrawal] = relationship(
         back_populates="feedback"
+    )
+    action_by_admin: Mapped[Admin | None] = relationship(
+        back_populates="feedback_actions",
     )
