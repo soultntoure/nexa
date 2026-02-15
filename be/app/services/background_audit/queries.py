@@ -101,6 +101,11 @@ class BackgroundAuditQueries:
             await repo.update_status(candidate_id, action)
         return {"candidate_id": candidate_id, "status": action}
 
+    async def get_drift_candidates(self, run_id: str) -> list[dict[str, Any]]:
+        """Return candidates with drift_data in pattern_card."""
+        all_candidates = await self.get_candidates(run_id, skip=0, limit=200)
+        return [c for c in all_candidates if (c.get("pattern_card") or {}).get("drift_data")]
+
     # --- Config queries ---
 
     def _config_to_dict(self, config: AuditConfig) -> dict[str, Any]:

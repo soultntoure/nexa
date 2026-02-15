@@ -76,6 +76,15 @@ export interface PatternCard {
   tool_trace?: Record<string, unknown>[]
   source_types?: string[]
   support_accounts?: number
+  drift_data?: {
+    indicators: { name: string; mean: number; median: number; std: number; trend: string; outlier_count: number }[]
+    outliers: { customer_id: string; indicator_name: string; multiplier: number; deviation: number }[]
+    countermeasures: { indicator_name: string; issue: string; suggestion: string; severity: string }[]
+    chart_data: { labels: string[]; multipliers: number[]; trends: number[] }
+    total_recalibrations: number
+    window_start: string
+    window_end: string
+  }
   [key: string]: unknown
 }
 

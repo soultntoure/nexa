@@ -27,3 +27,36 @@ class PayoutDecisionResponse(BaseModel):
     reason: str
     decided_at: datetime
     status: Literal["processed"] = "processed"
+
+
+class BatchDecisionItem(BaseModel):
+    """Single item in a batch decision request."""
+
+    withdrawal_id: uuid.UUID
+    evaluation_id: uuid.UUID | None = None
+
+
+class BatchDecisionRequest(BaseModel):
+    """Officer submits a batch decision on multiple withdrawals."""
+
+    items: list[BatchDecisionItem] = Field(..., min_length=1, max_length=50)
+    officer_id: str = Field(..., min_length=1)
+    action: Literal["approved", "blocked"]
+    reason: str = Field(..., min_length=1)
+
+
+class BatchDecisionResultItem(BaseModel):
+    """Result for a single item in a batch decision."""
+
+    withdrawal_id: uuid.UUID
+    status: Literal["processed", "failed"]
+    error: str | None = None
+
+
+class BatchDecisionResponse(BaseModel):
+    """Response for a batch decision request."""
+
+    results: list[BatchDecisionResultItem]
+    total: int
+    succeeded: int
+    failed: int

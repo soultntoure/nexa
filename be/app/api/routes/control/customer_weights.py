@@ -3,6 +3,7 @@
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas.control.customer_weights import (
@@ -20,6 +21,11 @@ router = APIRouter(
     prefix="/customers",
     tags=["customer-weights"],
 )
+
+
+class WeightPinRequest(BaseModel):
+    indicator_name: str
+    is_pinned: bool
 
 
 @router.get(
@@ -70,5 +76,21 @@ async def reset_weights(
         return WeightResetResponse(
             customer_id=external_id, message=message,
         )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.post("/{external_id}/weights/pin")
+async def pin_indicator(
+    external_id: str,
+    body: WeightPinRequest,
+    session: AsyncSession = Depends(get_session),
+) -> dict[str, str]:
+    """Pin or unpin an indicator for a customer."""
+    try:
+        msg = await svc.pin_indicator(
+            session, external_id, body.indicator_name, body.is_pinned,
+        )
+        return {"customer_id": external_id, "message": msg}
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

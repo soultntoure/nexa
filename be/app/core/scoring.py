@@ -172,7 +172,7 @@ def _align_score_with_decision(
     return composite
 
 
-_INDICATOR_LABELS: dict[str, str] = {
+INDICATOR_LABELS: dict[str, str] = {
     "trading_behavior": "trading activity",
     "device_fingerprint": "device recognition",
     "geographic": "geographic signals",
@@ -207,12 +207,12 @@ def _build_reasoning(
 
     parts = [decision_text + "."]
     primary_name, _ = significant[0]
-    primary_label = _INDICATOR_LABELS.get(primary_name, primary_name)
+    primary_label = INDICATOR_LABELS.get(primary_name, primary_name)
     parts.append(f"The customer's {primary_label} is the primary concern.")
 
     if len(significant) > 1:
         secondary = [
-            _INDICATOR_LABELS.get(n, n) for n, _ in significant[1:3]
+            INDICATOR_LABELS.get(n, n) for n, _ in significant[1:3]
         ]
         if len(secondary) == 1:
             parts.append(f"Additionally, {secondary[0]} was flagged.")

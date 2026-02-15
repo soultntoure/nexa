@@ -89,6 +89,42 @@ async def reset_to_baseline(
     return f"Profile reset to baseline for {external_id}."
 
 
+async def pin_indicator(
+    session: AsyncSession,
+    external_id: str,
+    indicator_name: str,
+    is_pinned: bool,
+) -> str:
+    """Set is_pinned on an indicator in the active profile's JSONB."""
+    customer = await _resolve_customer(session, external_id)
+    profile = await _get_active_profile(session, customer.id)
+    if not profile:
+        raise ValueError(f"No active profile for {external_id}")
+
+    # Re-fetch attached to session for mutation
+    stmt = select(CustomerWeightProfile).where(
+        CustomerWeightProfile.customer_id == customer.id,
+        CustomerWeightProfile.is_active.is_(True),
+    )
+    result = await session.execute(stmt)
+    active = result.scalar_one_or_none()
+    if not active:
+        raise ValueError(f"No active profile for {external_id}")
+
+    weights = dict(active.indicator_weights or {})
+    entry = weights.get(indicator_name, {})
+    if not isinstance(entry, dict):
+        entry = {"multiplier": 1.0}
+    entry["is_pinned"] = is_pinned
+    weights[indicator_name] = entry
+    active.indicator_weights = weights
+    await session.commit()
+
+    action = "pinned" if is_pinned else "unpinned"
+    logger.info("Indicator %s %s for %s", indicator_name, action, external_id)
+    return f"Indicator '{indicator_name}' {action} for {external_id}."
+
+
 # ── Private helpers ──
 
 

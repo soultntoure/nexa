@@ -3,7 +3,7 @@ import { Icon } from '@iconify/vue'
 import type { Transaction, TransactionStatus } from '~/composables/useTransactions'
 import { formatCurrency, formatDate } from '~/utils/formatters'
 
-defineProps<{
+const props = defineProps<{
   transactions: Transaction[]
   selectedId: string | null
   selectedStatus: TransactionStatus
@@ -15,6 +15,7 @@ defineProps<{
   totalPages: number
   shownCount: number
   totalCount: number
+  checkedIds: Set<string>
 }>()
 
 const emit = defineEmits<{
@@ -24,6 +25,8 @@ const emit = defineEmits<{
   'update:dateFrom': [value: string]
   'update:dateTo': [value: string]
   'update:currentPage': [value: number]
+  'toggle-check': [id: string]
+  'toggle-all': []
 }>()
 
 const showDateFilter = ref(false)
@@ -129,11 +132,20 @@ function selectStatus(key: TransactionStatus) {
       </button>
     </div>
 
-    <!-- Results Count -->
+    <!-- Results Count + Select All -->
     <div class="shrink-0 flex items-center justify-between px-4 py-2 border-b border-gray-100">
-      <p class="text-xs text-gray-500">
-        <span class="font-medium text-gray-700">{{ totalCount }}</span> results
-      </p>
+      <div class="flex items-center gap-2">
+        <input
+          type="checkbox"
+          class="rounded text-primary-600 focus:ring-primary-500 cursor-pointer"
+          :checked="transactions.length > 0 && transactions.every(t => checkedIds.has(t.id))"
+          :indeterminate="transactions.some(t => checkedIds.has(t.id)) && !transactions.every(t => checkedIds.has(t.id))"
+          @change="emit('toggle-all')"
+        >
+        <p class="text-xs text-gray-500">
+          <span class="font-medium text-gray-700">{{ totalCount }}</span> results
+        </p>
+      </div>
     </div>
 
     <!-- Scrollable Card List -->
@@ -149,9 +161,17 @@ function selectStatus(key: TransactionStatus) {
       >
         <!-- Customer Name + Risk Score -->
         <div class="flex items-start justify-between mb-1.5">
-          <div class="min-w-0">
-            <p class="text-sm font-medium text-gray-900 truncate">{{ tx.customer.name }}</p>
-            <p class="text-xs text-gray-500 truncate">{{ tx.customer.email }}</p>
+          <div class="flex items-start gap-2 min-w-0">
+            <input
+              type="checkbox"
+              class="mt-1 rounded text-primary-600 focus:ring-primary-500 cursor-pointer shrink-0"
+              :checked="checkedIds.has(tx.id)"
+              @click.stop="emit('toggle-check', tx.id)"
+            >
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-gray-900 truncate">{{ tx.customer.name }}</p>
+              <p class="text-xs text-gray-500 truncate">{{ tx.customer.email }}</p>
+            </div>
           </div>
           <div class="flex items-center gap-2 shrink-0 ml-2">
             <span

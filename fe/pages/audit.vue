@@ -38,6 +38,14 @@ const selectedCandidate = computed(() =>
   candidates.value.find(c => c.candidate_id === selectedCandidateId.value) ?? null
 )
 
+const patternCandidates = computed(() =>
+  candidates.value.filter(c => !c.pattern_card?.drift_data)
+)
+
+const driftCandidates = computed(() =>
+  candidates.value.filter(c => c.pattern_card?.drift_data)
+)
+
 async function fetchPastRuns(): Promise<void> {
   try {
     pastRuns.value = await $fetch<RunListItem[]>('/api/background-audits/runs')
@@ -80,7 +88,7 @@ usePolling(fetchPastRuns, 5000)
         <h1 class="text-2xl font-bold text-gray-900">Fraud Pattern Discovery</h1>
         <p class="mt-1 text-sm text-gray-500">
           {{ viewState === 'streaming' ? `Analyzing ${clusters.length} clusters...` :
-             viewState === 'completed' || viewState === 'reviewing' ? `Found ${candidates.length} patterns` :
+             viewState === 'completed' || viewState === 'reviewing' ? `Found ${patternCandidates.length} patterns` :
              'AI-powered pattern detection across transaction history' }}
         </p>
       </div>
@@ -224,12 +232,19 @@ usePolling(fetchPastRuns, 5000)
       </AuditSplitView>
 
       <!-- Results Grid -->
-      <div v-if="candidates.length > 0" class="mt-4">
+      <div v-if="patternCandidates.length > 0" class="mt-4">
         <AuditCandidateGrid
-          :candidates="candidates"
+          :candidates="patternCandidates"
           @select-candidate="handleSelectCandidate"
         />
       </div>
+
+      <!-- Weight Drift Section -->
+      <AuditDriftSection
+        v-if="driftCandidates.length > 0 && runId"
+        :drift-candidates="driftCandidates"
+        :run-id="runId"
+      />
     </template>
 
     <!-- Error -->

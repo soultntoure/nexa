@@ -23,6 +23,59 @@ const route = useRoute()
 const selectedTransaction = ref<Transaction | null>(null)
 const showFlagModal = ref(false)
 const showCustomerSummary = ref(false)
+const checkedIds = ref<Set<string>>(new Set())
+const isBatchSubmitting = ref(false)
+
+function toggleCheck(id: string) {
+  const next = new Set(checkedIds.value)
+  if (next.has(id)) next.delete(id)
+  else next.add(id)
+  checkedIds.value = next
+}
+
+function toggleAll() {
+  const allChecked = paginatedTransactions.value.every(t => checkedIds.value.has(t.id))
+  const next = new Set(checkedIds.value)
+  if (allChecked) {
+    paginatedTransactions.value.forEach(t => next.delete(t.id))
+  } else {
+    paginatedTransactions.value.forEach(t => next.add(t.id))
+  }
+  checkedIds.value = next
+}
+
+function clearChecked() {
+  checkedIds.value = new Set()
+}
+
+const checkedTransactions = computed(() =>
+  allTransactions.value.filter(t => checkedIds.value.has(t.id)),
+)
+
+async function handleBatchAction(action: 'approved' | 'blocked', reason: string) {
+  if (checkedTransactions.value.length === 0) return
+  isBatchSubmitting.value = true
+  try {
+    await $fetch('/api/payout/batch-decision', {
+      method: 'POST',
+      body: {
+        items: checkedTransactions.value.map(t => ({
+          withdrawal_id: t.withdrawal_id,
+          evaluation_id: t.evaluation_id,
+        })),
+        officer_id: 'officer-demo-001',
+        action,
+        reason,
+      },
+    })
+    checkedTransactions.value.forEach(t => updateTransactionStatus(t.id, action))
+    clearChecked()
+  } catch {
+    // batch call failed
+  } finally {
+    isBatchSubmitting.value = false
+  }
+}
 
 // Pre-populate filters from query params (e.g. from notification click)
 const fromNotification = Boolean(route.query.search)
@@ -142,6 +195,15 @@ function handleDiscuss(): void {
   <div class="-m-6 flex overflow-hidden" style="height: 100vh">
     <!-- Left Panel: Card List -->
     <div class="w-[380px] shrink-0 border-r border-gray-200 flex flex-col z-20">
+      <WithdrawalsBatchActionBar
+        v-if="checkedIds.size > 0"
+        :selected-count="checkedIds.size"
+        :is-submitting="isBatchSubmitting"
+        @batch-approve="(reason) => handleBatchAction('approved', reason)"
+        @batch-block="(reason) => handleBatchAction('blocked', reason)"
+        @clear="clearChecked"
+      />
+
       <WithdrawalsCardList
         :transactions="paginatedTransactions"
         :selected-id="selectedTransaction?.id ?? null"
@@ -154,12 +216,15 @@ function handleDiscuss(): void {
         :total-pages="totalPages"
         :shown-count="paginatedTransactions.length"
         :total-count="filteredTransactions.length"
+        :checked-ids="checkedIds"
         @select="selectTransaction"
         @update:selected-status="(v) => { selectedStatus = v; currentPage = 1 }"
         @update:search-query="(v) => { searchQuery = v; currentPage = 1 }"
         @update:date-from="(v) => dateFrom = v"
         @update:date-to="(v) => dateTo = v"
         @update:current-page="(v) => currentPage = v"
+        @toggle-check="toggleCheck"
+        @toggle-all="toggleAll"
       />
     </div>
 

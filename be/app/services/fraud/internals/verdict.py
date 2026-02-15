@@ -14,19 +14,15 @@ def apply_verdict(
 
     Guardrails:
     - Auto-decided cases (no investigators): use rule engine decision directly.
-    - Rule engine blocked + triage approved: override to escalated (safety net).
     - Low-confidence triage (<0.5): fall back to rule engine decision.
-    - Otherwise: triage verdict is authoritative.
+    - Otherwise: triage verdict is authoritative (agents with SQL evidence
+      can override rule-engine blocks if they find no corroborative evidence).
     """
     adjusted_rule = scoring.composite_score + posture_uplift
 
     # No investigators ran (auto-decide cases)
     if not triage.assignments:
         return scoring.decision, adjusted_rule
-
-    # Guardrail: rule-blocked cannot be approved by triage
-    if scoring.decision == "blocked" and triage.decision == "approved":
-        return "escalated", max(triage.risk_score, adjusted_rule)
 
     # Low-confidence verdict: fall back to rule engine
     if triage.confidence < 0.5:
