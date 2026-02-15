@@ -277,11 +277,12 @@ graph TB
         SS["StreamingService"]
     end
 
+    IND["8 Rule-Based Indicators<br/>"]
+
     subgraph CORE["Core Logic (pure math)"]
         SCORE["scoring.py"]
         CALIB["calibration.py"]
         WD["weight_drift.py"]
-        IND["8 Indicators"]
     end
 
     subgraph AGENTS["Agentic System"]
@@ -298,10 +299,10 @@ graph TB
     PIN --> CALIB
     CHAT --> SS
 
-    IS --> SCORE
     IS --> IND
-    IS --> TRIAGE
-    IS --> INV_AGENTS
+    IS --> SCORE
+    IND --> TRIAGE
+    IND --> INV_AGENTS
     BAF --> WDA
     BAF --> AUDIT_AGENT
     WDA --> WD
@@ -318,7 +319,9 @@ graph TB
 
     class IS,INV,QUEUE fraud
     class BAF,WDA,AUDIT,DRIFT_PDF,PIN audit
-    class SCORE,CALIB,WD,IND core
+    classDef rules fill:#7ED321,stroke:#333,stroke-width:2px,color:#000
+    class SCORE,CALIB,WD core
+    class IND rules
     class TRIAGE,INV_AGENTS,DRIFT_AGENT,AUDIT_AGENT agent
     class DB,LLM ext
 ```
