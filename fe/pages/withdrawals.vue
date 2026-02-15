@@ -194,16 +194,7 @@ function handleDiscuss(): void {
 <template>
   <div class="-m-6 flex overflow-hidden" style="height: 100vh">
     <!-- Left Panel: Card List -->
-    <div class="w-[380px] shrink-0 border-r border-gray-200 flex flex-col z-20">
-      <WithdrawalsBatchActionBar
-        v-if="checkedIds.size > 0"
-        :selected-count="checkedIds.size"
-        :is-submitting="isBatchSubmitting"
-        @batch-approve="(reason) => handleBatchAction('approved', reason)"
-        @batch-block="(reason) => handleBatchAction('blocked', reason)"
-        @clear="clearChecked"
-      />
-
+    <div class="w-[380px] shrink-0 border-r border-gray-200 flex flex-col z-20 relative">
       <WithdrawalsCardList
         :transactions="paginatedTransactions"
         :selected-id="selectedTransaction?.id ?? null"
@@ -226,6 +217,29 @@ function handleDiscuss(): void {
         @toggle-check="toggleCheck"
         @toggle-all="toggleAll"
       />
+
+      <!-- Batch Action Bar (Fixed at bottom of left panel) -->
+      <Transition
+        enter-active-class="transition-transform duration-300 ease-out"
+        enter-from-class="translate-y-full"
+        enter-to-class="translate-y-0"
+        leave-active-class="transition-transform duration-200 ease-in"
+        leave-from-class="translate-y-0"
+        leave-to-class="translate-y-full"
+      >
+        <div
+          v-if="checkedIds.size > 0"
+          class="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.1)]"
+        >
+          <WithdrawalsBatchActionBar
+            :selected-count="checkedIds.size"
+            :is-submitting="isBatchSubmitting"
+            @batch-approve="(reason) => handleBatchAction('approved', reason)"
+            @batch-block="(reason) => handleBatchAction('blocked', reason)"
+            @clear="clearChecked"
+          />
+        </div>
+      </Transition>
     </div>
 
     <!-- Right Area: Map + Detail Panel overlay -->

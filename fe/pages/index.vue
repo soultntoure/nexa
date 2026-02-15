@@ -101,7 +101,7 @@ if (import.meta.client) {
         newCustomers.value = data
           .filter((c: any) => c.registration_date)
           .sort((a: any, b: any) => new Date(b.registration_date).getTime() - new Date(a.registration_date).getTime())
-          .slice(0, 5)
+          .slice(0, 6)
       }
     })
     .catch(() => {})
@@ -407,12 +407,12 @@ function indicatorMaxCount() {
                   </p>
                   <p class="text-[10px] text-gray-400">{{ formatDate(customer.registration_date) }}</p>
                 </div>
-                <div class="text-right">
+                <!-- <div class="text-right">
                   <p class="text-xs font-semibold text-gray-900">{{ customer.country }}</p>
                   <UiBadge variant="secondary" class="capitalize">
                     New
                   </UiBadge>
-                </div>
+                </div> -->
               </div>
             </div>
           </UiCardContent>

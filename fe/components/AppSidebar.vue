@@ -54,10 +54,10 @@ function toggleCollapse() {
     ]"
   >
     <!-- Logo -->
-    <div class="flex h-16 items-center border-b border-gray-200" :class="collapsed ? 'justify-center px-2' : 'gap-3 px-6'">
+    <NuxtLink to="/" class="flex h-16 items-center border-b border-gray-200 cursor-pointer transition-colors hover:bg-gray-50" :class="collapsed ? 'justify-center px-2' : 'gap-3 px-6'" @click="closeMobile">
       <img src="/nexa.svg" alt="Nexa" class="h-8 w-8 shrink-0" />
       <span v-if="!collapsed" class="text-xl font-bold text-gray-900 whitespace-nowrap">Nexa</span>
-    </div>
+    </NuxtLink>
 
     <!-- Navigation -->
     <nav class="flex-1 space-y-1 py-4" :class="collapsed ? 'px-2' : 'px-4'">
