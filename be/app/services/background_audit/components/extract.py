@@ -14,10 +14,10 @@ from app.core.background_audit.dataset_prep import (
     compute_text_hash,
     compute_unit_id,
     extract_reasoning_units,
-    mask_pii,
     normalize_text,
     validate_quality,
 )
+from app.core.background_audit._pii_stubs import mask_pii
 from app.data.db.models.audit_text_unit import AuditTextUnit
 from app.data.db.repositories.audit_unit_repository import AuditUnitRepository
 
