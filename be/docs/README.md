@@ -1,172 +1,170 @@
-# Fraud Detection System
+# Nexa Backend — Architecture Overview
 
-AI-powered payment fraud detection for the Deriv trading platform. Every withdrawal passes through 8 parallel rule indicators, ambiguous cases escalate to LLM investigators, and officers make final calls on escalated items.
+Nexa is a fraud detection platform for financial withdrawals. It combines **rule-based scoring**, **LLM-powered investigators**, and **autonomous background auditing** to produce approve / escalate / block decisions on withdrawal requests.
 
 ---
 
-## System Overview
+## System Architecture
 
 ```mermaid
-flowchart TD
-    W[Withdrawal Request] --> RE
-
-    subgraph RE["Rule Engine (50ms)"]
-        I[8 SQL Indicators in Parallel] --> SC[Weighted Scoring]
+graph TD
+    subgraph Clients
+        UI[Admin UI]
+        EXT[External Systems\nwithdrawal events]
     end
 
-    SC -->|"< 0.30"| A[Approved]
-    SC -->|">= 0.70"| B[Blocked]
-    SC -->|"0.30-0.70"| TR
-
-    subgraph TR["LLM Investigation (12s)"]
-        T[Triage Router] --> INV[0-3 Investigators]
-        INV --> BL[Blended Score]
+    subgraph API Layer
+        direction LR
+        FRAUD[/withdrawals/investigate]
+        AUDIT[/background-audits]
+        PREFRAUD[/prefraud]
+        ANALYTICS[/analytics/query]
+        CONTROL[/admins /alerts\n/customer-weights]
     end
 
-    BL --> E[Escalated to Officer]
-    BL -->|"high risk"| B
-    E --> OQ[Officer Queue]
-    OQ -->|approve/block| FD[Final Decision]
-    FD -->|feedback| FL[Feedback Loop]
-    FL -->|recalibrate| CW[Customer Weights]
-    CW -->|next request| RE
+    subgraph Services Layer
+        IS[InvestigatorService]
+        BAF[BackgroundAuditFacade]
+        DET[DetectionService]
+        POST[PostureService]
+        FLS[FeedbackLoopService]
+        SS[StreamingService]
+    end
 
-    style A fill:#c8e6c9,color:#1b5e20
-    style B fill:#ffcdd2,color:#b71c1c
-    style E fill:#fff9c4,color:#f57f17
-    style RE fill:#e3f2fd,color:#0d47a1
-    style TR fill:#fff3e0,color:#e65100
+    subgraph Agentic System
+        BA[BaseAgent\nGemini LLM]
+        INV[Investigators\nfinancial · identity · cross_account]
+        AUDIT_AG[BackgroundAuditAgent]
+        DRIFT_AG[WeightDriftAgent]
+    end
+
+    subgraph Core Layer
+        SC[Scoring Engine]
+        CAL[Calibration]
+        WD[Weight Drift]
+        PF[Pattern Fingerprint]
+    end
+
+    subgraph Data Layer
+        PG[(PostgreSQL\n20+ tables)]
+        CHROMA[(ChromaDB\nvector store)]
+        EMB[Gemini Embeddings]
+    end
+
+    UI --> API Layer
+    EXT --> FRAUD
+
+    FRAUD --> IS
+    AUDIT --> BAF
+    PREFRAUD --> DET
+    PREFRAUD --> POST
+    ANALYTICS --> SS
+    CONTROL --> FLS
+
+    IS --> SC
+    IS --> CAL
+    IS -->|runs| INV
+    INV --> BA
+    BAF -->|runs| AUDIT_AG
+    BAF -->|runs| DRIFT_AG
+    AUDIT_AG --> BA
+    DRIFT_AG --> BA
+
+    IS --> PG
+    BAF --> PG
+    BAF --> CHROMA
+    EMB --> CHROMA
+    FLS --> CAL
+    FLS --> PG
+    DET --> PG
+    POST --> PG
 ```
 
 ---
 
-## Implemented Features
+## Module Docs
 
-| Feature | What it does | Docs | Key Code |
-|---------|-------------|------|----------|
-| **Fraud Detection** | Two pipelines: rule engine + optional LLM investigators | [features/fraud_detection/](features/fraud_detection/) | `app/services/fraud/` |
-| **Analyst Chat** | Natural language fraud queries with SSE streaming + auto charts | [features/chat/](features/chat/) | `app/services/chat/` |
-| **Card Lockdown** | Detect shared payment cards across accounts, lock in one click | [features/card_lockdown/](features/card_lockdown/) | `app/services/control/card_lockdown_service.py` |
-| **Adaptive Weights** | Per-customer indicator weights that learn from officer decisions | [features/weights_config/](features/weights_config/) | `app/services/control/customer_weight_explain_service.py` |
-| **Background Audits** | Extract fraud reasoning, embed, cluster, surface new patterns | [features/background_audits/](features/background_audits/) | `app/services/audit/` |
-| **Officer Queue** | Paginated escalated withdrawals for officer review | [architecture/component_diagram.md](architecture/component_diagram.md) | `app/services/dashboard/queue_mapper.py` |
-| **Feedback Loop** | Officer decisions recalibrate customer weight profiles | [features/weights_config/overview.md](features/weights_config/overview.md) | `app/services/control/feedback_loop_service.py` |
+| Module | README |
+|--------|--------|
+| Agentic System | [docs/agentic_system/README.md](agentic_system/README.md) |
+| API Layer | [docs/api/README.md](api/README.md) |
+| Core Layer | [docs/core/README.md](core/README.md) |
+| Data Layer | [docs/data/README.md](data/README.md) |
+| Services Layer | [docs/services/README.md](services/README.md) |
 
 ---
 
-## Architecture & Reference
+## Key Flows
 
-| Topic | Docs |
-|-------|------|
-| Full component diagram | [architecture/component_diagram.md](architecture/component_diagram.md) |
-| Problem statement + tech stack | [architecture/problem_statement.md](architecture/problem_statement.md) |
-| Withdrawal state machine | [architecture/payout_state_machine.md](architecture/payout_state_machine.md) |
-| VPN detection approach | [architecture/vpn_detection.md](architecture/vpn_detection.md) |
-| 16 test customer scenarios | [architecture/seeding_scenarios.md](architecture/seeding_scenarios.md) |
+### 1. Withdrawal Investigation
 
----
+```
+POST /withdrawals/investigate
+  -> InvestigatorService.investigate()
+    -> run_all_indicators()          # 8 rule-based scores (parallel DB queries)
+    -> calculate_risk_score()        # weighted composite + overrides
+    -> [if not auto-approved]
+      -> 3 LLM investigators         # financial, identity, cross_account (parallel)
+      -> triage verdict LLM          # final synthesized decision
+    -> apply_verdict()               # rule + triage + posture uplift
+    -> persist to DB
+    -> create alert if blocked/escalated
+  <- InvestigatorResponse
+```
 
-## Database Schema
+### 2. Background Audit Run
 
-| Topic | Docs |
-|-------|------|
-| Schema overview | [database/README.md](database/README.md) |
-| Customers, devices, IPs, trades | [database/customer_and_activity.md](database/customer_and_activity.md) |
-| Withdrawals, evaluations, indicators | [database/withdrawal_risk_pipeline.md](database/withdrawal_risk_pipeline.md) |
-| Alerts, feedback, officer decisions | [database/review_feedback_alerts.md](database/review_feedback_alerts.md) |
-| Weight profiles, thresholds, patterns | [database/config_and_learning.md](database/config_and_learning.md) |
-| Investigation JSONB persistence | [database/investigator_service_persistence.md](database/investigator_service_persistence.md) |
+```
+POST /background-audits/trigger
+  -> BackgroundAuditFacade.trigger_run()
+    -> extract_cohort()              # DB: fetch recent flagged evaluations
+    -> embed_and_cluster()           # Gemini embeddings -> HDBSCAN clusters
+    -> [parallel]
+      -> generate_candidates()       # per cluster: BackgroundAuditAgent synthesis
+      -> run_weight_drift_analysis() # WeightDriftAgent on fleet profiles
+    -> store AuditCandidates in DB
+  <- run_id (SSE stream at /runs/{id}/stream)
+```
 
----
+### 3. Officer Decision -> Weight Recalibration
 
-## Planned Features (No Code)
-
-| Feature | Docs | Status |
-|---------|------|--------|
-| Background Audit Stage 2 (autonomous agent) | [planning/background_audits/](planning/background_audits/) | Design phase |
-| Predictive Fraud / ML Blocking | [planning/predictive_fraud/](planning/predictive_fraud/) | Design phase |
-
----
-
-## API Endpoints
-
-| Method | Path | Feature |
-|--------|------|---------|
-| POST | `/api/payout/evaluate` | Old fraud pipeline (rule + gray-zone LLM) |
-| POST | `/api/payout/investigate` | New fraud pipeline (rule + triage + investigators) |
-| GET | `/api/payout/evaluate/{id}` | Stored indicator results |
-| GET | `/api/payout/queue` | Officer review queue |
-| GET | `/api/payout/investigate/{id}` | Investigation evidence |
-| POST | `/api/payout/decision` | Officer approve/block |
-| POST | `/api/query/chat` | Analyst chat (SSE streaming) |
-| GET | `/api/customers/{id}/weights` | Customer weight snapshot |
-| POST | `/api/customers/{id}/weights/reset` | Reset to baseline weights |
-| GET | `/api/cards/check/{customer_id}` | Shared card detection |
-| POST | `/api/cards/lockdown` | Card lockdown execution |
-| POST | `/api/background-audits/trigger` | Start audit run |
-| GET | `/api/background-audits/runs/{id}` | Audit run status |
-| GET | `/api/background-audits/runs/{id}/candidates` | Discovered patterns |
-| GET | `/api/dashboard/stats` | Dashboard statistics |
-| GET | `/api/health` | Health check |
+```
+POST /admins/decision {withdrawal_id, action: "blocked"|"approved"}
+  -> FeedbackLoopService
+    -> load decision window (last 20 decisions)
+    -> recalculate_profile()         # Bayesian precision per indicator
+    -> calculate_blend_weights()     # rule_engine vs investigator ratio
+    -> update CustomerWeightProfile in DB
+```
 
 ---
 
-## 8 Rule Indicators
+## Layering Rules
 
-| # | Indicator | Weight | Detects |
-|---|-----------|--------|---------|
-| 1 | Amount Anomaly | 1.0 | Z-score of withdrawal vs history |
-| 2 | Velocity | 1.0 | Withdrawal frequency spikes (1h/24h/7d) |
-| 3 | Payment Method | 1.0 | New/unverified/blacklisted methods |
-| 4 | Geographic | 1.2 | VPN, country mismatch, IP diversity |
-| 5 | Device Fingerprint | 1.3 | Cross-account sharing, untrusted devices |
-| 6 | Trading Behavior | 1.5 | Deposit & run (0 trades + high withdrawal) |
-| 7 | Recipient | 1.0 | Name mismatch, shared recipient accounts |
-| 8 | Card Errors | 1.2 | Failed transactions, method switching |
+```
+API -> Service -> Core / Data
+```
 
----
-
-## Performance (v3, Feb 2026)
-
-| Traffic | Latency | LLM Calls |
-|---------|---------|-----------|
-| Clean (56%) | **0.14s** | 0 |
-| Suspicious (44%) | **12.1s** | 2-3 |
-| Blended (80/20) | **~2.8s** | -- |
-| Analyst Chat | **3.7s** | 1 |
+| Layer | Can Import | Cannot Import |
+|-------|-----------|---------------|
+| API | Services, API Schemas | DB Models, Core directly |
+| Services | Core, Data, Agentic System | API Schemas |
+| Core | nothing (pure functions) | Services, Data, Agentic System |
+| Data | DB Models, SQLAlchemy | Core, Services, API |
+| Agentic System | Data (vector store) | Services, Core |
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| API | FastAPI + uvicorn (async, SSE, DI) |
-| Agents | LangChain + langchain-google-genai |
-| LLM | Google Gemini 3-Flash |
-| Database | PostgreSQL 16 (async via asyncpg) |
-| Vector DB | ChromaDB |
-| ORM | SQLAlchemy 2.0 + Alembic |
-| Schemas | Pydantic 2 |
-| Frontend | Vue 3 + TypeScript |
-| Infra | Docker Compose |
-
----
-
-## Running
-
-```bash
-# Start all services
-docker compose up -d
-
-# Seed 16 test customers
-python -m scripts.seed_data
-
-# Health check
-curl http://localhost:18080/api/health
-
-# Evaluate a withdrawal (new pipeline)
-curl -X POST http://localhost:18080/api/payout/investigate \
-  -H "Content-Type: application/json" \
-  -d '{"customer_id":"CUST-001","amount":500.00,"recipient_name":"Sarah Chen","recipient_account":"GB29NWBK60161331926819","ip_address":"51.148.20.30","device_fingerprint":"f1e2d3c4b5a6f1e2d3c4b5a6f1e2d3c4","customer_country":"GBR"}'
-```
+| Component | Technology |
+|-----------|-----------|
+| Web framework | FastAPI (async) |
+| LLM | Google Gemini (via LangChain 1.0) |
+| Database | PostgreSQL (async via asyncpg/SQLAlchemy) |
+| Vector store | ChromaDB (HNSW cosine) |
+| Embeddings | Google Gemini `embedding-001` (768-dim) |
+| Clustering | HDBSCAN (density-based, noise-tolerant) |
+| Agent framework | LangChain `create_agent` |
+| Web search | Tavily (optional, fraud typology research) |
+| Progress streaming | Server-Sent Events (SSE) |
