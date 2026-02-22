@@ -26,17 +26,21 @@ _SOURCE_LABELS = {
     "web_trace": "Web Trace",
 }
 
+# Text fields copied verbatim from agent result into the pattern card
+_TEXT_FIELDS = ["plain_language", "analyst_notes", "limitations", "uncertainty", "clustering_notes"]
+
+_MAX_SQL_FINDINGS = 6
+_SQL_VALUE_LIMIT = 200
+
 
 def friendly_source_label(source: Any) -> str:
     """Map raw source name to a human-friendly label."""
     raw = str(source or "").strip()
     if not raw:
         return "Evidence"
-
     normalized = raw.lower().strip()
     if normalized in _SOURCE_LABELS:
         return _SOURCE_LABELS[normalized]
-
     cleaned = re.sub(r"[_\-]+", " ", raw)
     return " ".join(token.capitalize() for token in cleaned.split())
 
@@ -48,45 +52,36 @@ def extract_agent_fields(
 ) -> None:
     """Extract normalized fields from agent output into a pattern card."""
     card["formal_pattern_name"] = as_text(result.get("formal_pattern_name")) or "Unknown"
-    card["plain_language"] = as_text(result.get("plain_language"))
-    card["analyst_notes"] = as_text(result.get("analyst_notes"))
-    card["limitations"] = as_text(result.get("limitations"))
-    card["uncertainty"] = as_text(result.get("uncertainty"))
-    card["clustering_notes"] = as_text(result.get("clustering_notes"))
+
+    for field in _TEXT_FIELDS:
+        card[field] = as_text(result.get(field))
+
     sql_from_result = normalize_sql_findings(result.get("sql_findings", []))
     sql_from_trace = trace_sql_findings(trace)
     card["sql_findings"] = _compact_sql_findings(dedupe_dict_rows(
         sql_from_result,
         sql_from_trace,
-        key_builder=lambda row: "|".join([
-            as_text(row.get("query")),
-            as_text(row.get("result")),
-        ]),
+        key_builder=lambda row: "|".join([as_text(row.get("query")), as_text(row.get("result"))]),
     ))
     card["web_references"] = normalize_web_references(result.get("web_references", []))
 
 
-_MAX_SQL_FINDINGS = 6
-_SQL_VALUE_LIMIT = 200
-
-
 def _compact_sql_findings(findings: list[dict[str, str]]) -> list[dict[str, str]]:
-    """Cap count, truncate values, drop redundant summary fields."""
-    compacted: list[dict[str, str]] = []
-    for f in findings[:_MAX_SQL_FINDINGS]:
-        compacted.append({
+    """Cap count and truncate long values."""
+    return [
+        {
             "query": as_text(f.get("query"))[:_SQL_VALUE_LIMIT],
             "result": as_text(f.get("result"))[:_SQL_VALUE_LIMIT],
-        })
-    return compacted
+        }
+        for f in findings[:_MAX_SQL_FINDINGS]
+    ]
 
 
 def trace_sql_findings(trace: list[dict[str, Any]]) -> list[dict[str, str]]:
     """Extract SQL findings from agent tool trace."""
     findings: list[dict[str, str]] = []
     for tool_call in trace:
-        tool_name = as_text(tool_call.get("tool"))
-        if not tool_name.startswith("sql"):
+        if not as_text(tool_call.get("tool")).startswith("sql"):
             continue
         query = extract_sql_query(tool_call.get("args_preview"))
         result = as_text(tool_call.get("result_preview"))

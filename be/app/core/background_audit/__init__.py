@@ -14,12 +14,11 @@ from app.core.background_audit.dataset_prep import (
     compute_window,
     extract_reasoning_units,
     generate_run_id,
-    mask_pii,
     normalize_text,
-    scan_text_for_pii,
     validate_quality,
     validate_window,
 )
+from app.core.background_audit._pii_stubs import mask_pii, scan_text_for_pii
 from app.core.background_audit.merge_logic import (
     initialize_dedupe_metadata,
     merge_candidate_card,

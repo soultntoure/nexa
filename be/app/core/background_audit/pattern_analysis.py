@@ -6,14 +6,34 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
+import hdbscan
 import numpy as np
 
 logger = logging.getLogger(__name__)
 
+# Cosine similarity thresholds for novelty classification
 COSINE_THRESHOLD = 0.82
 DRIFT_THRESHOLD = 0.70
 EXISTING_THRESHOLD = 0.82
 DEFAULT_CLUSTER_MERGE_SIMILARITY = 0.90
+
+# Weights for calculate_candidate_quality — must sum to 1.0
+_WEIGHT_CONFIDENCE = 0.35
+_WEIGHT_SUPPORT = 0.25
+_WEIGHT_IMPACT = 0.20
+_WEIGHT_EVIDENCE = 0.20
+
+# Normalization caps for support counts
+_SUPPORT_EVENTS_CAP = 50.0
+_SUPPORT_ACCOUNTS_CAP = 20.0
+_SUPPORT_EVENTS_WEIGHT = 0.6
+_SUPPORT_ACCOUNTS_WEIGHT = 0.4
+
+# Rank score weights for rank_evidence
+_RANK_WEIGHT_CONFIDENCE = 0.4
+_RANK_WEIGHT_SCORE = 0.3
+_RANK_WEIGHT_DIVERSITY = 0.3
+_RANK_DIVERSITY_BONUS = 0.1
 
 
 @dataclass
@@ -44,8 +64,6 @@ def assign_clusters(
     merge_similarity: float | None = DEFAULT_CLUSTER_MERGE_SIMILARITY,
 ) -> ClusterResult:
     """Run HDBSCAN clustering on embedding vectors."""
-    import hdbscan
-
     if not embeddings:
         return ClusterResult(cluster_labels=[], n_clusters=0, noise_count=0)
 
@@ -69,35 +87,18 @@ def assign_clusters(
     labels = clusterer.fit_predict(matrix).tolist()
 
     if merge_similarity is not None and merge_similarity > 0:
-        labels, merged_pairs = merge_similar_clusters(
-            labels,
-            embeddings,
-            min_similarity=merge_similarity,
-        )
+        labels, merged_pairs = merge_similar_clusters(labels, embeddings, min_similarity=merge_similarity)
         if merged_pairs > 0:
-            logger.info(
-                "Merged %d similar cluster pairs (similarity>=%.2f)",
-                merged_pairs,
-                merge_similarity,
-            )
+            logger.info("Merged %d similar cluster pairs (similarity>=%.2f)", merged_pairs, merge_similarity)
 
     n_clusters = len(set(labels) - {-1})
     noise_count = labels.count(-1)
 
     logger.info(
         "Clustered %d vectors into %d clusters (%d noise, min_size=%d, min_samples=%s, normalize=%s)",
-        len(embeddings),
-        n_clusters,
-        noise_count,
-        min_cluster_size,
-        str(min_samples),
-        str(normalize),
+        len(embeddings), n_clusters, noise_count, min_cluster_size, str(min_samples), str(normalize),
     )
-    return ClusterResult(
-        cluster_labels=labels,
-        n_clusters=n_clusters,
-        noise_count=noise_count,
-    )
+    return ClusterResult(cluster_labels=labels, n_clusters=n_clusters, noise_count=noise_count)
 
 
 def assign_to_nearest_prototype(
@@ -109,14 +110,7 @@ def assign_to_nearest_prototype(
         return None, 0.0
 
     vec = np.array(embedding)
-    best_id: str | None = None
-    best_sim = 0.0
-
-    for proto_id, proto_vec in prototypes.items():
-        sim = _cosine_similarity(vec, np.array(proto_vec))
-        if sim > best_sim:
-            best_sim = sim
-            best_id = proto_id
+    best_id, best_sim = _find_best_match(vec, {k: np.array(v) for k, v in prototypes.items()})
 
     if best_sim >= COSINE_THRESHOLD:
         return best_id, best_sim
@@ -129,62 +123,20 @@ def merge_similar_clusters(
     min_similarity: float = DEFAULT_CLUSTER_MERGE_SIMILARITY,
 ) -> tuple[list[int], int]:
     """Merge cluster labels whose centroids are highly similar."""
-    cluster_indices: dict[int, list[int]] = {}
-    for idx, label in enumerate(labels):
-        if label == -1:
-            continue
-        cluster_indices.setdefault(label, []).append(idx)
-
+    cluster_indices = _group_indices_by_cluster(labels)
     cluster_ids = sorted(cluster_indices)
+
     if len(cluster_ids) < 2:
         return labels, 0
 
-    centroids: dict[int, np.ndarray] = {}
-    for cluster_id in cluster_ids:
-        vectors = [embeddings[i] for i in cluster_indices[cluster_id]]
-        centroid = np.array(compute_centroid(vectors), dtype=float)
-        centroids[cluster_id] = _normalize_vector(centroid)
-
-    parent = {cluster_id: cluster_id for cluster_id in cluster_ids}
-
-    def find(node: int) -> int:
-        while parent[node] != node:
-            parent[node] = parent[parent[node]]
-            node = parent[node]
-        return node
-
-    def union(left: int, right: int) -> bool:
-        root_left = find(left)
-        root_right = find(right)
-        if root_left == root_right:
-            return False
-        parent[root_right] = root_left
-        return True
-
-    merged_pairs = 0
-    for idx, left_id in enumerate(cluster_ids):
-        for right_id in cluster_ids[idx + 1:]:
-            sim = _cosine_similarity(centroids[left_id], centroids[right_id])
-            if sim >= min_similarity and union(left_id, right_id):
-                merged_pairs += 1
+    centroids = _compute_normalized_centroids(cluster_ids, cluster_indices, embeddings)
+    parent, merged_pairs = _union_find_merge(cluster_ids, centroids, min_similarity)
 
     if merged_pairs == 0:
         return labels, 0
 
-    root_to_label: dict[int, int] = {}
-    remap: dict[int, int] = {}
-    next_label = 0
-    for cluster_id in cluster_ids:
-        root = find(cluster_id)
-        if root not in root_to_label:
-            root_to_label[root] = next_label
-            next_label += 1
-        remap[cluster_id] = root_to_label[root]
-
-    merged_labels = [
-        -1 if label == -1 else remap[label]
-        for label in labels
-    ]
+    remap = _build_remap(cluster_ids, parent)
+    merged_labels = [-1 if label == -1 else remap[label] for label in labels]
     return merged_labels, merged_pairs
 
 
@@ -201,15 +153,8 @@ def detect_novelty(
     if not existing_centroids:
         return NoveltyResult(status="new", matched_cluster_id=None, similarity=0.0)
 
-    best_id: str | None = None
-    best_sim = 0.0
     vec = np.array(centroid)
-
-    for cid, cvec in existing_centroids.items():
-        sim = _cosine_similarity(vec, np.array(cvec))
-        if sim > best_sim:
-            best_sim = sim
-            best_id = cid
+    best_id, best_sim = _find_best_match(vec, {k: np.array(v) for k, v in existing_centroids.items()})
 
     if best_sim >= EXISTING_THRESHOLD:
         return NoveltyResult(status="existing", matched_cluster_id=best_id, similarity=best_sim)
@@ -225,15 +170,16 @@ def calculate_candidate_quality(
     evidence_quality: float,
     impact_estimate: float = 0.5,
 ) -> float:
-    """Weighted quality score: confidence + support + impact + evidence."""
-    support_norm = min(support_events / 50.0, 1.0)
-    account_norm = min(support_accounts / 20.0, 1.0)
-    support_score = 0.6 * support_norm + 0.4 * account_norm
+    """Weighted quality score combining confidence, support, impact, and evidence."""
+    support_norm = min(support_events / _SUPPORT_EVENTS_CAP, 1.0)
+    account_norm = min(support_accounts / _SUPPORT_ACCOUNTS_CAP, 1.0)
+    support_score = _SUPPORT_EVENTS_WEIGHT * support_norm + _SUPPORT_ACCOUNTS_WEIGHT * account_norm
+
     return round(
-        0.35 * confidence
-        + 0.25 * support_score
-        + 0.20 * impact_estimate
-        + 0.20 * evidence_quality,
+        _WEIGHT_CONFIDENCE * confidence
+        + _WEIGHT_SUPPORT * support_score
+        + _WEIGHT_IMPACT * impact_estimate
+        + _WEIGHT_EVIDENCE * evidence_quality,
         4,
     )
 
@@ -258,7 +204,10 @@ def rank_evidence(
     units: list[dict[str, Any]],
     max_items: int = 5,
 ) -> list[dict[str, Any]]:
-    """Rank evidence by confidence + account diversity + signal strength."""
+    """Rank evidence by confidence + account diversity + signal strength.
+
+    Returns new dicts — does not mutate the input units.
+    """
     scored: list[tuple[float, dict[str, Any]]] = []
     seen_accounts: set[str] = set()
 
@@ -266,18 +215,114 @@ def rank_evidence(
         conf = unit.get("confidence") or 0.5
         score = unit.get("score") or 0.0
         wid = str(unit.get("withdrawal_id", ""))
-        diversity_bonus = 0.1 if wid not in seen_accounts else 0.0
+        diversity_bonus = _RANK_DIVERSITY_BONUS if wid not in seen_accounts else 0.0
         seen_accounts.add(wid)
-        rank_score = 0.4 * conf + 0.3 * score + 0.3 * diversity_bonus
+        rank_score = (
+            _RANK_WEIGHT_CONFIDENCE * conf
+            + _RANK_WEIGHT_SCORE * score
+            + _RANK_WEIGHT_DIVERSITY * diversity_bonus
+        )
         scored.append((rank_score, unit))
 
     scored.sort(key=lambda row: row[0], reverse=True)
-    ranked: list[dict[str, Any]] = []
-    for idx, (rank_score, unit) in enumerate(scored[:max_items]):
-        unit["rank"] = idx
-        unit["rank_score"] = round(rank_score, 4)
-        ranked.append(unit)
-    return ranked
+
+    return [
+        {**unit, "rank": idx, "rank_score": round(rank_score, 4)}
+        for idx, (rank_score, unit) in enumerate(scored[:max_items])
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Private helpers
+# ---------------------------------------------------------------------------
+
+def _find_best_match(
+    vec: np.ndarray,
+    candidates: dict[str, np.ndarray],
+) -> tuple[str | None, float]:
+    """Return the id and cosine similarity of the closest candidate vector."""
+    best_id: str | None = None
+    best_sim = 0.0
+    for cid, cvec in candidates.items():
+        sim = _cosine_similarity(vec, cvec)
+        if sim > best_sim:
+            best_sim = sim
+            best_id = cid
+    return best_id, best_sim
+
+
+def _group_indices_by_cluster(labels: list[int]) -> dict[int, list[int]]:
+    """Map each cluster label to the list of embedding indices it contains."""
+    groups: dict[int, list[int]] = {}
+    for idx, label in enumerate(labels):
+        if label != -1:
+            groups.setdefault(label, []).append(idx)
+    return groups
+
+
+def _compute_normalized_centroids(
+    cluster_ids: list[int],
+    cluster_indices: dict[int, list[int]],
+    embeddings: list[list[float]],
+) -> dict[int, np.ndarray]:
+    """Compute and L2-normalize the centroid for each cluster."""
+    centroids: dict[int, np.ndarray] = {}
+    for cid in cluster_ids:
+        vectors = [embeddings[i] for i in cluster_indices[cid]]
+        centroid = np.array(compute_centroid(vectors), dtype=float)
+        centroids[cid] = _normalize_vector(centroid)
+    return centroids
+
+
+def _union_find_merge(
+    cluster_ids: list[int],
+    centroids: dict[int, np.ndarray],
+    min_similarity: float,
+) -> tuple[dict[int, int], int]:
+    """Union-find: merge clusters whose centroids exceed the similarity threshold."""
+    parent = {cid: cid for cid in cluster_ids}
+
+    def find(node: int) -> int:
+        while parent[node] != node:
+            parent[node] = parent[parent[node]]  # path compression
+            node = parent[node]
+        return node
+
+    def union(left: int, right: int) -> bool:
+        root_left, root_right = find(left), find(right)
+        if root_left == root_right:
+            return False
+        parent[root_right] = root_left
+        return True
+
+    merged_pairs = 0
+    for idx, left_id in enumerate(cluster_ids):
+        for right_id in cluster_ids[idx + 1:]:
+            sim = _cosine_similarity(centroids[left_id], centroids[right_id])
+            if sim >= min_similarity and union(left_id, right_id):
+                merged_pairs += 1
+
+    return parent, merged_pairs
+
+
+def _build_remap(cluster_ids: list[int], parent: dict[int, int]) -> dict[int, int]:
+    """Assign compact sequential labels after union-find."""
+    def find(node: int) -> int:
+        while parent[node] != node:
+            parent[node] = parent[parent[node]]
+            node = parent[node]
+        return node
+
+    root_to_label: dict[int, int] = {}
+    remap: dict[int, int] = {}
+    next_label = 0
+    for cid in cluster_ids:
+        root = find(cid)
+        if root not in root_to_label:
+            root_to_label[root] = next_label
+            next_label += 1
+        remap[cid] = root_to_label[root]
+    return remap
 
 
 def _cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
@@ -288,9 +333,7 @@ def _cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
 
 def _normalize_vector(vector: np.ndarray) -> np.ndarray:
     norm = np.linalg.norm(vector)
-    if norm == 0.0:
-        return vector
-    return vector / norm
+    return vector if norm == 0.0 else vector / norm
 
 
 def _normalize_matrix(matrix: np.ndarray) -> np.ndarray:

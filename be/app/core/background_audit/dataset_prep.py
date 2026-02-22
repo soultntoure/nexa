@@ -15,15 +15,8 @@ from sqlalchemy.orm import joinedload
 from app.data.db.models.evaluation import Evaluation
 from app.data.db.models.withdrawal import Withdrawal
 
-EMAIL_RE = re.compile(r"\b[\w\.-]+@[\w\.-]+\.\w+\b")
-IP_RE = re.compile(r"\b\d{1,3}(?:\.\d{1,3}){3}\b")
-ACCOUNT_RE = re.compile(r"\b[A-Z]{2,5}-?\d{3,}\b")
-SSN_RE = re.compile(r"\b\d{3}-\d{2}-\d{4}\b")
-PHONE_RE = re.compile(r"\b(?:\+?\d{1,3}[\s-]?)?(?:\(?\d{2,4}\)?[\s-]?)?\d{3,4}[\s-]?\d{4}\b")
-
 MIN_TEXT_LENGTH = 20
 MAX_TEXT_LENGTH = 5000
-PII_PATTERNS = [EMAIL_RE, IP_RE, SSN_RE, PHONE_RE]
 
 
 @dataclass(frozen=True)
@@ -63,36 +56,18 @@ def extract_reasoning_units(
     triage = investigation_data.get("triage") or {}
     analysis = triage.get("constellation_analysis", "")
     if analysis:
-        units.append(
-            {
-                "evaluation_id": evaluation_id,
-                "withdrawal_id": withdrawal_id,
-                "source_type": "triage",
-                "source_name": "constellation_analysis",
-                "text": analysis,
-                "score": None,
-                "confidence": None,
-                "index": idx,
-            }
-        )
+        units.append(_make_unit(evaluation_id, withdrawal_id, "triage", "constellation_analysis", analysis, idx=idx))
         idx += 1
 
     for inv in investigation_data.get("investigators", []):
         reasoning = inv.get("reasoning", "")
         if not reasoning:
             continue
-        units.append(
-            {
-                "evaluation_id": evaluation_id,
-                "withdrawal_id": withdrawal_id,
-                "source_type": "investigator",
-                "source_name": inv.get("name", "unknown"),
-                "text": reasoning,
-                "score": inv.get("score"),
-                "confidence": inv.get("confidence"),
-                "index": idx,
-            }
-        )
+        units.append(_make_unit(
+            evaluation_id, withdrawal_id,
+            "investigator", inv.get("name", "unknown"), reasoning,
+            score=inv.get("score"), confidence=inv.get("confidence"), idx=idx,
+        ))
         idx += 1
 
     return units
@@ -103,11 +78,6 @@ def normalize_text(text: str) -> str:
     text = re.sub(r"\s+", " ", text)
     text = re.sub(r"[\x00-\x1f\x7f-\x9f]", "", text)
     return text.strip()
-
-
-def mask_pii(text: str) -> str:
-    """PII masking disabled — all identifiers kept visible."""
-    return text
 
 
 def validate_quality(text: str) -> bool:
@@ -128,11 +98,6 @@ def compute_unit_id(evaluation_id: str, source_type: str, index: int) -> str:
     """Compute deterministic unit id from source identity."""
     key = f"{evaluation_id}|{source_type}|{index}"
     return hashlib.sha256(key.encode("utf-8")).hexdigest()[:32]
-
-
-def scan_text_for_pii(text: str) -> bool:
-    """PII scanning disabled."""
-    return False
 
 
 def generate_run_id() -> str:
@@ -162,3 +127,30 @@ def validate_window(window: RunWindow) -> bool:
     if (window.end - window.start).days > 365:
         return False
     return True
+
+
+# ---------------------------------------------------------------------------
+# Private helpers
+# ---------------------------------------------------------------------------
+
+def _make_unit(
+    evaluation_id: str,
+    withdrawal_id: str,
+    source_type: str,
+    source_name: str,
+    text: str,
+    *,
+    idx: int,
+    score: Any = None,
+    confidence: Any = None,
+) -> dict[str, Any]:
+    return {
+        "evaluation_id": evaluation_id,
+        "withdrawal_id": withdrawal_id,
+        "source_type": source_type,
+        "source_name": source_name,
+        "text": text,
+        "score": score,
+        "confidence": confidence,
+        "index": idx,
+    }

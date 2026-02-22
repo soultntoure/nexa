@@ -6,26 +6,9 @@ import re
 from typing import Any, Callable
 
 _STOP_WORDS = {
-    "the",
-    "and",
-    "for",
-    "with",
-    "that",
-    "this",
-    "from",
-    "into",
-    "are",
-    "was",
-    "were",
-    "have",
-    "has",
-    "had",
-    "also",
-    "same",
-    "fraud",
-    "pattern",
-    "accounts",
-    "account",
+    "the", "and", "for", "with", "that", "this", "from", "into",
+    "are", "was", "were", "have", "has", "had", "also", "same",
+    "fraud", "pattern", "accounts", "account",
 }
 
 _THEME_KEYWORDS: dict[str, tuple[str, ...]] = {
@@ -81,6 +64,10 @@ def extract_theme_set(text: str) -> frozenset[str]:
 
 
 def normalize_sql_findings(raw_findings: Any) -> list[dict[str, str]]:
+    """Normalize SQL findings to {query, result} dicts, dropping empty rows.
+
+    Accepts both "query"/"result" and legacy "query_summary"/"result_summary" keys.
+    """
     if not isinstance(raw_findings, list):
         return []
 
@@ -92,18 +79,15 @@ def normalize_sql_findings(raw_findings: Any) -> list[dict[str, str]]:
         result = as_text(item.get("result") or item.get("result_summary"))
         if not query and not result:
             continue
-        normalized.append(
-            {
-                "query": query,
-                "result": result,
-                "query_summary": query,
-                "result_summary": result,
-            }
-        )
+        normalized.append({"query": query, "result": result})
     return normalized
 
 
 def normalize_web_references(raw_refs: Any) -> list[dict[str, str]]:
+    """Normalize web references to {url, title, snippet} dicts, dropping empty rows.
+
+    Accepts both "snippet" and legacy "relevance" keys.
+    """
     if not isinstance(raw_refs, list):
         return []
 
@@ -116,14 +100,7 @@ def normalize_web_references(raw_refs: Any) -> list[dict[str, str]]:
         snippet = as_text(item.get("snippet") or item.get("relevance"))
         if not url and not title and not snippet:
             continue
-        normalized.append(
-            {
-                "url": url,
-                "title": title,
-                "snippet": snippet,
-                "relevance": snippet,
-            }
-        )
+        normalized.append({"url": url, "title": title, "snippet": snippet})
     return normalized
 
 
