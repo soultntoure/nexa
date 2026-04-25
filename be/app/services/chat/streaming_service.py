@@ -70,7 +70,10 @@ def init_analyst_agent() -> Any:
     from langchain_google_genai import ChatGoogleGenerativeAI
 
     llm = ChatGoogleGenerativeAI(
-        model="gemini-3-flash-preview", temperature=0.0, thinking_level="low",
+        model="gemini-3-flash-preview",
+        temperature=0.0,
+        thinking_level="low",
+        google_api_key=settings.GOOGLE_API_KEY,
     )
     toolkit = create_sql_toolkit(sync_uri, llm)
     sql_tools = get_query_tools(toolkit)

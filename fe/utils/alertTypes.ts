@@ -54,11 +54,18 @@ export const INDICATOR_LABELS: Record<string, string> = {
   amount_anomaly: 'Amount Anomaly',
   velocity: 'Velocity',
   payment_method: 'Payment Method',
+  payment_method_risk: 'Payment Method Risk',
   geographic: 'Geographic',
+  geographic_signals: 'Geographic Signals',
+  geographic_risk: 'Geographic Risk',
   device_fingerprint: 'Device Fingerprint',
   trading_behavior: 'Trading Behavior',
   recipient: 'Recipient Risk',
+  recipient_analysis: 'Recipient Analysis',
   card_errors: 'Card Errors',
+  card_error_history: 'Card Error History',
+  no_trade: 'No Trade',
+  rapid_funding: 'Rapid Funding',
 }
 
 export const PATTERN_ICONS: Record<string, string> = {

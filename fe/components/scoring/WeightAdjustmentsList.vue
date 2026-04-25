@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
 import type { IndicatorRow } from '~/composables/useScoringFactors'
+import { INDICATOR_LABELS } from '~/utils/alertTypes'
 import {
-  INDICATOR_LABELS, INDICATOR_ICONS,
+  INDICATOR_ICONS,
   multiplierLabel, multiplierStyle, multiplierIcon,
 } from '~/composables/useScoringFactors'
 

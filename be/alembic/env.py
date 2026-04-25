@@ -13,7 +13,12 @@ Run: alembic revision --autogenerate -m "description"
 """
 
 import asyncio
+import sys
+import os
 from logging.config import fileConfig
+
+# Ensure the `be/` directory is on the path so `app` is importable
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from alembic import context
 from sqlalchemy import pool

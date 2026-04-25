@@ -36,23 +36,6 @@ const BOOSTED_THRESHOLD = 1.15
 const DAMPENED_THRESHOLD = 0.85
 const WATCHLIST_DELTA = 0.08
 
-export const INDICATOR_LABELS: Record<string, string> = {
-  trading_behavior: 'Trading Behavior',
-  device_fingerprint: 'Device Fingerprint',
-  geographic: 'Geographic',
-  geographic_signals: 'Geographic Signals',
-  geographic_risk: 'Geographic Risk',
-  amount_anomaly: 'Amount Anomaly',
-  velocity: 'Velocity',
-  payment_method: 'Payment Method',
-  payment_method_risk: 'Payment Method Risk',
-  recipient: 'Recipient Risk',
-  recipient_analysis: 'Recipient Analysis',
-  card_errors: 'Card Errors',
-  card_error_history: 'Card Error History',
-  no_trade: 'No Trade',
-  rapid_funding: 'Rapid Funding',
-}
 
 export const INDICATOR_ICONS: Record<string, string> = {
   trading_behavior: 'lucide:trending-up',

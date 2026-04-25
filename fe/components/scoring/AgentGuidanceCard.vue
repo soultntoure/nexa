@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
 import type { AgentSignal } from '~/composables/useScoringFactors'
-import { INDICATOR_LABELS } from '~/composables/useScoringFactors'
+import { INDICATOR_LABELS } from '~/utils/alertTypes'
 
 defineProps<{
   boosted: AgentSignal[]
